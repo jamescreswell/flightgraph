@@ -13,7 +13,7 @@ Ubuntu Server. The server configuration is described below.
 ```nginx
 server {
     listen 8000;
-    server_name 0.0.0.0;
+    server_name 54.91.110.22;
 
     location /favicon.ico { access_log off; log_not_found off; }
 
@@ -30,6 +30,11 @@ server {
 
 ```shell
 sudo ln -s /etc/nginx/sites-available/flightgraph /etc/nginx/sites-enabled
+```
+
+```shell
+gunicorn --daemon --workers 3 --bind unix:/home/ubuntu/flightgraph/flightgraph.sock flightgraph.wsgi
+sudo service nginx restart
 ```
 
 ## Database configuration
