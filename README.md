@@ -18,12 +18,12 @@ server {
     location /favicon.ico { access_log off; log_not_found off; }
 
     location /static/ {
-            root /home/ubuntu/myproject;
+            root /home/ubuntu/flightgraph;
     }
 
     location / {
             include proxy_params;
-            proxy_pass http://unix:/home/ubuntu/myproject/myproject.sock;
+            proxy_pass http://unix:/home/ubuntu/flightgraph/flightgraph.sock;
     }
 }
 ```
@@ -40,5 +40,13 @@ sudo service nginx restart
 ```
 
 ## Database configuration
+
+```shell
+sudo apt-get install mysql-server
+sudo apt-get install python-dev libmysqlclient-dev
+sudo apt-get install python3-mysqldb
+mysql -p -u root
+CREATE DATABASE flightgraph;
+```
 
 
