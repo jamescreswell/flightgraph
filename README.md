@@ -28,7 +28,14 @@ server {
 }
 ```
 
-Use the following shell commands to enable the configuration and restart the server, resepectively:
+Relevant lines in `flightgraph/settings.py`:
+
+```python
+ALLOWED_HOSTS = ['127.0.0.1', '54.91.110.22']
+STATIC_ROOT = os.path.join(BASE_DIR, 'static/')
+```
+
+Use the following shell commands to enable the configuration and restart the server, respectively:
 
 ```shell
 sudo ln -s /etc/nginx/sites-available/flightgraph /etc/nginx/sites-enabled
@@ -41,12 +48,31 @@ sudo service nginx restart
 
 ## Database configuration
 
+Use the following shell commands to install MySQL:
+
 ```shell
 sudo apt-get install mysql-server
 sudo apt-get install python-dev libmysqlclient-dev
 sudo apt-get install python3-mysqldb
 mysql -p -u root
+```
+
+```sql
 CREATE DATABASE flightgraph;
 ```
 
+Relevant lines in `flightgraph/settings.py`:
+
+```python
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': 'flightgraph',
+        'USER': 'root',
+        'PASSWORD': '', # Enter password here in production version
+        'HOST': '',
+        'PORT': '',
+    }
+}
+```
 
