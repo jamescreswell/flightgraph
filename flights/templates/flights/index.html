@@ -1,5 +1,8 @@
 {% extends 'flights/base.html' %}
 
 {% block content %}
-<p>Test</p>
+<form action="{% url 'gcmap' %}" method="post">{% csrf_token %}
+    Airport: <input type="text" name="origin"><br>
+    <input type="submit">
+</form>
 {% endblock %}
