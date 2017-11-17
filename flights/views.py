@@ -3,7 +3,6 @@ from django.http import HttpResponse
 from .models import Airport
 
 def index(request):
-    string = ''
-    for airport in Airport.objects.all():
-        string += airport.name + ' (' + airport.iata + ')\n'
-    return HttpResponse(string)
+    context = {'title': 'Test',
+              }
+    return render(request, 'flights/index.html', context)
