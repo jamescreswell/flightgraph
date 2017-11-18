@@ -1,5 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import User
+import math
 
 class Airport(models.Model):
     iata = models.CharField(max_length=3, blank=True)
@@ -21,3 +22,17 @@ class Airport(models.Model):
             return self.icao
         else:
             return self.name[:4] + '...'
+    
+    def distance_to(self, airport):
+        lat1 = self.latitude
+        lat2 = airport.latitude
+        lon1 = self.longitude
+        lon2 = airport.longitude
+        
+        theta = lon2 - lon1
+        distance = math.acos(math.sin(lat1) * math.sin(lat2) + math.cos(lat1) * math.cos(lat2) * math.cos(theta))
+        if distance < 0:
+            distance = distace + math.pi
+        distance = distance * 6371.2 
+        
+        return distance

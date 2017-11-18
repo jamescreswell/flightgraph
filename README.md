@@ -8,7 +8,7 @@ Python and uses the Django web framework.
 flightgraph.org is hosted by Amazon Web Services in an EC2 instance running 
 Ubuntu Server. The server configuration is described below.
 
-Server information in `/etc/nginx/sites-available/flightgraph`:
+Nginx configuration in `/etc/nginx/sites-available/flightgraph`:
 
 ```nginx
 server {

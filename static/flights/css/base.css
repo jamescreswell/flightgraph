@@ -1,3 +1,35 @@
-html {
-    color: red;
+body {
+    margin: 0;
+}
+
+.topnav {
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+    background-color: #333333;
+}
+
+.topnav li {
+    float: left;
+}
+
+.topnav li a {
+    display: block;
+    color: white;
+    text-align: center;
+    padding: 14px 16px;
+    text-decoration: none;
+}
+
+.topnav li a:hover {
+    background-color: #111;
+}
+
+.activenav {
+    background-color: #4CAF50;
+}
+
+.topnav li a.activenav:hover {
+    background-color: #4CAF50;
 }

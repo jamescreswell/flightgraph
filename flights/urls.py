@@ -5,4 +5,5 @@ from . import views
 urlpatterns = [
     url(r'^$', views.index, name='index'),
     url(r'^gcmap/$', views.gcmap, name='gcmap'),
+    url(r'^airports/$', views.airports, name='airports'),
 ]
