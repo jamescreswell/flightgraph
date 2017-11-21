@@ -33,3 +33,7 @@ body {
 .topnav li a.activenav:hover {
     background-color: #4CAF50;
 }
+
+#content {
+    padding: 10px;
+}

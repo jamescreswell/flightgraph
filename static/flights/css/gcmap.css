@@ -1,0 +1,32 @@
+.topform {
+    text-align: center;
+}
+
+input[type="text"] {
+    padding: 12px 12px;
+    display: inline-block;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    box-sizing: border-box;
+}
+
+input[type="text"]:invalid {
+    background-color: white;
+}
+
+input[type="text"]:valid {
+    background-color: #C9FFE0;
+}
+
+input[type=submit] {
+    background-color: #4CAF50;
+    color: white;
+    padding: 12px 12px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+input[type=submit]:hover {
+    background-color: #45a049;
+}

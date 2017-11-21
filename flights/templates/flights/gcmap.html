@@ -1,8 +1,25 @@
 {% extends 'flights/base.html' %}
 
+{% load static %}
+
+{% block links %}<link rel="stylesheet" type="text/css" href="{% static 'flights/css/gcmap.css' %}" />{% endblock %}
+
+
 {% block content %}
-<form action="{% url 'gcmap' %}" method="post">{% csrf_token %}
-    <input type="text" name="origin" placeholder="Input route"><br>
-    <input type="submit">
+
+<form class="topform" action="{% url 'gcmap' %}" method="post">{% csrf_token %}
+    <span>
+        <input type="text" name="input_string" placeholder="Input route, e.g. CPH-LHR or EKCH-EGLL-KJFK" size="30" required pattern="[A-Za-z]{3,4}-[A-Za-z]{3,4}(-[A-Za-z]{3,4})*">
+        <label for="input_string"></label>
+    </span>
+    <input type="submit" value=">">
 </form>
+
+
+{% if method == 'POST' %}
+{% for airport in airports %}
+{{ airport.name }}
+{% endfor %}
+{% endif %}
+
 {% endblock %}
