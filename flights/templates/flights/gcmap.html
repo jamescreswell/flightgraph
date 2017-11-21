@@ -1,5 +1,8 @@
 {% extends 'flights/base.html' %}
 
 {% block content %}
-From {{ origin.name }} {{ distance }}
+<form action="{% url 'gcmap' %}" method="post">{% csrf_token %}
+    <input type="text" name="origin" placeholder="Input route"><br>
+    <input type="submit">
+</form>
 {% endblock %}
