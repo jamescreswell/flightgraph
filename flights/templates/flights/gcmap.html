@@ -17,9 +17,22 @@
 
 
 {% if method == 'POST' %}
-{% for airport in airports %}
-{{ airport.name }}
-{% endfor %}
+<table>
+    <tr>
+        <th>From</th>
+        <th>To</th>
+        <th>Distance</th>
+        <th>Approximate duration</th>
+    </tr>
+    {% for route in routes %}
+    <tr>
+        <td>{{ route.origin }}</td>
+        <td>{{ route.destination }}</td>
+        <td>{{ route.distance }}</td>
+    </tr>
+    {% endfor %}
+</table>
 {% endif %}
+
 
 {% endblock %}

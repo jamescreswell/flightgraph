@@ -45,12 +45,20 @@ def gcmap(request):
             else:
                 # This should never happen
                 print('Error')
-        print(airports)
+        
+        routes = []
+        for i in range(len(airports)-1):
+            routes.append({'origin': airports[i], 
+                           'destination': airports[i+1], 
+                           'distance': int(airports[i].distance_to(airports[i+1]))
+                          })
+        
         
         context = {'method': 'POST',
                    'nav_id': 'gcmap_nav',
-                   'airports': airports,
+                   'routes': routes,
                   }
+        
         return render(request, 'flights/gcmap.html', context)
     else:
         origin = Airport.objects.filter(iata='DFW')[0]
@@ -65,3 +73,4 @@ def gcmap(request):
 
 def airports(request):
     pass
+
