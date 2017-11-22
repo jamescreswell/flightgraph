@@ -55,7 +55,9 @@ def gcmap(request):
     else:
         origin = Airport.objects.filter(iata='DFW')[0]
         
-        context = {'method': 'GET'}
+        context = {'method': 'GET',
+                   'nav_id': 'gcmap_nav',
+                  }
         
         return render(request, 'flights/gcmap.html', context)
         
