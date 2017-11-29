@@ -2,7 +2,23 @@
 
 {% load static %}
 
-{% block links %}<link rel="stylesheet" type="text/css" href="{% static 'flights/css/gcmap.css' %}" />{% endblock %}
+{% block links %}<link rel="stylesheet" type="text/css" href="{% static 'flights/css/gcmap.css' %}" />
+
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.2.0/dist/leaflet.css" integrity="sha512-M2wvCLH6DSRazYeZRIm1JnYyh22purTM+FDB5CsyxtQJYeKq83arPe5wgbNmcFXGqiSH2XR8dT/fJISVA1r/zQ==" crossorigin=""/>
+<script src="https://unpkg.com/leaflet@1.2.0/dist/leaflet.js" integrity="sha512-lInM/apFSqyy1o6s89K4iQUKg6ppXEgsVxT35HbzUupEVRh2Eu9Wdl4tHj7dZO0s1uvplcYGmt3498TtHq+log==" crossorigin=""></script>
+
+<script src="http://www.webglearth.com/v2/api.js"></script>
+
+<script src="http://code.jquery.com/jquery-1.10.2.min.js"></script>
+
+<script src="{% static 'flights/geo/arc.js' %}"></script>
+
+<style>
+    .leaflet-container {
+        background: #7394bc;
+    }
+</style>
+{% endblock %}
 
 
 {% block content %}
@@ -12,11 +28,51 @@
         <input type="text" name="input_string" placeholder="Input route, e.g. CPH-LHR or EKCH-EGLL-KJFK" size="30" required pattern="[A-Za-z]{3,4}-[A-Za-z]{3,4}(-[A-Za-z]{3,4})*">
         <label for="input_string"></label>
     </span>
-    <input type="submit" value=">">
+    <input type="submit" value="&blacktriangleright;">
 </form>
 
 
 {% if method == 'POST' %}
+<div id="map"></div>
+
+<script>
+    function drawMap() {
+        var map = L.map('map', {zoomControl: false, worldCopyJump: true}).setView([0, 0], 2);
+        
+        L.control.zoom({position: 'bottomleft'}).addTo(map);
+        
+        var myGeoJSONPath = '{% static "flights/geo/countries-hires.json" %}';
+        var myCustomStyle = {
+            stroke: true,
+            color: '#6e7a8c',
+            weight: 0.25,
+            fill: true,
+            fillColor: '#ccc6b3',
+            fillOpacity: 1,
+            clickable: false
+        }
+        
+        $.getJSON(myGeoJSONPath, function(data) {
+            L.geoJson(data, {
+                clickable: false,
+                style: myCustomStyle
+            }).addTo(map).bringToBack();
+        });
+        
+        {% for route in routes %}
+        var generator = new arc.GreatCircle({x: {{ route.origin.longitude }}, y: {{ route.origin.latitude }} },
+                                            {x: {{ route.destination.longitude }}, y: {{ route.destination.latitude }} },
+                                            {'name': 'test'});
+        var line = generator.Arc(100, {offset: 10});
+        L.geoJson(line.json(), {weight: 2, clickable: false, color: '#000000'}).addTo(map);
+        {% endfor %}
+    }
+</script>
+
+<script>
+    drawMap();
+</script>
+
 <table>
     <tr>
         <th>From</th>

@@ -44,7 +44,7 @@ def gcmap(request):
                     airports.append(match[0])
             else:
                 # This should never happen
-                print('Error')
+                raise ValueError('Invalid POST data')
         
         routes = []
         for i in range(len(airports)-1):
@@ -52,7 +52,6 @@ def gcmap(request):
                            'destination': airports[i+1], 
                            'distance': int(airports[i].distance_to(airports[i+1]))
                           })
-        
         
         context = {'method': 'POST',
                    'nav_id': 'gcmap_nav',
