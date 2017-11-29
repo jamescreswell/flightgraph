@@ -25,16 +25,21 @@ class Airport(models.Model):
         else:
             return self.name[:4] + '...'
     
-    def distance_to(self, airport):
-        lat1 = self.latitude
-        lat2 = airport.latitude
-        lon1 = self.longitude
-        lon2 = airport.longitude
+    def distance_to(self, airport, dim='mi'):
+        lat1 = self.latitude * math.pi/180.0
+        lat2 = airport.latitude * math.pi/180.0
+        lon1 = self.longitude * math.pi/180.0
+        lon2 = airport.longitude * math.pi/180.0
         
         theta = lon2 - lon1
         distance = math.acos(math.sin(lat1) * math.sin(lat2) + math.cos(lat1) * math.cos(lat2) * math.cos(theta))
-        if distance < 0:
-            distance = distace + math.pi
-        distance = distance * 6371.2 
         
-        return distance
+        if distance < 0:
+            distance = -1 * distance
+            
+        if dim == 'mi':
+            return distance * 3959.0
+        elif dim == 'km':
+            return distance * 6371.2 
+        else:
+            raise ValueError('Invalid dimensions')
