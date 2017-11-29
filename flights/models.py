@@ -3,15 +3,14 @@ from django.contrib.auth.models import User
 import math
 
 class Airport(models.Model):
-    iata = models.CharField(max_length=3, blank=True)
-    icao = models.CharField(max_length=4, blank=True)
+    iata = models.CharField('IATA', max_length=3, blank=True)
+    icao = models.CharField('ICAO', max_length=4, blank=True)
     name = models.CharField(max_length=100)
     city = models.CharField(max_length=100)
-    #state = models.CharField(max_length=100, blank=True)
     region = models.CharField(max_length=100, blank=True)
-    region_iso = models.CharField(max_length=10, blank=True)
+    region_iso = models.CharField('Region code', max_length=10, blank=True, help_text='ISO 3166-2')
     country = models.CharField(max_length=100)
-    country_iso = models.CharField(max_length=100)
+    country_iso = models.CharField('Country code', max_length=100, help_text='ISO 3166-1 alpha-2')
     latitude = models.FloatField()
     longitude = models.FloatField()
     elevation = models.FloatField()
