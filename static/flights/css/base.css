@@ -9,6 +9,7 @@ body {
     padding: 0;
     overflow: hidden;
     background-color: #333333;
+    z-index: 1;
 }
 
 .topnav li {
@@ -37,4 +38,19 @@ body {
 
 #content {
     padding: 10px;
+}
+
+#leftbar {
+    position: fixed;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    width: 20%;
+    color: saddlebrown;
+    background-color: beige;
+    padding: 5px;
+    overflow-y: scroll;
+    display: none;
+    z-index: -1;
+    padding-top: 100px;
 }

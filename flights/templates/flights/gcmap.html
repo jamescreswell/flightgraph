@@ -10,6 +10,7 @@
 <script src="http://www.webglearth.com/v2/api.js"></script>
 
 <script src="http://code.jquery.com/jquery-1.10.2.min.js"></script>
+<script src="https://code.jquery.com/ui/1.12.1/jquery-ui.min.js"></script>
 
 <script src="{% static 'flights/geo/arc.js' %}"></script>
 
@@ -23,7 +24,7 @@
 
 {% block content %}
 
-<form class="topform" action="{% url 'gcmap' %}" method="post">{% csrf_token %}
+<form id="routeform" class="topform" action="{% url 'gcmap' %}" method="post">{% csrf_token %}
     <span>
         <input type="text" name="input_string" placeholder="Input route, e.g. CPH-LHR or EKCH-EGLL-KJFK" size="30" required pattern="[A-Za-z]{3,4}-[A-Za-z]{3,4}(-[A-Za-z]{3,4})*">
         <label for="input_string"></label>
@@ -31,13 +32,35 @@
     <input type="submit" value="&blacktriangleright;">
 </form>
 
-
-{% if method == 'POST' %}
 <div id="map"></div>
+
+<div id="leftbar"></div>
+
+<script>
+    function toggleLeftBar() {
+        $('#leftbar').toggle('slide', {direction: 'left'}, 400);
+    }
+    
+    function hideLeftBar() {
+        $('#leftbar').hide('slide', {direction: 'left'}, 400);
+    }
+    
+    function showLeftBar() {
+        $('#leftbar').show('slide', {direction: 'left'}, 400);
+    }
+    
+    function printLeftBar(innerhtml) {
+        document.getElementById('leftbar').innerHTML = innerhtml;
+    }
+</script>
 
 <script>
     function drawMap() {
+        {% if method == 'GET' %}
         var map = L.map('map', {zoomControl: false, worldCopyJump: true}).setView([0, 0], 2);
+        {% else %}
+        var map = L.map('map', {zoomControl: false, worldCopyJump: true}).setView([{{ map_center_lat }}, {{ map_center_lon }}], {{ map_zoom }});
+        {% endif %}
         
         L.control.zoom({position: 'bottomleft'}).addTo(map);
         
@@ -59,13 +82,39 @@
             }).addTo(map).bringToBack();
         });
         
+        var x = 12;
+        var icon1 = L.icon({
+            iconUrl: "{% static 'flights/img/1.png' %}",
+            iconSize: [x, x],
+            iconAnchor: [x/2, x/2],
+            popupAnchor: [0, 0]
+        });
+        
+        {% if method == 'POST' %}
+        
+        {% for airport in airports %}
+        var marker = new L.marker([{{ airport.latitude }}, {{ airport.longitude }}], {icon: icon1}).bindPopup('{{ airport.name }}').addTo(map);
+        {% endfor %}
+        
         {% for route in routes %}
         var generator = new arc.GreatCircle({x: {{ route.origin.longitude }}, y: {{ route.origin.latitude }} },
                                             {x: {{ route.destination.longitude }}, y: {{ route.destination.latitude }} },
                                             {'name': 'test'});
         var line = generator.Arc(100, {offset: 10});
-        L.geoJson(line.json(), {weight: 2, clickable: false, color: '#000000'}).addTo(map);
+        L.geoJson(line.json(), {weight: 2, clickable: false, color: '#646464'}).addTo(map);
         {% endfor %}
+        
+        {% endif %}
+        
+        $('#routeform').submit(function(eventObj) {
+            var mapCenterLat = map.getCenter().lat;
+            var mapCenterLon = map.getCenter().lng;
+            var mapZoom = map.getZoom();
+            $(this).append('<input type="hidden" name="map_center_lat" value="' + mapCenterLat + '" />');
+            $(this).append('<input type="hidden" name="map_center_lon" value="' + mapCenterLon + '" />');
+            $(this).append('<input type="hidden" name="map_zoom" value="' + mapZoom + '" />');
+            return true;
+        });
     }
 </script>
 
@@ -73,22 +122,11 @@
     drawMap();
 </script>
 
-<table>
-    <tr>
-        <th>From</th>
-        <th>To</th>
-        <th>Distance</th>
-        <th>Approximate duration</th>
-    </tr>
-    {% for route in routes %}
-    <tr>
-        <td>{{ route.origin }}</td>
-        <td>{{ route.destination }}</td>
-        <td>{{ route.distance }}</td>
-    </tr>
-    {% endfor %}
-</table>
+{% if method == 'POST' %}
+<script>
+    showLeftBar();
+    printLeftBar('test');
+</script>
 {% endif %}
-
 
 {% endblock %}

@@ -56,6 +56,10 @@ def gcmap(request):
         context = {'method': 'POST',
                    'nav_id': 'gcmap_nav',
                    'routes': routes,
+                   'airports': airports,
+                   'map_center_lat': request.POST['map_center_lat'],
+                   'map_center_lon': request.POST['map_center_lon'],
+                   'map_zoom': request.POST['map_zoom'],
                   }
         
         return render(request, 'flights/gcmap.html', context)
