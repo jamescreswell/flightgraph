@@ -24,7 +24,7 @@
 
 {% block content %}
 
-<form id="routeform" class="topform" action="{% url 'gcmap' %}" method="post">{% csrf_token %}
+<form id="routeform" class="topform" action="javascript:;" onsubmit="drawGcmap(this)">{% csrf_token %}
     <span>
         <input type="text" name="input_string" placeholder="Input route, e.g. CPH-LHR or EKCH-EGLL-KJFK" size="30" required pattern="[A-Za-z]{3,4}-[A-Za-z]{3,4}(-[A-Za-z]{3,4})*">
         <label for="input_string"></label>
@@ -55,78 +55,62 @@
 </script>
 
 <script>
-    function drawMap() {
-        {% if method == 'GET' %}
-        var map = L.map('map', {zoomControl: false, worldCopyJump: true}).setView([0, 0], 2);
-        {% else %}
-        var map = L.map('map', {zoomControl: false, worldCopyJump: true}).setView([{{ map_center_lat }}, {{ map_center_lon }}], {{ map_zoom }});
-        {% endif %}
-        
-        L.control.zoom({position: 'bottomleft'}).addTo(map);
-        
-        var myGeoJSONPath = '{% static "flights/geo/countries-hires.json" %}';
-        var myCustomStyle = {
-            stroke: true,
-            color: '#6e7a8c',
-            weight: 0.25,
-            fill: true,
-            fillColor: '#ccc6b3',
-            fillOpacity: 1,
-            clickable: false
-        }
-        
-        $.getJSON(myGeoJSONPath, function(data) {
-            L.geoJson(data, {
-                clickable: false,
-                style: myCustomStyle
-            }).addTo(map).bringToBack();
-        });
-        
-        var x = 12;
-        var icon1 = L.icon({
-            iconUrl: "{% static 'flights/img/1.png' %}",
-            iconSize: [x, x],
-            iconAnchor: [x/2, x/2],
-            popupAnchor: [0, 0]
-        });
-        
-        {% if method == 'POST' %}
-        
-        {% for airport in airports %}
-        var marker = new L.marker([{{ airport.latitude }}, {{ airport.longitude }}], {icon: icon1}).bindPopup('{{ airport.name }}').addTo(map);
-        {% endfor %}
-        
-        {% for route in routes %}
-        var generator = new arc.GreatCircle({x: {{ route.origin.longitude }}, y: {{ route.origin.latitude }} },
-                                            {x: {{ route.destination.longitude }}, y: {{ route.destination.latitude }} },
-                                            {'name': 'test'});
-        var line = generator.Arc(100, {offset: 10});
-        L.geoJson(line.json(), {weight: 2, clickable: false, color: '#646464'}).addTo(map);
-        {% endfor %}
-        
-        {% endif %}
-        
-        $('#routeform').submit(function(eventObj) {
-            var mapCenterLat = map.getCenter().lat;
-            var mapCenterLon = map.getCenter().lng;
-            var mapZoom = map.getZoom();
-            $(this).append('<input type="hidden" name="map_center_lat" value="' + mapCenterLat + '" />');
-            $(this).append('<input type="hidden" name="map_center_lon" value="' + mapCenterLon + '" />');
-            $(this).append('<input type="hidden" name="map_zoom" value="' + mapZoom + '" />');
-            return true;
+    var map = L.map('map', {zoomControl: false, worldCopyJump: true}).setView([0, 0], 2);
+
+    L.control.zoom({position: 'bottomleft'}).addTo(map);
+
+    var myGeoJSONPath = '{% static "flights/geo/countries-hires.json" %}';
+    var myCustomStyle = {
+        stroke: true,
+        color: '#6e7a8c',
+        weight: 0.25,
+        fill: true,
+        fillColor: '#ccc6b3',
+        fillOpacity: 1,
+        clickable: false
+    }
+
+    $.getJSON(myGeoJSONPath, function(data) {
+        L.geoJson(data, {
+            clickable: false,
+            style: myCustomStyle
+        }).addTo(map).bringToBack();
+    });
+
+    var x = 12;
+    var icon1 = L.icon({
+        iconUrl: "{% static 'flights/img/1.png' %}",
+        iconSize: [x, x],
+        iconAnchor: [x/2, x/2],
+        popupAnchor: [0, 0]
+    });
+</script>
+
+<script>
+    function drawGcmap(form) {        
+        $.ajax({
+            url: '{% url "draw_gcmap" %}',
+            data: {
+                'input_string': form.input_string.value
+            },
+            dataType: 'json',
+            success: function (data) {
+                var airports = $.parseJSON(data);
+
+                for (i = 0; i < airports.length; i++) {
+                    var marker = new L.marker([airports[i].fields.latitude, airports[i].fields.longitude], {icon: icon1}).bindPopup(airports[i].name).addTo(map);
+                }
+                
+                for (i = 0; i < airports.length - 1; i++) {
+                    var generator = new arc.GreatCircle({x: airports[i].fields.longitude, y: airports[i].fields.latitude },
+                                                        {x: airports[i+1].fields.longitude, y: airports[i+1].fields.latitude },
+                                                        {'name': 'test'});
+                    var line = generator.Arc(100, {offset: 10});
+                    L.geoJson(line.json(), {weight: 2, clickable: false, color: '#646464'}).addTo(map);
+                }
+            }
         });
     }
 </script>
-
-<script>
-    drawMap();
-</script>
-
-{% if method == 'POST' %}
-<script>
-    showLeftBar();
-    printLeftBar('test');
-</script>
-{% endif %}
 
 {% endblock %}
