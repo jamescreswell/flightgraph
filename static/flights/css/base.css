@@ -1,6 +1,6 @@
 body {
     margin: 0;
-    font-family: sans-serif;
+    font-family: "Open Sans", sans-serif;
 }
 
 .topnav {
@@ -45,12 +45,44 @@ body {
     top: 0;
     bottom: 0;
     left: 0;
-    width: 20%;
-    color: saddlebrown;
-    background-color: beige;
-    padding: 5px;
+    width: 340px;
+    color: #666666;
+    background-color: #f3f3f3;
+    padding: 4px;
     overflow-y: scroll;
     display: none;
     z-index: -1;
-    padding-top: 100px;
+    padding-top: 60px;
+    font-size: 14px;
+}
+
+
+#leftbar h4 {
+    font-weight: 400;
+    font-size: 16px;
+    border-bottom: 1px solid #cfcfcf;
+}
+
+#leftbar div div {
+    margin: 5px;
+    padding: 10px;
+    cursor: pointer;
+    border-radius: 5px;
+}
+
+#leftbar div div:hover {
+    background-color: #d5d5d5;
+}
+
+#leftbar div div img {
+    vertical-align: middle;
+    margin-right: 8px;
+}
+
+.no-hover {
+    cursor: default !important;
+}
+
+.no-hover:hover {
+    background: none !important;
 }

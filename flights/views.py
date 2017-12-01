@@ -1,6 +1,7 @@
 from django.shortcuts import render
 from django.http import HttpResponse, JsonResponse, HttpResponseForbidden
 from django.core import serializers
+from django.core.exceptions import PermissionDenied
 from .models import Airport
 
 def index(request):
@@ -18,7 +19,8 @@ def gcmap(request):
         
 def draw_gcmap(request):
     if not request.is_ajax():
-        return HttpResponseForbidden('Permission denied: <tt>request.is_ajax() == False</tt>')
+        raise PermissionDenied
+        #return HttpResponseForbidden('Permission denied: <tt>request.is_ajax() == False</tt>')
     
     input_string = request.GET.get('input_string')
     # input_string is of the format "abc-defg-hij-kil-...-xyz"
