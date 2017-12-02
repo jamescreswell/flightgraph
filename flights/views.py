@@ -3,6 +3,7 @@ from django.http import HttpResponse, JsonResponse, HttpResponseForbidden
 from django.core import serializers
 from django.core.exceptions import PermissionDenied
 from .models import Airport
+from django.template.loader import render_to_string
 
 def index(request):
     context = {'nav_id': 'index_nav',
@@ -27,43 +28,60 @@ def draw_gcmap(request):
 
     # Extract codes
     try:
-        hyphen_indices = [i for i, ltr in enumerate(input_string) if ltr == '-']
-        codes = [input_string[0:hyphen_indices[0]],]
-        i = -1
-        for i in range(len(hyphen_indices)-1):
-            codes.append(input_string[hyphen_indices[i]+1:hyphen_indices[i+1]])
-        codes.append(input_string[hyphen_indices[i+1]+1:])
+        input_routes = input_string.split(",")
+        routes = []
+        for input_route in input_routes:
+            hyphen_indices = [i for i, ltr in enumerate(input_route) if ltr == '-']
+            codes = [input_route[0:hyphen_indices[0]],]
+            i = -1
+            for i in range(len(hyphen_indices)-1):
+                codes.append(input_route[hyphen_indices[i]+1:hyphen_indices[i+1]])
+            codes.append(input_route[hyphen_indices[i+1]+1:])
+            for i in range(len(codes)-1):
+                routes.append([codes[i], codes[i+1]])
     except:
         raise ValueError('Invalid AJAX data')
 
     # Look up codes
-    airports = []
-    for code in codes:
-        if len(code) == 3:
-            match = Airport.objects.filter(iata=code.upper())
-            if len(match) == 1:
-                airports.append(match[0])
-            elif len(match) == 0:
-                pass
+    route_pairs = []
+    for route in routes:
+        route_airports = []
+        for code in route:
+            if len(code) == 3:
+                match = Airport.objects.filter(iata=code.upper())
+                if len(match) == 1:
+                    route_airports.append(match[0])
+                elif len(match) == 0:
+                    pass
+                else:
+                    # Problems...
+                    route_airports.append(match[0])
+            elif len(code) == 4:
+                match = Airport.objects.filter(icao=code.upper())
+                if len(match) == 1:
+                    route_airports.append(match[0])
+                elif len(match) == 0:
+                    pass
+                else:
+                    # Problems...
+                    route_airports.append(match[0])
             else:
-                # Problems...
-                airports.append(match[0])
-        elif len(code) == 4:
-            match = Airport.objects.filter(icao=code.upper())
-            if len(match) == 1:
-                airports.append(match[0])
-            elif len(match) == 0:
-                pass
-            else:
-                # Problems...
-                airports.append(match[0])
-        else:
-            # This should never happen
-            raise ValueError('Invalid AJAX data')
-
-    airports_as_json = serializers.serialize('json', airports)
-
-    return JsonResponse(airports_as_json, safe=False)
+                # This should never happen
+                raise ValueError('Invalid AJAX data')
+        route_airports.append(route_airports[0].distance_to(route_airports[1]))
+        route_pairs.append(route_airports)
+        
+    airports = [route_pairs[0][0], route_pairs[0][1]]
+    for i in range(1, len(route_pairs)):
+        if route_pairs[i-1][1] != route_pairs[i][0]:
+            airports.append(route_pairs[i][0])
+        airports.append(route_pairs[i][1])
+        
+    context = {'routes': route_pairs,
+               'airports': airports}
+    html = render_to_string('flights/ajax/left-bar.html', context)
+    
+    return HttpResponse(html)
 
 def airports(request):
     pass

@@ -1,0 +1,67 @@
+{% load static %}
+
+<h4>Segments</h4>
+
+<div id="left-bar-routes">
+    {% for route in routes %}
+    <div>
+        <b>{{ route.0.iata }} – {{ route.1.iata }}</b><span class="distance" style="float: right; margin-right: 15px;">{{ route.2|floatformat:0 }} mi</span>
+    </div>
+    
+    <script>
+        var generator = new arc.GreatCircle({x: {{ route.0.longitude }}, y: {{ route.0.latitude }} },
+                                            {x: {{ route.1.longitude }}, y: {{ route.1.latitude }} },
+                                            {'name': 'test'});
+        var line = generator.Arc(100, {offset: 10});
+        var lineMarker = new L.geoJson(line.json(), {weight: 2, clickable: false, color: '#646464'});
+        linesLayer.addLayer(lineMarker);
+    </script>
+    {% endfor %}
+</div>
+
+<h4>Airports</h4>
+
+<div id="left-bar-airports">
+    {% for airport in airports %}
+    {% with 'flights/img/flags/24/'|add:airport.country_iso|add:'.png' as image_static %}
+
+    <div onclick="showAirportDiv(this);">
+        <img src="{% static image_static %}">
+        <b>{{ airport.name }}</b><br>
+        <table class="hidden-span" style="display: none;">
+            <tr>
+                <td>City:</td>
+                <td>{{ airport.city }}</td>
+            </tr>
+            <tr>
+                <td>Region:</td>
+                <td>{{ airport.region }}</td>
+            </tr>
+            <tr>
+                <td>Country:</td>
+                <td>{{ airport.country }}</td>
+            </tr>
+            <tr>
+                <td>Latitude:</td>
+                <td>{{ airport.latitude }}</td>
+            </tr>
+            <tr>
+                <td>Longitude:</td>
+                <td>{{ airport.longitude }}</td>
+            </tr>
+        </table>
+    </div>
+    
+    <script>
+        var marker = new L.marker([{{ airport.latitude }}, {{ airport.longitude }}], {icon: icon1}).bindPopup('<b>{{ airport.name }}</b><br><i>{{ airport.city }}, {{ airport.country }}</i><br>φ = {{ airport.latitude|floatformat:2 }}<br>λ = {{ airport.longitude|floatformat:2 }} <img style="float: right;" src="{% static image_static %}">');
+        
+        markersLayer.addLayer(marker); 
+    </script>
+    {% endwith %}
+    {% endfor %}
+</div>
+
+<h4>Export maps</h4>
+
+<div id="left-bar-export"></div>
+

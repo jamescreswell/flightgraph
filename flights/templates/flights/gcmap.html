@@ -26,7 +26,7 @@
 
 <form id="routeform" class="topform" action="javascript:;" onsubmit="drawGcmap(this)">{% csrf_token %}
     <span>
-        <input type="text" name="input_string" placeholder="Input route, e.g. CPH-LHR or EKCH-EGLL-KJFK" size="30" required pattern="[A-Za-z]{3,4}-[A-Za-z]{3,4}(-[A-Za-z]{3,4})*">
+        <input type="text" name="input_string" placeholder="Input route, e.g. CPH-LHR-JFK or EKCH-EGLL-KJFK" size="30" required pattern="[A-Za-z]{3,4}-[A-Za-z]{3,4}(-[A-Za-z]{3,4}|,[A-Za-z]{3,4}-[A-Za-z]{3,4}(-[A-Za-z]{3,4})*)*">
         <label for="input_string"></label>
     </span>
     <input type="submit" value="&blacktriangleright;">
@@ -35,12 +35,6 @@
 <div id="map"></div>
 
 <aside id="leftbar">
-    <h4>Segments</h4>
-    <div id="left-bar-routes"></div>
-    <h4>Airports</h4>
-    <div id="left-bar-airports"></div>
-    <h4>Export maps</h4>
-    <div id="left-bar-export"></div>
 </aside>
 
 <script>
@@ -91,6 +85,18 @@
         iconAnchor: [x/2, x/2],
         popupAnchor: [0, 0]
     });
+    
+    var markersLayer = new L.LayerGroup().addTo(map);
+    var linesLayer = new L.LayerGroup().addTo(map);
+    
+    var baseLayers = {
+    };
+    var overlays = {
+        "Airports": markersLayer,
+        "Routes": linesLayer
+    };
+    L.control.layers(baseLayers, overlays, {position: 'bottomright'}).addTo(map);
+
 </script>
 
 <script>
@@ -100,48 +106,13 @@
             data: {
                 'input_string': form.input_string.value
             },
-            dataType: 'json',
             success: function (data) {
-                var airports = $.parseJSON(data);
-
-                for (i = 0; i < airports.length; i++) {
-                    airport = airports[i].fields
-                    var marker = new L.marker([airport.latitude, airport.longitude], {icon: icon1}).bindPopup('<b>' + airport.name + '</b><br><i>' + airport.city + ', ' + airport.country + '</i><br>φ = ' + airport.latitude.toFixed(2) + '<br>λ = ' + airport.longitude.toFixed(2) + '<img style="float: right;" src=\'{% static "flights/img/flags/24/" %}' + airport.country_iso + '.png\'>').addTo(map);
-                    
-                    drawAirportDiv(airport);
-                }
-                
-                for (i = 0; i < airports.length - 1; i++) {
-                    var generator = new arc.GreatCircle({x: airports[i].fields.longitude, y: airports[i].fields.latitude },
-                                                        {x: airports[i+1].fields.longitude, y: airports[i+1].fields.latitude },
-                                                        {'name': 'test'});
-                    var line = generator.Arc(100, {offset: 10});
-                    L.geoJson(line.json(), {weight: 2, clickable: false, color: '#646464'}).addTo(map);
-                    
-                    drawRouteDiv(airports[i].fields, airports[i+1].fields);
-                }
-                
-                $('#left-bar-routes').append("<div class=\"no-hover\"><span style=\"float: right; margin-right: 15px;\">Total: " + sumDistances() + " mi</span></div>");
-                
+                markersLayer.clearLayers();
+                linesLayer.clearLayers();
+                $('#leftbar').html(data);
                 showLeftBar();
             }
         });
-    }
-    
-    function drawAirportDiv(airport) {
-        $('#left-bar-airports').append(
-            $('<div/>')
-                .attr('onClick', 'showAirportDiv(this);')
-                .append('<img src=\'{% static "flights/img/flags/24/" %}' + airport.country_iso + '.png\'><b>' + airport.name + "</b><br><table class=\"hidden-span\" style=\"display:none;\"><tr><td>City:</td><td>" + airport.city + "</td></tr><tr><td>Region:</td><td>" + airport.region + "</td></tr><tr><td>Country:</td><td>" + airport.country + "</td></tr><tr><td>Latitude:</td><td>" + airport.latitude.toFixed(5) + "</td></tr><tr><td>Longitude:</td><td>" + airport.longitude.toFixed(5) + "</td></tr></table>")
-            );
-    }
-    
-    function drawRouteDiv(origin, destination) {
-        $('#left-bar-routes').append(
-            $('<div/>')
-                .attr('onClick', 'showAirportDiv(this);')
-                .append('<b>' + origin.iata + " – " + destination.iata + "</b><span class=\"distance\" style=\"float: right; margin-right: 15px;\">" + distance(origin, destination).toFixed(0) + " mi</span>")
-            );
     }
     
     function distance(origin, destination) {
