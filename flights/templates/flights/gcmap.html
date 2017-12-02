@@ -38,25 +38,7 @@
 </aside>
 
 <script>
-    function toggleLeftBar() {
-        $('#leftbar').toggle('slide', {direction: 'left'}, 400);
-    }
-    
-    function hideLeftBar() {
-        $('#leftbar').hide('slide', {direction: 'left'}, 400);
-    }
-    
-    function showLeftBar() {
-        $('#leftbar').show('slide', {direction: 'left'}, 400);
-    }
-    
-    function printLeftBar(innerhtml) {
-        document.getElementById('leftbar').innerHTML += innerhtml;
-    }
-</script>
-
-<script>
-    var map = L.map('map', {zoomControl: false, worldCopyJump: true}).setView([0, 0], 2);
+    var map = L.map('map', {zoomControl: false, worldCopyJump: true}).setView([25, 0], 3);
 
     L.control.zoom({position: 'bottomright'}).addTo(map);
 
@@ -110,26 +92,9 @@
                 markersLayer.clearLayers();
                 linesLayer.clearLayers();
                 $('#leftbar').html(data);
-                showLeftBar();
+                $('#leftbar').show('slide', {direction: 'left'}, 400);
             }
         });
-    }
-    
-    function distance(origin, destination) {
-        
-        var lat1 = origin.latitude * Math.PI/180.0;
-        var lat2 = destination.latitude * Math.PI/180.0;
-        var lon1 = origin.longitude * Math.PI/180.0;
-        var lon2 = destination.longitude * Math.PI/180.0;
-        
-        var theta = lon2 - lon1;
-        var distance = Math.acos(Math.sin(lat1) * Math.sin(lat2) + Math.cos(lat1) * Math.cos(lat2) * Math.cos(theta));
-        
-        if (distance < 0) {
-            distance = -1 * distance;
-        }
-        
-        return distance * 3959.0;
     }
     
     function sumDistances() {

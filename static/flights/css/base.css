@@ -1,6 +1,7 @@
 body {
     margin: 0;
     font-family: "Open Sans", sans-serif;
+    background-color: black;
 }
 
 .topnav {
@@ -8,8 +9,9 @@ body {
     margin: 0;
     padding: 0;
     overflow: hidden;
-    background-color: #333333;
+    background-color: #f3f3f3;
     z-index: 1;
+    box-shadow: 0 0 10px #aaa;
 }
 
 .topnav li {
@@ -18,22 +20,24 @@ body {
 
 .topnav li a {
     display: block;
-    color: white;
+    color: #333;
     text-align: center;
     padding: 14px 16px;
     text-decoration: none;
 }
 
 .topnav li a:hover {
-    background-color: #111;
+    background-color: #ddd;
 }
 
 .activenav {
-    background-color: #4CAF50;
+    color: #eee !important;
+    background-color: #008cba;
 }
 
+
 .topnav li a.activenav:hover {
-    background-color: #4CAF50;
+    background-color: #008cba;
 }
 
 #content {
@@ -85,4 +89,19 @@ body {
 
 .no-hover:hover {
     background: none !important;
+}
+
+canvas {
+    width: 100%;
+    padding: 0;
+    margin: 0;
+}
+
+.center {
+    color: #333;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    text-align: center;
 }
