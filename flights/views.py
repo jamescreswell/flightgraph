@@ -4,6 +4,9 @@ from django.core import serializers
 from django.core.exceptions import PermissionDenied
 from .models import Airport
 from django.template.loader import render_to_string
+import numpy as np
+import matplotlib.pyplot as plt
+from mpl_toolkits.basemap import Basemap
 
 def index(request):
     context = {'nav_id': 'index_nav',
@@ -86,3 +89,14 @@ def draw_gcmap(request):
 def airports(request):
     pass
 
+def image(request):
+    # This is going to be GET, right?
+    response = HttpResponse(content_type='application/pdf')
+    
+    map = Basemap(projection='ortho', lat_0=50, lon_0=-100, resolution='l', area_thresh=1000.0)
+ 
+    map.drawcoastlines()
+    map.drawcountries()
+
+    plt.savefig(response, format='pdf')
+    return response

@@ -1,6 +1,6 @@
 {% load static %}
 
-<h4>Segments</h4>
+<h4>Routes</h4>
 
 <div id="left-bar-routes">
     {% for route in routes %}
@@ -63,5 +63,30 @@
 
 <h4>Export maps</h4>
 
-<div id="left-bar-export"></div>
+<div id="left-bar-export">
+    <form id="mapform" action="javascript:;" onsubmit="">
+        Projection:
+        <select name="projection">
+            <option value="ortho">Orthographic</option>
+            <option value="robin">Robinson</option>
+            <option value="kav7">Kavrayskiy VII</option>
+            <option value="stere">Stereographic</option>
+            <option value="gnom">Gnomonic</option>
+            <option value="moll">Mollweide</option>
+        </select>
+        <br>
+        Center: <input type="number">
+        <br>
+        Water: <input type="color">
+        <br>
+        Land: <input type="color">
+        <br>
+        Filetype:
+        <select name="filetype">
+            <option value="png">png</option>
+            <option value="pdf">pdf</option>
+        </select>
+        <input type="submit" value="Generate">
+    </form>
+</div>
 
