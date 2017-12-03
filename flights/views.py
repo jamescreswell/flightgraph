@@ -5,6 +5,9 @@ from django.core.exceptions import PermissionDenied
 from .models import Airport
 from django.template.loader import render_to_string
 import numpy as np
+
+import matplotlib
+matplotlib.use('Agg') # Server has no GUI
 import matplotlib.pyplot as plt
 from mpl_toolkits.basemap import Basemap
 
