@@ -1,5 +1,5 @@
 from django.shortcuts import render
-from django.http import HttpResponse, JsonResponse, HttpResponseForbidden
+from django.http import HttpResponse, JsonResponse, HttpResponseForbidden, UnreadablePostError
 from django.core import serializers
 from django.core.exceptions import PermissionDenied
 from .models import Airport
@@ -84,22 +84,96 @@ def draw_gcmap(request):
         airports.append(route_pairs[i][1])
         
     context = {'routes': route_pairs,
-               'airports': airports}
-    html = render_to_string('flights/ajax/left-bar.html', context)
+               'airports': airports,
+               'input_string': input_string}
+    html = render_to_string('flights/ajax/left-bar.html', context, request=request)
     
     return HttpResponse(html)
 
 def airports(request):
     pass
 
-def image(request):
-    # This is going to be GET, right?
-    response = HttpResponse(content_type='application/pdf')
+def export(request):
+    if request.method != 'POST':
+        raise PermissionDenied
     
-    map = Basemap(projection='ortho', lat_0=50, lon_0=-100, resolution='l', area_thresh=1000.0)
- 
-    map.drawcoastlines()
-    map.drawcountries()
+    data = request.POST
+    
+    if data['filetype'] == 'pdf':
+        response = HttpResponse(content_type='application/pdf')
+    elif data['filetype'] == 'png':
+        response = HttpResponse(content_type='image/png')
+    else:
+        raise UnreadablePostError
+    
+    
+    plt.figure()
+    m = Basemap(projection=data['projection'], lat_0=50, lon_0=-100, resolution='l', area_thresh=1000.0)
+    m.shadedrelief(scale=0.45)
+    
+    # Checkboxes don't POST????
+    #if data['borders']:
+    #    m.drawcoastlines()
+    #    m.drawcountries()
+        
+    ### Start interpret search string...should be abstracted ###
+    try:
+        input_routes = data['search_string'].split(",")
+        routes = []
+        for input_route in input_routes:
+            hyphen_indices = [i for i, ltr in enumerate(input_route) if ltr == '-']
+            codes = [input_route[0:hyphen_indices[0]],]
+            i = -1
+            for i in range(len(hyphen_indices)-1):
+                codes.append(input_route[hyphen_indices[i]+1:hyphen_indices[i+1]])
+            codes.append(input_route[hyphen_indices[i+1]+1:])
+            for i in range(len(codes)-1):
+                routes.append([codes[i], codes[i+1]])
+    except:
+        raise ValueError('Invalid AJAX data')
 
-    plt.savefig(response, format='pdf')
+    # Look up codes
+    route_pairs = []
+    for route in routes:
+        route_airports = []
+        for code in route:
+            if len(code) == 3:
+                match = Airport.objects.filter(iata=code.upper())
+                if len(match) == 1:
+                    route_airports.append(match[0])
+                elif len(match) == 0:
+                    pass
+                else:
+                    # Problems...
+                    route_airports.append(match[0])
+            elif len(code) == 4:
+                match = Airport.objects.filter(icao=code.upper())
+                if len(match) == 1:
+                    route_airports.append(match[0])
+                elif len(match) == 0:
+                    pass
+                else:
+                    # Problems...
+                    route_airports.append(match[0])
+            else:
+                # This should never happen
+                raise ValueError('Invalid AJAX data')
+        route_airports.append(route_airports[0].distance_to(route_airports[1]))
+        route_pairs.append(route_airports)
+        
+    airports = [route_pairs[0][0], route_pairs[0][1]]
+    for i in range(1, len(route_pairs)):
+        if route_pairs[i-1][1] != route_pairs[i][0]:
+            airports.append(route_pairs[i][0])
+        airports.append(route_pairs[i][1])
+    ### End interpret search string...should be abstracted ###
+    
+    for airport in airports:
+        m.scatter(airport.longitude, airport.latitude, s=3.5, latlon=True, color='red', zorder=100)
+        m.scatter(airport.longitude, airport.latitude, s=0.7, latlon=True, color='red', zorder=200)
+    
+    for route in route_pairs:
+        m.drawgreatcircle(route[0].longitude, route[0].latitude, route[1].longitude, route[1].latitude, del_s=100.0, color='red')
+    
+    plt.savefig(response, format=data['filetype'])
     return response

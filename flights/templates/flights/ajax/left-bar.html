@@ -64,29 +64,27 @@
 <h4>Export maps</h4>
 
 <div id="left-bar-export">
-    <form id="mapform" action="javascript:;" onsubmit="">
+    <form id="mapform" action="{% url 'export' %}" method="post" target="_blank">{% csrf_token %}
         Projection:
         <select name="projection">
             <option value="ortho">Orthographic</option>
             <option value="robin">Robinson</option>
-            <option value="kav7">Kavrayskiy VII</option>
-            <option value="stere">Stereographic</option>
-            <option value="gnom">Gnomonic</option>
+            <option value="mill">Miller</option>
             <option value="moll">Mollweide</option>
+            <option value="stere">Stereographic</option>
         </select>
-        <br>
-        Center: <input type="number">
-        <br>
-        Water: <input type="color">
-        <br>
-        Land: <input type="color">
         <br>
         Filetype:
         <select name="filetype">
             <option value="png">png</option>
             <option value="pdf">pdf</option>
         </select>
+        <input type="hidden" name="search_string" id="search_string">
         <input type="submit" value="Generate">
     </form>
+    
+    <script>
+        $('#search_string').val('{{ input_string }}');
+    </script>
 </div>
 
