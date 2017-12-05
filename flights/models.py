@@ -43,3 +43,33 @@ class Airport(models.Model):
             return distance * 6371.2 
         else:
             raise ValueError('Invalid dimensions')
+
+class Flight(models.Model):
+    origin = models.ForeignKey('Airport', on_delete=models.PROTECT, related_name='origins')
+    destination = models.ForeignKey('Airport', on_delete=models.PROTECT, related_name='destinations')
+    date = models.DateField(blank=True, null=True, help_text='YYYY-MM-DD')
+    number = models.CharField(max_length=10, blank=True)
+    airline = models.CharField(max_length=100, blank=True)
+    aircraft = models.CharField(max_length=100, blank=True)
+    aircraft_registration = models.CharField(max_length=10, blank=True)
+    distance = models.FloatField(default=-1)
+    
+    travel_class = models.CharField(max_length=100, blank=True)
+    seat = models.CharField(max_length=10, blank=True)
+    operator = models.CharField(max_length=100, blank=True)
+    comments = models.TextField(max_length=10000, blank=True)
+    
+    sortid = models.IntegerField(default=-1) # Assigned manually at creation
+    owner = models.ForeignKey(User, on_delete=models.CASCADE)
+    
+    picture = models.ImageField(upload_to='flights/user_pics', blank=True)
+    
+    def calculate_distance(self, dim='mi'):
+        return self.origin.distance_to(self.destination, dim)
+    
+    def set_distance(self):
+        self.distance = self.calculate_distance()
+        self.save()
+    
+    def nice_distance(self):
+        return format(round(self.distance()), ",")
