@@ -1,0 +1,44 @@
+{% extends 'flights/base.html' %}
+
+{% load static %}
+
+{% block links %}<link rel="stylesheet" type="text/css" href="{% static 'flights/css/flights.css' %}" />
+
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.2.0/dist/leaflet.css" integrity="sha512-M2wvCLH6DSRazYeZRIm1JnYyh22purTM+FDB5CsyxtQJYeKq83arPe5wgbNmcFXGqiSH2XR8dT/fJISVA1r/zQ==" crossorigin=""/>
+<script src="https://unpkg.com/leaflet@1.2.0/dist/leaflet.js" integrity="sha512-lInM/apFSqyy1o6s89K4iQUKg6ppXEgsVxT35HbzUupEVRh2Eu9Wdl4tHj7dZO0s1uvplcYGmt3498TtHq+log==" crossorigin=""></script>
+
+<script src="http://www.webglearth.com/v2/api.js"></script>
+
+<script src="http://code.jquery.com/jquery-1.10.2.min.js"></script>
+<script src="https://code.jquery.com/ui/1.12.1/jquery-ui.min.js"></script>
+
+<script src="{% static 'flights/geo/arc.js' %}"></script>
+
+<style>
+    .leaflet-container {
+        background: #7394bc;
+    }
+</style>
+{% endblock %}
+
+
+{% block content %}
+
+<aside id="leftbar">
+    <h4>Navigation</h4>
+    
+    <div id="leftbar-links">
+        <div>Dashboard</div>
+        <div>List</div>
+        <div>Graphs</div>
+        <div>Account</div>
+    </div>
+    
+    <h4>Settings</h4>
+</aside>
+
+<script>
+    $('#leftbar').show('slide', {direction: 'left'}, 400);
+</script>
+
+{% endblock %}

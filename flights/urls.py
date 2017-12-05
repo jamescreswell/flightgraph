@@ -8,4 +8,5 @@ urlpatterns = [
     url(r'^airports/$', views.airports, name='airports'),
     url(r'^ajax/draw_gcmap/$', views.draw_gcmap, name='draw_gcmap'),
     url(r'gcmap/export/$', views.export, name='export'),
+    url(r'flights/$', views.flights, name='flights')
 ]

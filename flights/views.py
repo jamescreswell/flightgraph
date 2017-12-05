@@ -205,3 +205,7 @@ def export(request):
     
     plt.savefig(response, format=data['filetype'], dpi=300)
     return response
+
+def flights(request):
+    context = {'nav_id': 'flights_nav'}
+    return render(request, 'flights/flights.html', context)

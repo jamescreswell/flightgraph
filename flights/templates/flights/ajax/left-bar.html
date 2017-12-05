@@ -61,7 +61,9 @@
     {% endfor %}
 </div>
 
-<h4>Export map</h4>
+<h4>Map settings</h4>
+
+<h4>Export</h4>
 
 <div id="left-bar-export">
     <form id="mapform" action="{% url 'export' %}" method="post" target="_blank">{% csrf_token %}
