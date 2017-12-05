@@ -85,7 +85,8 @@ def draw_gcmap(request):
         
     context = {'routes': route_pairs,
                'airports': airports,
-               'input_string': input_string}
+               'input_string': input_string
+              }
     html = render_to_string('flights/ajax/left-bar.html', context, request=request)
     
     return HttpResponse(html)
@@ -105,11 +106,6 @@ def export(request):
         response = HttpResponse(content_type='image/png')
     else:
         raise UnreadablePostError
-    
-    
-    plt.figure()
-    m = Basemap(projection=data['projection'], lat_0=50, lon_0=-100, resolution='l', area_thresh=1000.0)
-    m.shadedrelief(scale=0.45)
     
     # Checkboxes don't POST????
     #if data['borders']:
@@ -168,12 +164,44 @@ def export(request):
         airports.append(route_pairs[i][1])
     ### End interpret search string...should be abstracted ###
     
+    lat_0 = float(sum([airport.latitude for airport in airports])) / max(len(airports), 1)
+    lon_0 = float(sum([airport.longitude for airport in airports])) / max(len(airports), 1)
+    
+    llcrnrlon = min([airport.longitude for airport in airports]) - 10.0
+    llcrnrlat = min([airport.latitude for airport in airports]) - 10.0
+    urcrnrlon = max([airport.longitude for airport in airports]) + 10.0
+    urcrnrlat = max([airport.latitude for airport in airports]) + 10.0
+    
+    plt.figure()
+    if data['projection'] in ['ortho', 'robin', 'moll']:
+        m = Basemap(width=10000000, 
+                    height=10000000, 
+                    projection=data['projection'], 
+                    lat_0=lat_0, 
+                    lon_0=lon_0, 
+                    resolution='l', 
+                    area_thresh=1000.0
+                   )
+    elif data['projection'] in ['mill', 'stere']:
+        return HttpResponse('Selected projection doesn\'t work yet')
+        m = Basemap(width=10000000,
+                    height=10000000, 
+                    projection=data['projection'], 
+                    llcrnrlon=llcrnrlon,
+                    llcrnrlat=llcrnrlat,
+                    urcrnrlon=urcrnrlon-360.0,
+                    urcrnrlat=urcrnrlat,
+                    resolution='l', 
+                    area_thresh=1000.0
+                   )
+    
+    m.shadedrelief(scale=0.45)
+    
     for airport in airports:
-        m.scatter(airport.longitude, airport.latitude, s=3.5, latlon=True, color='red', zorder=100)
-        m.scatter(airport.longitude, airport.latitude, s=0.7, latlon=True, color='red', zorder=200)
+        m.scatter(airport.longitude, airport.latitude, s=3, latlon=True, color='red', zorder=100)
     
     for route in route_pairs:
         m.drawgreatcircle(route[0].longitude, route[0].latitude, route[1].longitude, route[1].latitude, del_s=100.0, color='red')
     
-    plt.savefig(response, format=data['filetype'])
+    plt.savefig(response, format=data['filetype'], dpi=300)
     return response

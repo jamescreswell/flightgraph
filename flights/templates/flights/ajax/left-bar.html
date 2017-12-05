@@ -61,26 +61,43 @@
     {% endfor %}
 </div>
 
-<h4>Export maps</h4>
+<h4>Export map</h4>
 
 <div id="left-bar-export">
     <form id="mapform" action="{% url 'export' %}" method="post" target="_blank">{% csrf_token %}
-        Projection:
-        <select name="projection">
-            <option value="ortho">Orthographic</option>
-            <option value="robin">Robinson</option>
-            <option value="mill">Miller</option>
-            <option value="moll">Mollweide</option>
-            <option value="stere">Stereographic</option>
-        </select>
-        <br>
-        Filetype:
-        <select name="filetype">
-            <option value="png">png</option>
-            <option value="pdf">pdf</option>
-        </select>
-        <input type="hidden" name="search_string" id="search_string">
-        <input type="submit" value="Generate">
+        <table>
+            <tr>
+                <td>Projection:</td>
+                <td>
+                    <select name="projection">
+                        <option value="ortho">Orthographic</option>
+                        <option value="robin">Robinson</option>
+                        <option value="moll">Mollweide</option>
+                        <option value="mill">Miller</option>
+                        <option value="stere">Stereographic</option>
+                    </select>
+                </td>
+            </tr>
+            <tr>
+                <td>Size:</td>
+                <td>
+                    <select name="size">
+                        <option value="1440p">1440p</option>
+                    </select>
+                </td>
+            </tr>
+            <tr>
+                <td>Filetype:</td>
+                <td>
+                    <select name="filetype">
+                        <option value="png">png</option>
+                        <option value="pdf">pdf</option>
+                    </select>
+                </td>
+            </tr>
+        </table>
+            <input type="hidden" name="search_string" id="search_string">
+            <input type="submit" value="Generate">
     </form>
     
     <script>
