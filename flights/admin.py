@@ -11,7 +11,8 @@ class AirportAdmin(admin.ModelAdmin):
     list_filter = ['country']
 
 class FlightAdmin(admin.ModelAdmin):
-    pass
+    list_display = ('number', 'date', 'origin', 'destination', 'owner')
+    list_display_links = ('number',)
 
 admin.site.register(Airport, AirportAdmin)
 admin.site.register(Flight, FlightAdmin)

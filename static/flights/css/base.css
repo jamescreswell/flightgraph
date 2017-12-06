@@ -10,7 +10,7 @@ body {
     padding: 0;
     overflow: hidden;
     background-color: #f3f3f3;
-    z-index: 1;
+    z-index: 2;
     box-shadow: 0 0 10px #aaa;
 }
 
@@ -42,10 +42,11 @@ body {
 
 #content {
     padding: 10px;
+    z-index: -2;
 }
 
 #leftbar {
-    position: fixed;
+    position: absolute;
     top: 0;
     bottom: 0;
     left: 0;
@@ -58,6 +59,7 @@ body {
     z-index: -1;
     padding-top: 60px;
     font-size: 14px;
+    box-shadow: 0 2px 4px rgba(0,0,0,.15);
 }
 
 
@@ -81,6 +83,29 @@ body {
 #leftbar div div img {
     vertical-align: middle;
     margin-right: 8px;
+}
+
+#leftbar ul {
+    list-style-type: none;
+    padding-left: 0;
+    width: 200px;
+}
+
+#leftbar ul li:hover {
+    cursor: pointer;
+}
+
+#leftbar ul li a {
+    font-size: 16px;
+    display: block;
+    color: #333;
+    text-align: left;
+    padding: 8px 15px;
+    text-decoration: none;
+}
+
+#leftbar ul li a:hover {
+    text-decoration: underline;
 }
 
 .no-hover {

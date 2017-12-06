@@ -1,0 +1,40 @@
+body {
+    color: #333;
+    background-color: #ededed;
+}
+
+#viewport {
+    margin-left: 340px;
+    padding-left: 10px;
+}
+
+.flighttable {
+    position: static;
+    margin-left: auto;
+    margin-right: auto;
+    background-color: #fcfcfc;
+    border-radius: 3px;
+    box-shadow: 0 2px 4px rgba(0,0,0,.15);
+    padding: 10px;
+    border-collapse: collapse;
+}
+
+.flighttable tr {
+    border-top: none;
+    border-bottom: 1px solid #f0f0f0;
+}
+
+.flighttable tr:last-child {
+  border-bottom: none;
+}
+
+.flighttable tr th {
+    padding: 5px 10px;
+    font-weight: 400;
+    text-transform: uppercase;
+}
+
+.flighttable tr td {
+    padding: 5px 10px;
+}
+

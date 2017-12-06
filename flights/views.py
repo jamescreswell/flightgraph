@@ -2,9 +2,11 @@ from django.shortcuts import render
 from django.http import HttpResponse, JsonResponse, HttpResponseForbidden, UnreadablePostError
 from django.core import serializers
 from django.core.exceptions import PermissionDenied
-from .models import Airport
+from .models import Airport, Flight
 from django.template.loader import render_to_string
+from django.contrib.auth.decorators import login_required
 import numpy as np
+import time
 
 import matplotlib
 matplotlib.use('Agg') # Server has no GUI
@@ -206,6 +208,17 @@ def export(request):
     plt.savefig(response, format=data['filetype'], dpi=300)
     return response
 
+@login_required
 def flights(request):
-    context = {'nav_id': 'flights_nav'}
+    start = time.time()
+    # Get logged in user and his flights
+    user = request.user
+    flights_list = Flight.objects.filter(owner=request.user)
+    
+    context = {'nav_id': 'flights_nav',
+               'username': user.username,
+               'flights': flights_list,
+               'loading_time': time.time() - start,
+              }
+    
     return render(request, 'flights/flights.html', context)

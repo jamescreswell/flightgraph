@@ -27,18 +27,63 @@
 <aside id="leftbar">
     <h4>Navigation</h4>
     
-    <div id="leftbar-links">
-        <div>Dashboard</div>
-        <div>List</div>
-        <div>Graphs</div>
-        <div>Account</div>
-    </div>
+    <ul>
+        <li><a id="map_link" onclick="showMap();">Map</a></li>
+        <li><a id="list_link" onclick="showList();">List</a></li>
+        <li><a id="graphs_link" onclick="showGraphs();">Graphs</a></li>
+    </ul>
     
     <h4>Settings</h4>
 </aside>
 
+<div id="viewport">
+    <table class="flighttable">
+        <tr>
+            <th>Date</th>
+            <th>Number</th>
+            <th>From</th>
+            <th>To</th>
+            <th>Airline</th>
+            <th>Aircraft</th>
+            <th>Picture</th>
+        </tr>
+        {% for flight in flights %}
+        <tr>
+            <td>{{ flight.date.isoformat }}</td>
+            <td>{{ flight.number }}</td>
+            <td>{{ flight.origin }}</td>
+            <td>{{ flight.destination }}</td>
+            <td>{{ flight.airline }}</td>
+            <td>{{ flight.aircraft }} ({{ flight.aircraft_registration }})</td>
+            <td></td>
+        </tr>
+        <tr>
+            <td>Test</td>
+        </tr>
+        {% endfor %}
+    </table>
+    Server response time: {{ loading_time|floatformat:6 }} seconds
+</div>
+
 <script>
     $('#leftbar').show('slide', {direction: 'left'}, 400);
+    
+    function showMap() {
+        $('aside > ul > li > a').removeClass('activenav');
+        $('#map_link').addClass('activenav');
+    }
+    
+    function showList() {
+        $('aside > ul > li > a').removeClass('activenav');
+        $('#list_link').addClass('activenav');
+    }
+    
+    function showGraphs() {
+        $('aside > ul > li > a').removeClass('activenav');
+        $('#graphs_link').addClass('activenav');
+    }
+    
+    showList();
 </script>
 
 {% endblock %}
