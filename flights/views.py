@@ -7,6 +7,7 @@ from django.template.loader import render_to_string
 from django.contrib.auth.decorators import login_required
 import numpy as np
 import time
+from django.db.models import Q, Count
 
 import matplotlib
 matplotlib.use('Agg') # Server has no GUI
@@ -213,12 +214,29 @@ def flights(request):
     start = time.time()
     # Get logged in user and his flights
     user = request.user
-    flights_list = Flight.objects.filter(owner=request.user)
+    flights_list = Flight.objects.filter(owner=user)
+    airports_list = Airport.objects.filter(Q(origins__owner=user) | Q(destinations__owner=user)).distinct()
+    #airports_list = set()
+    #for flight in flights_list:
+    #    airports_list.add(flight.origin)
+    #    airports_list.add(flight.destination)
+    
+    top_airports = airports_list.annotate(Count('origins', distinct=True), Count('destinations', distinct=True))
+    print(top_airports[0].destinations__count) # when to add origins and destinations??
+    top_planes = flights_list.values('aircraft').annotate(Count('id')).order_by('-id__count')
+    top_airlines = flights_list.values('airline').annotate(Count('id')).order_by('-id__count')
+    
+    
     
     context = {'nav_id': 'flights_nav',
                'username': user.username,
                'flights': flights_list,
+               'top_airports': top_airports,
+               'top_planes': top_planes,
+               'top_airlines': top_airlines,
                'loading_time': time.time() - start,
               }
     
     return render(request, 'flights/flights.html', context)
+
+        
