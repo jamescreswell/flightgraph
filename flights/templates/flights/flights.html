@@ -36,34 +36,35 @@
     <h4>Settings</h4>
 </aside>
 
-<div id="viewport">
-    <table class="flighttable">
-        <tr>
-            <th>Date</th>
-            <th>Number</th>
-            <th>From</th>
-            <th>To</th>
-            <th>Airline</th>
-            <th>Aircraft</th>
-            <th>Picture</th>
-        </tr>
-        {% for flight in flights %}
-        <tr>
-            <td>{{ flight.date.isoformat }}</td>
-            <td>{{ flight.number }}</td>
-            <td>{{ flight.origin }}</td>
-            <td>{{ flight.destination }}</td>
-            <td>{{ flight.airline }}</td>
-            <td>{{ flight.aircraft }} ({{ flight.aircraft_registration }})</td>
-            <td></td>
-        </tr>
-        <tr>
-            <td>Test</td>
-        </tr>
-        {% endfor %}
-    </table>
-    Server response time: {{ loading_time|floatformat:6 }} seconds
-</div>
+
+<table class="flighttable">
+    <tr>
+        <th>Date</th>
+        <th>Number</th>
+        <th>From</th>
+        <th>To</th>
+        <th>Airline</th>
+        <th>Aircraft</th>
+        <th>Picture</th>
+    </tr>
+    {% for flight in flights %}
+    <tr>
+        <td>{{ flight.date.isoformat }}</td>
+        <td>{{ flight.number }}</td>
+        <td>{{ flight.origin }}</td>
+        <td>{{ flight.destination }}</td>
+        <td>{{ flight.airline }}</td>
+        <td>{{ flight.aircraft }} ({{ flight.aircraft_registration }})</td>
+        <td></td>
+    </tr>
+    <tr>
+        <td>Test</td>
+    </tr>
+    {% endfor %}
+</table>
+
+<div class="time">Server response time: {{ loading_time|floatformat:6 }} seconds</div>
+
 
 <script>
     $('#leftbar').show('slide', {direction: 'left'}, 400);
