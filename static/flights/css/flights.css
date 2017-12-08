@@ -12,7 +12,6 @@ body {
     box-shadow: 0 2px 4px rgba(0,0,0,.15);
     padding: 10px;
     border-collapse: collapse;
-    display: none;
     vertical-align: top;
 }
 
@@ -35,7 +34,7 @@ body {
     padding: 5px 10px;
 }
 
-.time {
+#time {
     position: fixed;
     bottom: 0;
     right: 0;
@@ -48,4 +47,13 @@ body {
 #viewport {
     text-align: center;
     padding-left: 340px;
+}
+
+#map {
+    position: fixed;
+    z-index: -1;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
 }

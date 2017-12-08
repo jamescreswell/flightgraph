@@ -1,0 +1,35 @@
+<table class="flighttable statstable">
+    <tr>
+        <th colspan="2">Airports</th>
+    </tr>
+    {% for airport in top_airports %}
+    <tr>
+        <td>{{ airport }}</td>
+        <td>{{ airport.origins__count|add:airport.destinations__count }}</td>
+    </tr>
+    {% endfor %}
+</table>
+
+<table class="flighttable statstable">
+    <tr>
+        <th colspan="2">Airlines</th>
+    </tr>
+    {% for airline in top_airlines %}
+    <tr>
+        <td>{{ airline.airline }}</td>
+        <td>{{ airline.id__count }}</td>
+    </tr>
+    {% endfor %}
+</table>
+
+<table class="flighttable statstable">
+    <tr>
+        <th colspan="2">Aircraft</th>
+    </tr>
+    {% for aircraft in top_planes %}
+    <tr>
+        <td>{{ aircraft.aircraft }}</td>
+        <td>{{ aircraft.id__count }}</td>
+    </tr>
+    {% endfor %}
+</table>

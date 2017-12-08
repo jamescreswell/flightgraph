@@ -10,12 +10,22 @@
     </head>
     
     <body>
-        <ul class="topnav">
-            <li><a href="{% url 'index' %}" id="index_nav">flightgraph.org {{ test }}</a></li>
-            <li><a href="{% url 'gcmap' %}" id="gcmap_nav">Route mapper</a></li>
-            <li><a href="{% url 'flights' %}" id="flights_nav">My flights</a></li>
-            <li><a href="" id="airport_nav">Airport database</a></li>
-        </ul>
+        <div class="topnav">
+            <a href="{% url 'index' %}" id="index_nav">flightgraph.org {{ test }}</a>
+            <a href="{% url 'gcmap' %}" id="gcmap_nav">Route mapper</a>
+            <a href="{% url 'flights' %}" id="flights_nav">My flights</a>
+            <a id="airport_nav">Airport database</a>
+            {% if username %}
+            <a id='userbox' onclick="myFunction();">{{ username }}</a>
+            <div class="dropdown-content" id="user_dropdown">
+                <a href="">Profile</a>
+                <a href="">Settings</a>
+                <a href="{% url 'logout' %}">Logout</a>
+            </div>
+            {% else %}
+            <a id="userbox" href="{% url 'login' %}">Log in</a>
+            {% endif %}
+        </div>
         <div id="content">
             {% block content %}
             {% endblock %}
@@ -25,4 +35,24 @@
     <script>
         document.getElementById('{{ nav_id }}').classList.add('activenav');;
     </script>
+    
+    {% if username %}
+    <script>
+    /* When the user clicks on the button, 
+    toggle between hiding and showing the dropdown content */
+    function myFunction() {
+        document.getElementById("user_dropdown").style.display="block";
+    }
+
+    // Close the dropdown if the user clicks outside of it
+    window.onclick = function(e) {
+      if (!e.target.matches('#userbox')) {
+            var myDropdown = document.getElementById("user_dropdown");
+              if (myDropdown.style.display=='block') {
+                myDropdown.style.display = 'none';
+              }
+      }
+    }
+    </script>
+    {% endif %}
 </html>

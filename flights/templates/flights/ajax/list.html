@@ -1,0 +1,26 @@
+<table id="flightlist" class="flighttable">
+    <tr>
+        <th>Date</th>
+        <th>Number</th>
+        <th>From</th>
+        <th>To</th>
+        <th>Airline</th>
+        <th>Aircraft</th>
+        <th>Picture</th>
+    </tr>
+    {% for flight in flights %}
+    <tr>
+        <td>{{ flight.date.isoformat }}</td>
+        <td>{{ flight.number }}</td>
+        <td>{{ flight.origin }}</td>
+        <td>{{ flight.destination }}</td>
+        <td>{{ flight.airline }}</td>
+        <td>{{ flight.aircraft }} ({{ flight.aircraft_registration }})</td>
+        <td></td>
+    </tr>
+    {% empty %}
+    <tr>
+        <td colspan="7">You haven't added any flights yet. When you do, they will appear here.</td>
+    </tr>
+    {% endfor %}
+</table>

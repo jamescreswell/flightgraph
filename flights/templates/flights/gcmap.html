@@ -67,10 +67,10 @@
         iconAnchor: [x/2, x/2],
         popupAnchor: [0, 0]
     });
-    
+
     var markersLayer = new L.LayerGroup().addTo(map);
     var linesLayer = new L.LayerGroup().addTo(map);
-    
+
     var baseLayers = {
     };
     var overlays = {
@@ -78,7 +78,6 @@
         "Routes": linesLayer
     };
     L.control.layers(baseLayers, overlays, {position: 'bottomright'}).addTo(map);
-
 </script>
 
 <script>

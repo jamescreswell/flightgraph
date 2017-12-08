@@ -38,72 +38,10 @@
 
 
 <div id="viewport">
-    <table id="flightlist" class="flighttable">
-        <tr>
-            <th>Date</th>
-            <th>Number</th>
-            <th>From</th>
-            <th>To</th>
-            <th>Airline</th>
-            <th>Aircraft</th>
-            <th>Picture</th>
-        </tr>
-        {% for flight in flights %}
-        <tr>
-            <td>{{ flight.date.isoformat }}</td>
-            <td>{{ flight.number }}</td>
-            <td>{{ flight.origin }}</td>
-            <td>{{ flight.destination }}</td>
-            <td>{{ flight.airline }}</td>
-            <td>{{ flight.aircraft }} ({{ flight.aircraft_registration }})</td>
-            <td></td>
-        </tr>
-        {% empty %}
-        <tr>
-            <td colspan="7">You haven't added any flights yet. When you do, they will appear here.</td>
-        </tr>
-        {% endfor %}
-    </table>
-    
-    <table class="flighttable statstable">
-        <tr>
-            <th colspan="2">Airports</th>
-        </tr>
-        {% for airport in top_airports %}
-        <tr>
-            <td>{{ airport }}</td>
-            <td>{{ airport.origins__count|add:airport.destinations__count }}</td>
-        </tr>
-        {% endfor %}
-    </table>
-    
-    <table class="flighttable statstable">
-        <tr>
-            <th colspan="2">Airlines</th>
-        </tr>
-        {% for airline in top_airlines %}
-        <tr>
-            <td>{{ airline.airline }}</td>
-            <td>{{ airline.id__count }}</td>
-        </tr>
-        {% endfor %}
-    </table>
-    
-    <table class="flighttable statstable">
-        <tr>
-            <th colspan="2">Aircraft</th>
-        </tr>
-        {% for aircraft in top_planes %}
-        <tr>
-            <td>{{ aircraft.aircraft }}</td>
-            <td>{{ aircraft.id__count }}</td>
-        </tr>
-        {% endfor %}
-    </table>
 </div>
 
-<div class="time">Server response time: {{ loading_time|floatformat:6 }} seconds</div>
-
+<div id="map">
+</div>
 
 <script>
     $('#leftbar').show('slide', {direction: 'left'}, 400);
@@ -118,19 +56,119 @@
     function showList() {
         $('aside > ul > li > a').removeClass('activenav');
         $('#list_link').addClass('activenav');
+        $('#map').hide()
         $('#viewport > table').hide();
-        $('#flightlist').show();
+        
+        if ($('#flightlist').length == 0) {
+            $.ajax({
+                url: '{% url "draw_list" %}',
+                data: {
+                    'input_string': 'empty'
+                },
+                success: function (data) {
+                    $('#viewport').append(data);
+                }
+            });
+        }
+        else {
+            $('#flightlist').show();
+        }
     }
     
     function showStatistics() {
         $('aside > ul > li > a').removeClass('activenav');
         $('#statistics_link').addClass('activenav');
+        $('#map').hide()
         $('#viewport > table').hide();
-        $('.statstable').show();
         
+        if ($('.statstable').length == 0) {
+            $.ajax({
+                url: '{% url "draw_stats" %}',
+                data: {
+                    'input_string': 'empty'
+                },
+                success: function (data) {
+                    $('#viewport').append(data);
+                }
+            });
+        }
+        else {
+            $('.statstable').show();
+        }
     }
     
     showMap();
 </script>
+
+<script>
+    var map = L.map('map', {zoomControl: false, worldCopyJump: true}).setView([25, 0], 3);
+
+    L.control.zoom({position: 'bottomright'}).addTo(map);
+
+    var myGeoJSONPath = '{% static "flights/geo/countries-hires.json" %}';
+    var myCustomStyle = {
+        stroke: true,
+        color: '#6e7a8c',
+        weight: 0.25,
+        fill: true,
+        fillColor: '#ccc6b3',
+        fillOpacity: 1,
+        clickable: false
+    }
+
+    $.getJSON(myGeoJSONPath, function(data) {
+        L.geoJson(data, {
+            clickable: false,
+            style: myCustomStyle
+        }).addTo(map).bringToBack();
+    });
+
+    var x = 12;
+    var icon1 = L.icon({
+        iconUrl: "{% static 'flights/img/airport-icon.png' %}",
+        iconSize: [x, x],
+        iconAnchor: [x/2, x/2],
+        popupAnchor: [0, 0]
+    });
+
+    var markersLayer = new L.LayerGroup().addTo(map);
+    var linesLayer = new L.LayerGroup().addTo(map);
+
+    var baseLayers = {
+    };
+    var overlays = {
+        "Airports": markersLayer,
+        "Routes": linesLayer
+    };
+    L.control.layers(baseLayers, overlays, {position: 'bottomright'}).addTo(map);
+</script>
+
+<script>
+    {% for airport in airports %}
+    {% with 'flights/img/flags/24/'|add:airport.country_iso|add:'.png' as image_static %}
+    
+    var marker = new L.marker([{{ airport.latitude }}, {{ airport.longitude }}], {icon: icon1}).bindPopup('<b>{{ airport.name }}</b><br><i>{{ airport.city }}, {{ airport.country }}</i><br>φ = {{ airport.latitude|floatformat:2 }}<br>λ = {{ airport.longitude|floatformat:2 }} <img style="float: right;" src="{% static image_static %}">');
+
+    markersLayer.addLayer(marker); 
+
+    {% endwith %}
+    {% endfor %}
+
+    {% for route in routes %}
+    var generator = new arc.GreatCircle({x: {{ route.origin__longitude }}, y: {{ route.origin__latitude }} },
+                                        {x: {{ route.destination__longitude }}, y: {{ route.destination__latitude }} },
+                                        {'name': 'test'});
+    var line = generator.Arc(100, {offset: 10});
+    var lineMarker = new L.geoJson(line.json(), {weight: 2, clickable: false, color: 'red'});
+    linesLayer.addLayer(lineMarker);
+    {% endfor %}
+</script>
+
+<style>
+    .leaflet-container {
+        background: #7394bc;
+    }
+</style>
+
 
 {% endblock %}
