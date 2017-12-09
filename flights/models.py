@@ -24,6 +24,9 @@ class Airport(models.Model):
             return self.icao
         else:
             return self.name[:4] + '...'
+        
+    def html_name(self):
+        return '<abbr title="' + self.name + ', ' + self.city + ', ' + self.country + '">' + str(self) + '</abbr>'
     
     def distance_to(self, airport, dim='mi'):
         lat1 = self.latitude * math.pi/180.0

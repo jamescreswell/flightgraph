@@ -82,7 +82,7 @@ def draw_list(request):
     if not request.is_ajax():
         raise PermissionDenied
     user = request.user
-    flights_list = Flight.objects.filter(owner=user)
+    flights_list = Flight.objects.filter(owner=user).order_by('-sortid')
     
     context = {'flights': flights_list,
               }
@@ -99,16 +99,19 @@ def draw_stats(request):
     flights_list = Flight.objects.filter(owner=user)
     airports_list = Airport.objects.filter(Q(origins__owner=user) | Q(destinations__owner=user)).distinct()
     
-    top_airports = airports_list.annotate(Count('origins', distinct=True), Count('destinations', distinct=True))
+    top_airports = airports_list.annotate(id__count=Count('origins', distinct=True) + Count('destinations', distinct=True)).order_by('-id__count')
     # when to add origins and destinations??
     top_planes = flights_list.values('aircraft').annotate(Count('id')).order_by('-id__count')
     top_airlines = flights_list.values('airline').annotate(Count('id')).order_by('-id__count')
+    
+    top_routes = flights_list.values('origin__iata', 'origin__name', 'origin__city', 'origin__country', 'destination__iata', 'destination__name', 'destination__city', 'destination__country', 'origin__latitude', 'origin__longitude', 'destination__latitude', 'destination__longitude').annotate(Count('id')).order_by('-id__count')
     
     
     
     context = {'top_airports': top_airports,
                'top_planes': top_planes,
                'top_airlines': top_airlines,
+               'top_routes': top_routes,
               }
     
     html = render_to_string('flights/ajax/statistics.html', context, request=request)

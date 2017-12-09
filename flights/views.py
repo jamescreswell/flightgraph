@@ -168,7 +168,7 @@ def flights(request):
     flights_list = Flight.objects.filter(owner=user)
     airports_list = Airport.objects.filter(Q(origins__owner=user) | Q(destinations__owner=user)).distinct()
     
-    routes_list = flights_list.values('origin__latitude', 'origin__longitude', 'destination__latitude', 'destination__longitude').annotate(Count('id')).order_by('-id__count')
+    routes_list = flights_list.values('origin__latitude', 'origin__longitude', 'destination__latitude', 'destination__longitude').annotate(Count('id'))
 
     
     context = {'nav_id': 'flights_nav',

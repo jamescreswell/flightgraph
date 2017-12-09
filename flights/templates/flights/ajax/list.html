@@ -1,3 +1,4 @@
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 <table id="flightlist" class="ajaxpanel flighttable">
     <tr>
         <th>Date</th>
@@ -7,6 +8,7 @@
         <th>Airline</th>
         <th>Aircraft</th>
         <th>Picture</th>
+        <th>Edit</th>
     </tr>
     {% for flight in flights %}
     <tr>
@@ -17,6 +19,10 @@
         <td>{{ flight.airline }}</td>
         <td>{{ flight.aircraft }} ({{ flight.aircraft_registration }})</td>
         <td></td>
+        <td>
+            <i class="fa fa-pencil" aria-hidden="true" style="cursor:pointer;" onclick="editRow(this);"></i>
+            <!--<i class="fa fa-refresh fa-spin fa-3x"></i>-->
+        </td>
     </tr>
     {% empty %}
     <tr>
@@ -24,3 +30,74 @@
     </tr>
     {% endfor %}
 </table>
+
+<script>
+    function editFlight(i) {
+        var row = $(i).parent().parent().get(0);
+        var cells = row.getElementsByTagName('td');
+        
+        cells[0].innerHTML = '<input id="id_date" name="date" type="date" value="' + cells[0].innerHTML + '">';
+
+        cells[1].innerHTML = '<input id="id_number" name="number" maxlength="10" type="text" value="' + cells[1].innerHTML + '" width="' + cells[1].offsetWidth + '">';
+        cells[4].innerHTML = '<input id="id_airline" name="airline" maxlength="100" type="text" value="' + cells[4].innerHTML + '">';
+        cells[5].innerHTML = '<input id="id_aircraft" name="aircraft" maxlength="100" type="text" value="' + cells[5].innerHTML.split('(')[0] + '"> (<input id="id_aircraft_registration" name="aircraft_registration" maxlength="10" type="text" value="' + cells[5].innerHTML.split('(')[1].slice(0, -1) + '">)';
+ 
+        
+        cells[7].innerHTML = '<i class="fa fa-floppy-o" aria-hidden="true" style="cursor:pointer;" onclick="saveFlight(this);"></i> <i class="fa fa-trash" aria-hidden="true"></i>'
+    }
+</script>
+
+<script>
+    function editCell(ele) {
+        var input = document.createElement('input');
+        input.value = ele.innerHTML.trim();
+        input.style.width = ((input.value.length + 1) * 8) + 'px'
+        ele.innerHTML = '';
+        ele.appendChild(input);
+        ele.onclick = null;
+        input.select();
+
+        input.onblur = function() { resetCell(ele);};
+    }
+
+    function resetCell(ele) {
+        ele.innerHTML = ele.firstChild.value;
+
+        ele.onclick = function() {editCell(this);};
+    }
+
+    function editRow(i) {
+        var row = $(i).parent().parent().get(0);
+        row.style.backgroundColor = '#f7f57e';
+        var cells = row.cells;
+
+        for (i = 0; i < 6; i++) {
+            cells[i].onclick = function() { editCell(this);};
+        }
+
+        var input = document.createElement('input');
+        input.value = 'Save';
+        input.type = 'submit';
+        cells[7].innerHTML = '<i class="fa fa-floppy-o" aria-hidden="true" style="cursor:pointer;" onclick="saveFlight(this);"></i> <i class="fa fa-trash" aria-hidden="true"></i>';
+        //cells[6].innerHTML = '';
+        //cells[6].appendChild(input);
+        //cells[6].style.backgroundColor = '#f7f57e';
+
+        //for (i = 0; i < 7; i++) {
+        //    if (i != 2 && i != 3) {
+        //        var input = document.createElement('input');
+        //        input.value = cells[i].innerHTML.trim();
+        //        cells[i].innerHTML = '';
+        //        cells[i].appendChild(input);
+        //        cells[i].style.backgroundColor = '#ffffff';
+        //    }
+        //    if (i == 6) {
+        //        var input = document.createElement('input');
+        //        input.value = 'Save'
+        //        input.type = 'submit';
+        //        cells[i].innerHTML = '';
+        //        cells[i].appendChild(input);
+        //    }
+        //}
+    }
+</script>

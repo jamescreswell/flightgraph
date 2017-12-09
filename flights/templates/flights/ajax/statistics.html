@@ -4,8 +4,23 @@
     </tr>
     {% for airport in top_airports %}
     <tr>
-        <td>{{ airport }}</td>
-        <td>{{ airport.origins__count|add:airport.destinations__count }}</td>
+        <td>{{ airport.html_name|safe }}</td>
+        <td>{{ airport.id__count }}</td>
+    </tr>
+    {% endfor %}
+</table>
+
+<table class="ajaxpanel flighttable statstable">
+    <tr>
+        <th colspan="2">Routes</th>
+    </tr>
+    {% for route in top_routes %}
+    <tr>
+        <td>
+            <abbr title="{{ route.origin__name }}, {{ route.origin__city }}, {{ route.origin__country }}">{{ route.origin__iata }}</abbr> – 
+            <abbr title="{{ route.destination__name }}, {{ route.destination__city }}, {{ route.destination__country }}">{{ route.destination__iata }}</abbr>
+        </td>
+        <td>{{ route.id__count }}</td>
     </tr>
     {% endfor %}
 </table>
