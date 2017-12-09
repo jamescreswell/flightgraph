@@ -3,6 +3,7 @@ from django.http import HttpResponse, JsonResponse, HttpResponseForbidden, Unrea
 from django.core import serializers
 from django.core.exceptions import PermissionDenied
 from .models import Airport, Flight
+from .forms import FlightForm
 from django.template.loader import render_to_string
 from django.contrib.auth.decorators import login_required
 import numpy as np
@@ -148,6 +149,21 @@ def export(request):
 def flights(request):
     start = time.time()
     
+    if request.method == 'POST':
+        try:
+            f = FlightForm(request.POST)
+            f.instance.distance = -1
+            try:
+                f.instance.sortid = Flight.objects.filter(owner=request.user).order_by('-sortid')[0].sortid + 1
+            except:
+                f.instance.sortid = 0
+            f.instance.owner = request.user
+            new_flight = f.save()
+            new_flight.distance = new_flight.origin.distance_to(new_flight.destination)
+            new_flight.save()
+        except:
+            return HttpRequest("Form validation error")
+    
     user = request.user
     flights_list = Flight.objects.filter(owner=user)
     airports_list = Airport.objects.filter(Q(origins__owner=user) | Q(destinations__owner=user)).distinct()
@@ -161,8 +177,10 @@ def flights(request):
                'airports': airports_list,
                'routes': routes_list,
                'loading_time': time.time() - start,
+               'method': request.method,
               }
     
     return render(request, 'flights/flights.html', context)
+
 
         

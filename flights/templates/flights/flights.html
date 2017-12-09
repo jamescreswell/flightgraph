@@ -31,6 +31,7 @@
         <li><a id="map_link" onclick="showMap();">Map</a></li>
         <li><a id="list_link" onclick="showList();">List</a></li>
         <li><a id="statistics_link" onclick="showStatistics();">Statistics</a></li>
+        <li><a id="add_link" onclick="showAdd();">Add flight</a></li>
     </ul>
     
     <h4>Settings</h4>
@@ -49,7 +50,7 @@
     function showMap() {
         $('aside > ul > li > a').removeClass('activenav');
         $('#map_link').addClass('activenav');
-        $('#viewport > table').hide();
+        $('.ajaxpanel').hide();
         $('#map').show();
     }
     
@@ -57,7 +58,7 @@
         $('aside > ul > li > a').removeClass('activenav');
         $('#list_link').addClass('activenav');
         $('#map').hide()
-        $('#viewport > table').hide();
+        $('.ajaxpanel').hide();
         
         if ($('#flightlist').length == 0) {
             $.ajax({
@@ -79,7 +80,7 @@
         $('aside > ul > li > a').removeClass('activenav');
         $('#statistics_link').addClass('activenav');
         $('#map').hide()
-        $('#viewport > table').hide();
+        $('.ajaxpanel').hide();
         
         if ($('.statstable').length == 0) {
             $.ajax({
@@ -94,6 +95,28 @@
         }
         else {
             $('.statstable').show();
+        }
+    }
+    
+    function showAdd() {
+        $('aside > ul > li > a').removeClass('activenav');
+        $('#add_link').addClass('activenav');
+        $('#map').hide()
+        $('.ajaxpanel').hide();
+        
+        if ($('#addform').length == 0) {
+            $.ajax({
+                url: '{% url "draw_add" %}',
+                data: {
+                    'input_string': 'empty'
+                },
+                success: function (data) {
+                    $('#viewport').append(data);
+                }
+            });
+        }
+        else {
+            $('#addform').show();
         }
     }
     

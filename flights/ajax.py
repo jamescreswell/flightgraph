@@ -3,6 +3,7 @@ from django.http import HttpResponse, JsonResponse, HttpResponseForbidden, Unrea
 from django.core import serializers
 from django.core.exceptions import PermissionDenied
 from .models import Airport, Flight
+from .forms import FlightForm
 from django.template.loader import render_to_string
 from django.contrib.auth.decorators import login_required
 import numpy as np
@@ -111,5 +112,18 @@ def draw_stats(request):
               }
     
     html = render_to_string('flights/ajax/statistics.html', context, request=request)
+    
+    return HttpResponse(html)
+
+@login_required
+def draw_add(request):
+    if not request.is_ajax():
+        raise PermissionDenied
+    user = request.user
+    form = FlightForm()
+    
+    context = {'form': form}
+    
+    html = render_to_string('flights/ajax/add.html', context, request=request)
     
     return HttpResponse(html)
