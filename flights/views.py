@@ -8,7 +8,7 @@ from django.template.loader import render_to_string
 from django.contrib.auth.decorators import login_required
 import numpy as np
 import time
-from django.db.models import Q, Count
+from django.db.models import Q, Count, Sum
 
 import matplotlib
 matplotlib.use('Agg') # Server has no GUI
@@ -161,15 +161,23 @@ def flights(request):
             new_flight = f.save()
             new_flight.distance = new_flight.origin.distance_to(new_flight.destination)
             new_flight.save()
+            new_flight.set_distance()
         except:
             return HttpRequest("Form validation error")
     
     user = request.user
     flights_list = Flight.objects.filter(owner=user)
+
     airports_list = Airport.objects.filter(Q(origins__owner=user) | Q(destinations__owner=user)).distinct()
     
     routes_list = flights_list.values('origin__latitude', 'origin__longitude', 'destination__latitude', 'destination__longitude').annotate(Count('id'))
-
+    
+    try:
+        distance_mi = flights_list.aggregate(Sum('distance'))['distance__sum']
+        distance_km = distance_mi * 6371.0/3959.0
+    except:
+        # flights_list is empty
+        distance_mi = distance_km = 0
     
     context = {'nav_id': 'flights_nav',
                'username': user.username,
@@ -178,9 +186,8 @@ def flights(request):
                'routes': routes_list,
                'loading_time': time.time() - start,
                'method': request.method,
+               'distance_mi': distance_mi,
+               'distance_km': distance_km,
               }
     
     return render(request, 'flights/flights.html', context)
-
-
-        

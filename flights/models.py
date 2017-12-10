@@ -43,7 +43,7 @@ class Airport(models.Model):
         if dim == 'mi':
             return distance * 3959.0
         elif dim == 'km':
-            return distance * 6371.2 
+            return distance * 6371.0
         else:
             raise ValueError('Invalid dimensions')
 
@@ -76,3 +76,15 @@ class Flight(models.Model):
     
     def nice_distance(self):
         return format(round(self.distance()), ",")
+
+class UserProfile(models.Model):  
+    user = models.OneToOneField(User, related_name='profile')
+    public = models.BooleanField(default=True)
+    public_delay = models.PositiveSmallIntegerField(default=0)
+    
+    def __str__(self):
+        return 'Profile of user: {}'.format(self.user.username)
+    
+    
+    
+    

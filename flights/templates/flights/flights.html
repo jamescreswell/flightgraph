@@ -28,6 +28,26 @@
 {% block content %}
 
 <aside id="leftbar">
+    <h4>{{ username }}</h4>
+    
+    <table>
+        <tr>
+            <th>Total flights</th>
+            <td>{{ flights|length }}</td>
+        </tr>
+        <tr>
+            <th>Unique airports</th>
+            <td>{{ airports|length }}</td>
+        </tr>
+        <tr>
+            <th rowspan="2">Total distance</th>
+            <td>{{ distance_mi|floatformat:0 }} mi</td>
+        </tr>
+        <tr>
+            <td>{{ distance_km|floatformat:0 }} km</td>
+        </tr>
+    </table>
+    
     <h4>Navigation</h4>
     
     <ul>

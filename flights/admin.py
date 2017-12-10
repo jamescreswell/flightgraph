@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from .models import Airport, Flight
+from .models import Airport, Flight, UserProfile
 
 class AirportAdmin(admin.ModelAdmin):
     list_display = ('iata', 'icao', 'name', 'city', 'region', 'country', 'id')
@@ -13,6 +13,11 @@ class AirportAdmin(admin.ModelAdmin):
 class FlightAdmin(admin.ModelAdmin):
     list_display = ('number', 'date', 'origin', 'destination', 'owner')
     list_display_links = ('number',)
+    
+class UserProfileAdmin(admin.ModelAdmin):
+    list_display = ('user', 'public', 'public_delay',)
+    list_display_links = ('user',)
 
 admin.site.register(Airport, AirportAdmin)
 admin.site.register(Flight, FlightAdmin)
+admin.site.register(UserProfile, UserProfileAdmin)
