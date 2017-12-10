@@ -1,4 +1,3 @@
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 <table id="flightlist" class="ajaxpanel flighttable">
     <tr>
         <th>Date</th>
@@ -11,7 +10,7 @@
         <th>Edit</th>
     </tr>
     {% for flight in flights %}
-    <tr>
+    <tr data-sortid="{{ flight.sortid }}" data-pk="{{ flight.pk }}">
         <td>{{ flight.date.isoformat }}</td>
         <td>{{ flight.number }}</td>
         <td>{{ flight.origin }}</td>
@@ -20,8 +19,7 @@
         <td>{{ flight.aircraft }} ({{ flight.aircraft_registration }})</td>
         <td></td>
         <td>
-            <i class="fa fa-pencil" aria-hidden="true" style="cursor:pointer;" onclick="editRow(this);"></i>
-            <!--<i class="fa fa-refresh fa-spin fa-3x"></i>-->
+            <i class="fa fa-pencil" title="Edit flight"></i>
         </td>
     </tr>
     {% empty %}
@@ -43,12 +41,12 @@
         cells[5].innerHTML = '<input id="id_aircraft" name="aircraft" maxlength="100" type="text" value="' + cells[5].innerHTML.split('(')[0] + '"> (<input id="id_aircraft_registration" name="aircraft_registration" maxlength="10" type="text" value="' + cells[5].innerHTML.split('(')[1].slice(0, -1) + '">)';
  
         
-        cells[7].innerHTML = '<i class="fa fa-floppy-o" aria-hidden="true" style="cursor:pointer;" onclick="saveFlight(this);"></i> <i class="fa fa-trash" aria-hidden="true"></i>'
+        cells[7].innerHTML = '<i class="fa fa-floppy-o" onclick="saveFlight(this);"></i><i class="fa fa-arrow-up"></i><i class="fa fa-arrow-down"></i> <i class="fa fa-trash"></i>'
     }
 </script>
 
 <script>
-    function editCell(ele) {
+    function editCell(ele) {          
         var input = document.createElement('input');
         input.value = ele.innerHTML.trim();
         input.style.width = ((input.value.length + 1) * 8) + 'px'
@@ -56,7 +54,6 @@
         ele.appendChild(input);
         ele.onclick = null;
         input.select();
-
         input.onblur = function() { resetCell(ele);};
     }
 
@@ -66,8 +63,8 @@
         ele.onclick = function() {editCell(this);};
     }
 
-    function editRow(i) {
-        var row = $(i).parent().parent().get(0);
+    function editRow(e) {
+        var row = $(e.target).parent().parent().get(0);
         row.style.backgroundColor = '#f7f57e';
         var cells = row.cells;
 
@@ -78,7 +75,7 @@
         var input = document.createElement('input');
         input.value = 'Save';
         input.type = 'submit';
-        cells[7].innerHTML = '<i class="fa fa-floppy-o" aria-hidden="true" style="cursor:pointer;" onclick="saveFlight(this);"></i> <i class="fa fa-trash" aria-hidden="true"></i>';
+        cells[7].innerHTML = '<i class="fa fa-arrow-up" title="Move up"></i> <i class="fa fa-arrow-down" title="Move down"></i> <i class="fa fa-floppy-o" title="Save changes" onclick="saveFlight(this);"></i> <i class="fa fa-trash" title="Delete flight"></i>'
         //cells[6].innerHTML = '';
         //cells[6].appendChild(input);
         //cells[6].style.backgroundColor = '#f7f57e';
@@ -100,4 +97,111 @@
         //    }
         //}
     }
+    
+    function moveUp(e) {
+        var row = $(e.target).parent().parent();
+        if (row.prev().length) {
+            row.get(0).dataset.sortid = parseInt(row.get(0).dataset.sortid) + 1;
+            row.prev().get(0).dataset.sortid = parseInt(row.prev().get(0).dataset.sortid) - 1;
+            
+            $.ajax({
+                url: '{% url "move_flights" %}',
+                data: {
+                    'pk1': row.get(0).dataset.pk,
+                    'sortid1': row.get(0).dataset.sortid,
+                    'pk2': row.prev().get(0).dataset.pk,
+                    'sortid2': row.prev().get(0).dataset.sortid,
+                },
+                success: function (data) {
+                    row.prev().before(row);
+                },
+                error: function (data) {
+                    alert('Invalid request');
+                }
+            });
+        }
+    }
+    
+    function moveDown(e) {
+        var row = $(e.target).parent().parent();
+        if (row.next().length) {
+            row.get(0).dataset.sortid = parseInt(row.get(0).dataset.sortid) - 1;
+            row.next().get(0).dataset.sortid = parseInt(row.next().get(0).dataset.sortid) + 1;
+            
+            $.ajax({
+                url: '{% url "move_flights" %}',
+                data: {
+                    'pk1': row.get(0).dataset.pk,
+                    'sortid1': row.get(0).dataset.sortid,
+                    'pk2': row.next().get(0).dataset.pk,
+                    'sortid2': row.next().get(0).dataset.sortid,
+                },
+                success: function (data) {
+                    row.next().after(row);
+                },
+                error: function (data) {
+                    alert('Invalid request');
+                }
+            });
+        }
+    }
+    
+    function deleteFlight(e) {
+        var row = $(e.target).parent().parent().get(0);
+        if (confirm("Are you sure you want to delete this flight? ")) {
+            $.ajax({
+                url: '{% url "delete_flight" %}',
+                data: {
+                    'pk': parseInt(row.dataset.pk),
+                },
+                success: function (data) {
+                    document.getElementById('viewport').innerHTML = '';
+                    showList();
+                },
+                error: function (data) {
+                    alert('Invalid request.');
+                }
+            });
+        }
+    }
+    
+    function saveFlight(e) {
+        var row = $(e.target).parent().parent().get(0);
+        
+        row.style.backgroundColor = "#fcfcfc";
+        var cells = row.cells;
+        for (i = 0; i < 6; i++) {
+            cells[i].onclick = function () {};
+        }
+        
+        $.ajax({
+            url: '{% url "edit_flight" %}',
+            data: {
+                'pk': parseInt(row.dataset.pk),
+                'date': row.cells[0].innerHTML,
+                'number': row.cells[1].innerHTML,
+                'airline': row.cells[4].innerHTML,
+                'aircraft': row.cells[5].innerHTML.split('(')[0],
+                'aircraft_registration': row.cells[5].innerHTML.split('(')[1].slice(0, -1),
+            },
+            success: function (data) {
+                document.getElementById('viewport').innerHTML = '';
+                showList();
+            },
+            error: function (data) {
+                alert('Invalid data.');
+            }
+        });
+        
+        cells[7].innerHTML = '<i class="fa fa-pencil" title="Edit flight"></i>';
+        // Read in the current values of the fields, package them, send them via ajax
+    }
+</script>
+
+<script>
+    $("#flightlist").on("click", ".fa-pencil", editRow);
+    $("#flightlist").on("click", ".fa-arrow-up", moveUp);
+    $("#flightlist").on("click", ".fa-arrow-down", moveDown);
+    $("#flightlist").on("click", ".fa-floppy-o", saveFlight);
+    $("#flightlist").on("click", ".fa-trash", deleteFlight);
 </script>

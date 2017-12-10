@@ -57,3 +57,11 @@ body {
     left: 0;
     right: 0;
 }
+
+i {
+    cursor: pointer;
+}
+
+#loading {
+    margin-top: 30vh;
+}

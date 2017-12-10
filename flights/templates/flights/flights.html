@@ -19,6 +19,9 @@
         background: #7394bc;
     }
 </style>
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+
 {% endblock %}
 
 
@@ -39,6 +42,7 @@
 
 
 <div id="viewport">
+    <div id="loading" hidden><i class="fa fa-refresh fa-spin fa-3x"></i></div>
 </div>
 
 <div id="map">
@@ -192,6 +196,16 @@
         background: #7394bc;
     }
 </style>
+
+<script>
+    $(document).ready(function () {
+        $(document).ajaxStart(function () {
+            $("#loading").show();
+        }).ajaxStop(function () {
+            $("#loading").hide();
+        });
+    });
+</script>
 
 
 {% endblock %}

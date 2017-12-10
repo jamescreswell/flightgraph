@@ -1,7 +1,7 @@
 from django.shortcuts import render
 from django.http import HttpResponse, JsonResponse, HttpResponseForbidden, UnreadablePostError
 from django.core import serializers
-from django.core.exceptions import PermissionDenied
+from django.core.exceptions import PermissionDenied, FieldError
 from .models import Airport, Flight
 from .forms import FlightForm
 from django.template.loader import render_to_string
@@ -130,3 +130,77 @@ def draw_add(request):
     html = render_to_string('flights/ajax/add.html', context, request=request)
     
     return HttpResponse(html)
+
+@login_required
+def edit_flight(request):
+    if not request.is_ajax():
+        raise PermissionDenied
+    
+    pk = request.GET.get('pk')
+    new_date = request.GET.get('date')
+    new_number = request.GET.get('number').strip()
+    new_airline = request.GET.get('airline').strip()
+    new_aircraft = request.GET.get('aircraft').strip()
+    new_aircraft_registration = request.GET.get('aircraft_registration').strip()
+    
+    flight = Flight.objects.get(pk=pk)
+    if flight.owner != request.user:
+        raise PermissionDenied
+    
+    try:
+        flight.date = new_date
+        flight.number = new_number
+        flight.airline = new_airline
+        flight.aircraft = new_aircraft
+        flight.aircraft_registration = new_aircraft_registration
+        flight.save()
+    except:
+        raise FieldError
+        
+    return HttpResponse('AJAX request fulfilled successfully')
+
+@login_required
+def move_flights(request):
+    if not request.is_ajax():
+        raise PermissionDenied
+    
+    pk1 = request.GET.get('pk1')
+    sortid1 = request.GET.get('sortid1')
+    pk2 = request.GET.get('pk2')
+    sortid2 = request.GET.get('sortid2')
+    
+    flight1 = Flight.objects.get(pk=pk1)
+    flight2 = Flight.objects.get(pk=pk2)
+    
+    if flight1.owner != request.user:
+        raise PermissionDenied
+    if flight2.owner != request.user:
+        raise PermissionDenied
+    
+    try:
+        flight1.sortid = sortid1
+        flight2.sortid = sortid2
+        flight1.save()
+        flight2.save()
+    except:
+        raise FieldError
+    
+    return HttpResponse('AJAX request fulfilled successfully')
+
+@login_required
+def delete_flight(request):
+    if not request.is_ajax():
+        raise PermissionDenied
+    
+    pk = request.GET.get('pk')
+    
+    flight = Flight.objects.get(pk=pk)
+    if flight.owner != request.user:
+        raise PermissionDenied
+        
+    try:
+        flight.delete()
+    except:
+        raise FieldError
+    
+    return HttpResponse('AJAX request fulfilled successfully')
