@@ -16,4 +16,5 @@ urlpatterns = [
     url(r'gcmap/export/$', views.export, name='export'),
     url(r'flights/$', views.flights, name='flights'),
     url(r'accounts/', include('django.contrib.auth.urls')),
+    url(r'accounts/create_account/$', views.create_account, name='create_account'),
 ]

@@ -1,4 +1,4 @@
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from django.http import HttpResponse, JsonResponse, HttpResponseForbidden, UnreadablePostError
 from django.core import serializers
 from django.core.exceptions import PermissionDenied
@@ -6,9 +6,11 @@ from .models import Airport, Flight
 from .forms import FlightForm
 from django.template.loader import render_to_string
 from django.contrib.auth.decorators import login_required
+from django.contrib.auth import authenticate, login
 import numpy as np
 import time
 from django.db.models import Q, Count, Sum
+from django.contrib.auth.forms import UserCreationForm
 
 import matplotlib
 matplotlib.use('Agg') # Server has no GUI
@@ -191,3 +193,18 @@ def flights(request):
               }
     
     return render(request, 'flights/flights.html', context)
+
+def create_account(request):
+    if request.method == 'POST':
+        form = UserCreationForm(request.POST)
+        if form.is_valid():
+            form.save()
+            username = form.cleaned_data.get('username')
+            raw_password = form.cleaned_data.get('password1')
+            user = authenticate(username=username, password=raw_password)
+            login(request, user)
+            return redirect('flights')
+    else:
+        form = UserCreationForm()
+    return render(request, 'registration/create_account.html', {'form': form})
+

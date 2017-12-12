@@ -8,7 +8,7 @@ from django.template.loader import render_to_string
 from django.contrib.auth.decorators import login_required
 import numpy as np
 import time
-from django.db.models import Q, Count
+from django.db.models import Q, Count, Case, When
         
 def draw_gcmap(request):
     if not request.is_ajax():
@@ -99,8 +99,9 @@ def draw_stats(request):
     flights_list = Flight.objects.filter(owner=user)
     airports_list = Airport.objects.filter(Q(origins__owner=user) | Q(destinations__owner=user)).distinct()
     
-    top_airports = airports_list.annotate(id__count=Count('origins', distinct=True) + Count('destinations', distinct=True)).order_by('-id__count')
-    # when to add origins and destinations??
+    #top_airports = airports_list.annotate(id__count=Count('origins', distinct=True) + Count('destinations', distinct=True)).order_by('-id__count')
+    top_airports = airports_list.annotate(id__count=Count(Case(When(origins__owner=user, then=1), output_field=1,)))
+
     top_planes = flights_list.values('aircraft').annotate(Count('id')).order_by('-id__count')
     top_airlines = flights_list.values('airline').annotate(Count('id')).order_by('-id__count')
     

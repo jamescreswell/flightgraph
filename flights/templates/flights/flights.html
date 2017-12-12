@@ -27,6 +27,19 @@
 
 {% block content %}
 
+{% if not flights.all %}
+<div class="center intro" id="id_intro">
+    <span style="float:right;" onclick="document.getElementById('id_intro').style.display='none';"><i class="fa fa-times"></i></span>
+    <h3>Welcome to your account page</h3>
+    <div>
+        1. Use the links on the left to navigate between various subpages<br>
+        2. Use the "Add flight" page to add your flights<br>
+        3. Click on your username in the upper right to find your public profile page and customize your account settings<br>
+        This box will show up while your flight list is empty...onhover each enum, highlight part of page...
+    </div>
+</div>
+{% endif %}
+
 <aside id="leftbar">
     <h4>{{ username }}</h4>
     

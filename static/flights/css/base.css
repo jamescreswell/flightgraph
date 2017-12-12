@@ -158,3 +158,20 @@ canvas {
     transform: translate(-50%, -50%);
     text-align: center;
 }
+
+.loginbox {
+    position: absolute;
+    width: 300px;
+    left: 50%;
+    top: 150px;
+    margin-left: -150px;
+    background-color: #f3f3f3;
+    border-radius: 3px;
+    box-shadow: 0 2px 4px rgba(0,0,0,.15);
+    padding: 10px;
+    vertical-align: top;
+}
+
+.loginbox h3 {
+    text-align: center;
+}
