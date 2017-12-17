@@ -63,7 +63,7 @@ class Flight(models.Model):
     comments = models.TextField(max_length=10000, blank=True)
     
     sortid = models.IntegerField(default=-1) # Assigned manually at creation
-    owner = models.ForeignKey(User, on_delete=models.CASCADE)
+    owner = models.ForeignKey(User, on_delete=models.CASCADE, related_name='owners')
     
     picture = models.ImageField(upload_to='flights/user_pics', blank=True)
     

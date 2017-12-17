@@ -5,7 +5,7 @@
     {% for airport in top_airports %}
     <tr>
         <td>{{ airport.html_name|safe }}</td>
-        <td>{{ airport.id__count }}</td>
+        <td>{{ airport.num_origins }}</td>
     </tr>
     {% endfor %}
 </table>
