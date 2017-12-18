@@ -97,7 +97,7 @@ def draw_stats(request):
         raise PermissionDenied
     user = request.user
     flights_list = Flight.objects.filter(owner=user)
-    airports_list = Airport.objects.filter(Q(origins__owner=user) | Q(destinations__owner=user)).distinct()
+    #airports_list = Airport.objects.filter(Q(origins__owner=user) | Q(destinations__owner=user)).distinct()
     
     
     ##top_airports = Airport.objects.all().annotate(origins__count=Sum(
@@ -123,8 +123,19 @@ def draw_stats(request):
     #top_airports = (Airport.objects.filter(origins__owner=user) | Airport.objects.filter(destinations__owner=user)).annotate(origins__count=Count('origins'), destinations__count=Count('destinations'))
     #print(result)
     
-    top_airports = Airport.objects.filter(origins__owner=user).annotate(num_origins=Count('origins')+Count('destinations'))
-    print(Airport.objects.filter(iata='CPH')[0].origins.filter(owner=user))
+    #top_airports = Airport.objects.filter(origins__owner=user).annotate(num_origins=Count('origins')+Count('destinations'))
+    top_airports = Airport.objects.filter(
+        Q(origins__owner=user) | Q(destinations__owner=user)
+    ).annotate(
+        num_origins=Count(
+            Case(When(Q(origins__owner=user), then=1), default=0),
+        ),
+        num_destinations=Count(
+            Case(When(Q(destinations__owner=user), then=1), default=0),
+        )
+    )
+    
+    
 
 
     #top_origins = Airport.objects.annotate(id__count=Count('origins', filter=Q(origins__owner=user)))
@@ -147,7 +158,7 @@ def draw_stats(request):
     #)
     
     #top_airports = airports_list.annotate(id__count=Count('origins', filter=))
-    print(top_airports)
+    print(top_airports[0].num_origins)
 
     
     #top_origins = Airport.objects.filter(origins__owner=user).annotate(id__count=Count('origins', distinct=True)).order_by('-id__count')
