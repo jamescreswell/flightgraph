@@ -1,4 +1,5 @@
 from django.conf.urls import url, include
+from django.urls import path
 
 from . import views, ajax
 
@@ -17,4 +18,5 @@ urlpatterns = [
     url(r'flights/$', views.flights, name='flights'),
     url(r'accounts/', include('django.contrib.auth.urls')),
     url(r'accounts/create_account/$', views.create_account, name='create_account'),
+    path('profile/<str:username>/', views.profile, name='profile'),
 ]

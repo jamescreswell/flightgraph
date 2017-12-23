@@ -1,6 +1,7 @@
 {% extends 'flights/base.html' %}
 
 {% load static %}
+{% load humanize %}
 
 {% block links %}<link rel="stylesheet" type="text/css" href="{% static 'flights/css/flights.css' %}" />
 
@@ -54,10 +55,10 @@
         </tr>
         <tr>
             <th rowspan="2">Total distance</th>
-            <td>{{ distance_mi|floatformat:0 }} mi</td>
+            <td>{{ distance_mi|floatformat:0|intcomma }} mi</td>
         </tr>
         <tr>
-            <td>{{ distance_km|floatformat:0 }} km</td>
+            <td>{{ distance_km|floatformat:0|intcomma }} km</td>
         </tr>
     </table>
     

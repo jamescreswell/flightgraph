@@ -11,6 +11,8 @@ import numpy as np
 import time
 from django.db.models import Q, Count, Sum
 from django.contrib.auth.forms import UserCreationForm
+from django.contrib.auth.models import User
+
 
 #import matplotlib
 #matplotlib.use('Agg') # Server has no GUI
@@ -208,3 +210,5 @@ def create_account(request):
         form = UserCreationForm()
     return render(request, 'registration/create_account.html', {'form': form})
 
+def profile(request, username):
+    return HttpResponse(User.objects.get(username=username))
