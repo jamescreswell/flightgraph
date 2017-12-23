@@ -78,7 +78,7 @@ class Flight(models.Model):
         return format(round(self.distance()), ",")
 
 class UserProfile(models.Model):  
-    user = models.OneToOneField(User, related_name='profile')
+    user = models.OneToOneField(User, related_name='profile', on_delete=models.PROTECT)
     public = models.BooleanField(default=True)
     public_delay = models.PositiveSmallIntegerField(default=0)
     

@@ -97,79 +97,15 @@ def draw_stats(request):
         raise PermissionDenied
     user = request.user
     flights_list = Flight.objects.filter(owner=user)
-    #airports_list = Airport.objects.filter(Q(origins__owner=user) | Q(destinations__owner=user)).distinct()
     
-    
-    ##top_airports = Airport.objects.all().annotate(origins__count=Sum(
-    #    Case(When(origins__owner=user, then=1),
-    #          default=0,
-    #          output_field=IntegerField()
-    #    )),
-
-     #                                             destinations__count=Sum(
-    #    Case(When(destinations__owner=user, then=1),
-    #        default=0,
-    #   output_field=IntegerField()))
-    #                                             )
-    #top_airports = Airport.objects.annotate(
-    #    origins__count = Count('origins', filter=Q(pk=2)),
-        
-    #)
-                                                
-    #print(top_airports.query)
-    
-    # Q: How many times has user been on airport XXX?
-    
-    #top_airports = (Airport.objects.filter(origins__owner=user) | Airport.objects.filter(destinations__owner=user)).annotate(origins__count=Count('origins'), destinations__count=Count('destinations'))
-    #print(result)
-    
-    #top_airports = Airport.objects.filter(origins__owner=user).annotate(num_origins=Count('origins')+Count('destinations'))
-    top_airports = Airport.objects.filter(
-        Q(origins__owner=user) | Q(destinations__owner=user)
-    ).annotate(
-        num_origins=Count(
-            Case(When(Q(origins__owner=user), then=1), default=0),
-        ),
-        num_destinations=Count(
-            Case(When(Q(destinations__owner=user), then=1), default=0),
-        )
-    )
-    
-    
-
-
-    #top_origins = Airport.objects.annotate(id__count=Count('origins', filter=Q(origins__owner=user)))
-    
-    #top_airports = result.annotate(id__count=Count('origins'))
-    
-    #top_airports = list(top_origins) + list(top_destinations)
-    
-    
-    
-    #top_airports = Airport.objects.annotate(
-    #    id__count=Count(
-    #        'origins', distinct=True, filter=Q(owner=user) | #Q(owner=user)
-            #Case(
-            #    When(owners=user, then=1),
-            #    default=0,
-            #    output_field=IntegerField()
-            #)
-    #    )
-    #)
-    
-    #top_airports = airports_list.annotate(id__count=Count('origins', filter=))
-    print(top_airports[0].num_origins)
-
-    
-    #top_origins = Airport.objects.filter(origins__owner=user).annotate(id__count=Count('origins', distinct=True)).order_by('-id__count')
-    #top_destinations = Airport.objects.filter(destinations__owner=user).annotate(id__count=Count('destinations', distinct=True)).order_by('-id__count')
+    top_airports = Airport.objects.annotate(
+        id__count=Count('origins', filter=Q(origins__owner=user), distinct=True)+Count('destinations', filter=Q(destinations__owner=user), distinct=True)
+    ).filter(Q(id__count__gt=0)).order_by('-id__count')
 
     top_planes = flights_list.values('aircraft').annotate(Count('id')).order_by('-id__count')
     top_airlines = flights_list.values('airline').annotate(Count('id')).order_by('-id__count')
     
     top_routes = flights_list.values('origin__iata', 'origin__name', 'origin__city', 'origin__country', 'destination__iata', 'destination__name', 'destination__city', 'destination__country', 'origin__latitude', 'origin__longitude', 'destination__latitude', 'destination__longitude').annotate(Count('id')).order_by('-id__count')
-    
-    
     
     context = {'top_airports': top_airports,
                'top_planes': top_planes,
