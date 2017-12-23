@@ -12,10 +12,10 @@ import time
 from django.db.models import Q, Count, Sum
 from django.contrib.auth.forms import UserCreationForm
 
-import matplotlib
-matplotlib.use('Agg') # Server has no GUI
-import matplotlib.pyplot as plt
-from mpl_toolkits.basemap import Basemap
+#import matplotlib
+#matplotlib.use('Agg') # Server has no GUI
+#import matplotlib.pyplot as plt
+#from mpl_toolkits.basemap import Basemap
 
 def index(request):
     context = {'nav_id': 'index_nav',

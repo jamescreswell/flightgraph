@@ -13,8 +13,8 @@
     <tr data-sortid="{{ flight.sortid }}" data-pk="{{ flight.pk }}">
         <td>{{ flight.date.isoformat }}</td>
         <td>{{ flight.number }}</td>
-        <td>{{ flight.origin }}</td>
-        <td>{{ flight.destination }}</td>
+        <td>{{ flight.origin.html_name|safe }}</td>
+        <td>{{ flight.destination.html_name|safe }}</td>
         <td>{{ flight.airline }}</td>
         <td>{{ flight.aircraft }} ({{ flight.aircraft_registration }})</td>
         <td></td>
