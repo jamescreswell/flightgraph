@@ -9,7 +9,8 @@ from django.contrib.auth.decorators import login_required
 import numpy as np
 import time
 from django.db.models import Q, Count, Sum, Case, When, IntegerField
-        
+from django.contrib.auth.models import User
+
 def draw_gcmap(request):
     if not request.is_ajax():
         raise PermissionDenied
@@ -77,25 +78,25 @@ def draw_gcmap(request):
     
     return HttpResponse(html)
 
-@login_required
-def draw_list(request):
+def draw_list(request, username):
     if not request.is_ajax():
         raise PermissionDenied
-    user = request.user
+    user = User.objects.get(username=username)
     flights_list = Flight.objects.filter(owner=user).order_by('-sortid')
     
     context = {'flights': flights_list,
+               'query_username': user.username,
+               'username': request.user.username,
               }
     
     html = render_to_string('flights/ajax/list.html', context, request=request)
     
     return HttpResponse(html)
 
-@login_required
-def draw_stats(request):
+def draw_stats(request, username):
     if not request.is_ajax():
         raise PermissionDenied
-    user = request.user
+    user = User.objects.get(username=username)
     flights_list = Flight.objects.filter(owner=user)
     
     top_airports = Airport.objects.annotate(

@@ -149,8 +149,7 @@ def export(request):
     plt.savefig(response, format=data['filetype'], dpi=300)
     return response
 
-@login_required
-def flights(request):
+def flights(request, username=None):
     start = time.time()
     
     if request.method == 'POST':
@@ -169,7 +168,14 @@ def flights(request):
         except:
             return HttpRequest("Form validation error")
     
-    user = request.user
+    if username == None:
+        if request.user.is_authenticated:
+            user = request.user
+        else:
+            return redirect('login')
+    else:
+        user = User.objects.get(username=username)
+        
     flights_list = Flight.objects.filter(owner=user)
 
     airports_list = Airport.objects.filter(Q(origins__owner=user) | Q(destinations__owner=user)).distinct()
@@ -184,7 +190,8 @@ def flights(request):
         distance_mi = distance_km = 0
     
     context = {'nav_id': 'flights_nav',
-               'username': user.username,
+               'username': request.user.username,
+               'query_username': user.username,
                'flights': flights_list,
                'airports': airports_list,
                'routes': routes_list,
@@ -210,5 +217,3 @@ def create_account(request):
         form = UserCreationForm()
     return render(request, 'registration/create_account.html', {'form': form})
 
-def profile(request, username):
-    return HttpResponse(User.objects.get(username=username))

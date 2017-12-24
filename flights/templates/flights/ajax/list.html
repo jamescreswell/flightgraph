@@ -7,7 +7,9 @@
         <th>Airline</th>
         <th>Aircraft</th>
         <th>Picture</th>
+        {% if query_username == username %}
         <th>Edit</th>
+        {% endif %}
     </tr>
     {% for flight in flights %}
     <tr data-sortid="{{ flight.sortid }}" data-pk="{{ flight.pk }}">
@@ -18,9 +20,11 @@
         <td>{{ flight.airline }}</td>
         <td>{{ flight.aircraft }} ({{ flight.aircraft_registration }})</td>
         <td></td>
+        {% if query_username == username %}
         <td>
             <i class="fa fa-pencil" title="Edit flight"></i>
         </td>
+        {% endif %}
     </tr>
     {% empty %}
     <tr>

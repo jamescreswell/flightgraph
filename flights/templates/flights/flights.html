@@ -68,7 +68,9 @@
         <li><a id="map_link" onclick="showMap();">Map</a></li>
         <li><a id="list_link" onclick="showList();">List</a></li>
         <li><a id="statistics_link" onclick="showStatistics();">Statistics</a></li>
+        {% if username == query_username %}
         <li><a id="add_link" onclick="showAdd();">Add flight</a></li>
+        {% endif %}
     </ul>
     
     <h4>Settings</h4>
@@ -100,7 +102,7 @@
         
         if ($('#flightlist').length == 0) {
             $.ajax({
-                url: '{% url "draw_list" %}',
+                url: '{% url "draw_list" username=query_username %}',
                 data: {
                     'input_string': 'empty'
                 },
@@ -122,7 +124,7 @@
         
         if ($('.statstable').length == 0) {
             $.ajax({
-                url: '{% url "draw_stats" %}',
+                url: '{% url "draw_stats" username=query_username %}',
                 data: {
                     'input_string': 'empty'
                 },
