@@ -7,7 +7,7 @@
         <th>Airline</th>
         <th>Aircraft</th>
         <th>Picture</th>
-        {% if query_username == username %}
+        {% if not query_username %}
         <th>Edit</th>
         {% endif %}
     </tr>
@@ -20,7 +20,7 @@
         <td>{{ flight.airline }}</td>
         <td>{{ flight.aircraft }} ({{ flight.aircraft_registration }})</td>
         <td></td>
-        {% if query_username == username %}
+        {% if not query_username %}
         <td>
             <i class="fa fa-pencil" title="Edit flight"></i>
         </td>

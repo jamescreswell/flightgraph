@@ -171,14 +171,20 @@ def flights(request, username=None):
     if username == None:
         if request.user.is_authenticated:
             user = request.user
+            nav_id = 'flights_nav'
         else:
             return redirect('login')
     else:
         user = User.objects.get(username=username)
+        nav_id = None
         
     flights_list = Flight.objects.filter(owner=user)
 
     airports_list = Airport.objects.filter(Q(origins__owner=user) | Q(destinations__owner=user)).distinct()
+    
+    top_airports = airports_list.annotate(
+        id__count=Count('origins', filter=Q(origins__owner=user), distinct=True)+Count('destinations', filter=Q(destinations__owner=user), distinct=True)
+    )
     
     routes_list = flights_list.values('origin__latitude', 'origin__longitude', 'destination__latitude', 'destination__longitude').annotate(Count('id'))
     
@@ -189,11 +195,12 @@ def flights(request, username=None):
         # flights_list is empty
         distance_mi = distance_km = 0
     
-    context = {'nav_id': 'flights_nav',
+    context = {'nav_id': nav_id,
                'username': request.user.username,
-               'query_username': user.username,
+               'query_username': username,
+               'display_username': user.username,
                'flights': flights_list,
-               'airports': airports_list,
+               'airports': top_airports,
                'routes': routes_list,
                'loading_time': time.time() - start,
                'method': request.method,

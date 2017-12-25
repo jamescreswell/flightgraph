@@ -15,7 +15,7 @@ def draw_gcmap(request):
     if not request.is_ajax():
         raise PermissionDenied
         #return HttpResponseForbidden('Permission denied: <tt>request.is_ajax() == False</tt>')
-    
+
     input_string = request.GET.get('input_string')
     # input_string is of the format "abc-defg-hij-kil-...-xyz"
 
@@ -63,19 +63,19 @@ def draw_gcmap(request):
                 raise ValueError('Invalid AJAX data')
         route_airports.append(route_airports[0].distance_to(route_airports[1]))
         route_pairs.append(route_airports)
-        
+
     airports = [route_pairs[0][0], route_pairs[0][1]]
     for i in range(1, len(route_pairs)):
         if route_pairs[i-1][1] != route_pairs[i][0]:
             airports.append(route_pairs[i][0])
         airports.append(route_pairs[i][1])
-        
+
     context = {'routes': route_pairs,
                'airports': airports,
                'input_string': input_string
               }
     html = render_to_string('flights/ajax/left-bar.html', context, request=request)
-    
+
     return HttpResponse(html)
 
 def draw_list(request, username):
@@ -83,14 +83,14 @@ def draw_list(request, username):
         raise PermissionDenied
     user = User.objects.get(username=username)
     flights_list = Flight.objects.filter(owner=user).order_by('-sortid')
-    
+
     context = {'flights': flights_list,
                'query_username': user.username,
                'username': request.user.username,
               }
-    
+
     html = render_to_string('flights/ajax/list.html', context, request=request)
-    
+
     return HttpResponse(html)
 
 def draw_stats(request, username):
@@ -98,24 +98,24 @@ def draw_stats(request, username):
         raise PermissionDenied
     user = User.objects.get(username=username)
     flights_list = Flight.objects.filter(owner=user)
-    
+
     top_airports = Airport.objects.annotate(
         id__count=Count('origins', filter=Q(origins__owner=user), distinct=True)+Count('destinations', filter=Q(destinations__owner=user), distinct=True)
     ).filter(Q(id__count__gt=0)).order_by('-id__count')
 
     top_planes = flights_list.values('aircraft').annotate(Count('id')).order_by('-id__count')
     top_airlines = flights_list.values('airline').annotate(Count('id')).order_by('-id__count')
-    
+
     top_routes = flights_list.values('origin__iata', 'origin__name', 'origin__city', 'origin__country', 'destination__iata', 'destination__name', 'destination__city', 'destination__country', 'origin__latitude', 'origin__longitude', 'destination__latitude', 'destination__longitude').annotate(Count('id')).order_by('-id__count')
-    
+
     context = {'top_airports': top_airports,
                'top_planes': top_planes,
                'top_airlines': top_airlines,
                'top_routes': top_routes,
               }
-    
+
     html = render_to_string('flights/ajax/statistics.html', context, request=request)
-    
+
     return HttpResponse(html)
 
 @login_required
@@ -124,29 +124,29 @@ def draw_add(request):
         raise PermissionDenied
     user = request.user
     form = FlightForm()
-    
+
     context = {'form': form}
-    
+
     html = render_to_string('flights/ajax/add.html', context, request=request)
-    
+
     return HttpResponse(html)
 
 @login_required
 def edit_flight(request):
     if not request.is_ajax():
         raise PermissionDenied
-    
+
     pk = request.GET.get('pk')
     new_date = request.GET.get('date')
     new_number = request.GET.get('number').strip()
     new_airline = request.GET.get('airline').strip()
     new_aircraft = request.GET.get('aircraft').strip()
     new_aircraft_registration = request.GET.get('aircraft_registration').strip()
-    
+
     flight = Flight.objects.get(pk=pk)
     if flight.owner != request.user:
         raise PermissionDenied
-    
+
     try:
         flight.date = new_date
         flight.number = new_number
@@ -156,27 +156,27 @@ def edit_flight(request):
         flight.save()
     except:
         raise FieldError
-        
+
     return HttpResponse('AJAX request fulfilled successfully')
 
 @login_required
 def move_flights(request):
     if not request.is_ajax():
         raise PermissionDenied
-    
+
     pk1 = request.GET.get('pk1')
     sortid1 = request.GET.get('sortid1')
     pk2 = request.GET.get('pk2')
     sortid2 = request.GET.get('sortid2')
-    
+
     flight1 = Flight.objects.get(pk=pk1)
     flight2 = Flight.objects.get(pk=pk2)
-    
+
     if flight1.owner != request.user:
         raise PermissionDenied
     if flight2.owner != request.user:
         raise PermissionDenied
-    
+
     try:
         flight1.sortid = sortid1
         flight2.sortid = sortid2
@@ -184,23 +184,23 @@ def move_flights(request):
         flight2.save()
     except:
         raise FieldError
-    
+
     return HttpResponse('AJAX request fulfilled successfully')
 
 @login_required
 def delete_flight(request):
     if not request.is_ajax():
         raise PermissionDenied
-    
+
     pk = request.GET.get('pk')
-    
+
     flight = Flight.objects.get(pk=pk)
     if flight.owner != request.user:
         raise PermissionDenied
-        
+
     try:
         flight.delete()
     except:
         raise FieldError
-    
+
     return HttpResponse('AJAX request fulfilled successfully')

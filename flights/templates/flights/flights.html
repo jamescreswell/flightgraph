@@ -17,7 +17,7 @@
 
 <style>
     .leaflet-container {
-        background: #7394bc;
+        background: #acd5f9;
     }
 </style>
 
@@ -42,7 +42,11 @@
 {% endif %}
 
 <aside id="leftbar">
-    <h4>{{ username }}</h4>
+    {% if not query_username %}
+    <h2>Your flights</h2>
+    {% else %}
+    <h2>{{ query_username }}'s flights</h2>
+    {% endif %}
     
     <table>
         <tr>
@@ -68,12 +72,17 @@
         <li><a id="map_link" onclick="showMap();">Map</a></li>
         <li><a id="list_link" onclick="showList();">List</a></li>
         <li><a id="statistics_link" onclick="showStatistics();">Statistics</a></li>
-        {% if username == query_username %}
+        {% if not query_username %}
         <li><a id="add_link" onclick="showAdd();">Add flight</a></li>
         {% endif %}
     </ul>
     
     <h4>Settings</h4>
+    
+    {% if not query_username %}
+    <h4>Share</h4>
+    <p>You can share this page at <a href="{% url "profile" username=username %}">{% url "profile" username=username %}</a>. Choose privacy options in your settings.</p>
+    {% endif %}
 </aside>
 
 
@@ -102,7 +111,7 @@
         
         if ($('#flightlist').length == 0) {
             $.ajax({
-                url: '{% url "draw_list" username=query_username %}',
+                url: '{% url "draw_list" username=display_username %}',
                 data: {
                     'input_string': 'empty'
                 },
@@ -124,7 +133,7 @@
         
         if ($('.statstable').length == 0) {
             $.ajax({
-                url: '{% url "draw_stats" username=query_username %}',
+                url: '{% url "draw_stats" username=display_username %}',
                 data: {
                     'input_string': 'empty'
                 },
@@ -174,7 +183,7 @@
         color: '#6e7a8c',
         weight: 0.25,
         fill: true,
-        fillColor: '#ccc6b3',
+        fillColor: '#87b8a1',
         fillOpacity: 1,
         clickable: false
     }
@@ -210,7 +219,7 @@
     {% for airport in airports %}
     {% with 'flights/img/flags/24/'|add:airport.country_iso|add:'.png' as image_static %}
     
-    var marker = new L.marker([{{ airport.latitude }}, {{ airport.longitude }}], {icon: icon1}).bindPopup('<b>{{ airport.name }}</b><br><i>{{ airport.city }}, {{ airport.country }}</i><br>φ = {{ airport.latitude|floatformat:2 }}<br>λ = {{ airport.longitude|floatformat:2 }} <img style="float: right;" src="{% static image_static %}">');
+    var marker = new L.marker([{{ airport.latitude }}, {{ airport.longitude }}], {icon: icon1}).bindPopup('<b>{{ airport.name }}</b><br><i>{{ airport.city }}, {{ airport.country }}</i><br>Flights: {{ airport.id__count }} <img style="float: right;" src="{% static image_static %}">');
 
     markersLayer.addLayer(marker); 
 
@@ -222,16 +231,11 @@
                                         {x: {{ route.destination__longitude }}, y: {{ route.destination__latitude }} },
                                         {'name': 'test'});
     var line = generator.Arc(100, {offset: 10});
-    var lineMarker = new L.geoJson(line.json(), {weight: 2, clickable: false, color: 'red'});
+    var lineMarker = new L.geoJson(line.json(), {weight: 2, clickable: false, color: '#555555' });
     linesLayer.addLayer(lineMarker);
     {% endfor %}
 </script>
 
-<style>
-    .leaflet-container {
-        background: #7394bc;
-    }
-</style>
 
 <script>
     $(document).ready(function () {

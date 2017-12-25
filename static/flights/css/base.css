@@ -94,6 +94,11 @@ abbr {
     box-shadow: 0 2px 4px rgba(0,0,0,.15);
 }
 
+#leftbar h2 {
+    font-weight: 400;
+    font-size: 32px;
+    border-bottom: 1px solid #cfcfcf;
+}
 
 #leftbar h4 {
     font-weight: 400;
