@@ -8,6 +8,7 @@ urlpatterns = [
     url(r'^gcmap/$', views.gcmap, name='gcmap'),
     url(r'^airports/$', views.airports, name='airports'),
     url(r'^ajax/draw_gcmap/$', ajax.draw_gcmap, name='draw_gcmap'),
+    path('ajax/draw_map/<str:username>/', ajax.draw_map, name='draw_map'),
     path('ajax/draw_list/<str:username>/', ajax.draw_list, name='draw_list'),
     path('ajax/draw_stats/<str:username>/', ajax.draw_stats, name='draw_stats'),
     path('ajax/draw_add/', ajax.draw_add, name='draw_add'),

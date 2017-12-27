@@ -47,7 +47,7 @@
     {% else %}
     <h2>{{ query_username }}'s flights</h2>
     {% endif %}
-    
+
     <table>
         <tr>
             <th>Total flights</th>
@@ -65,9 +65,9 @@
             <td>{{ distance_km|floatformat:0|intcomma }} km</td>
         </tr>
     </table>
-    
+
     <h4>Navigation</h4>
-    
+
     <ul>
         <li><a id="map_link" onclick="showMap();">Map</a></li>
         <li><a id="list_link" onclick="showList();">List</a></li>
@@ -76,9 +76,45 @@
         <li><a id="add_link" onclick="showAdd();">Add flight</a></li>
         {% endif %}
     </ul>
-    
-    <h4>Settings</h4>
-    
+
+    <h4>Filter</h4>
+
+    <table class="" id="airport" onchange="">
+        <tr>
+            <td>Airport</td>
+            <td>
+                <select id="airportselect" onchange="applyFilter();">
+                    <option value="0">All</option>
+                    {% for airport in airports %}
+                    <option value="{{ airport.pk }}">{{ airport.iata }}</option>
+                    {% endfor %}
+                </select>
+            </td>
+        </tr>
+        <tr>
+            <td>Airline</td>
+            <td>
+                <select id="airlineselect" onchange="applyFilter();">
+                    <option value="0">All</option>
+                    {% for airline in airlines %}
+                    <option>{{ airline.airline }}</option>
+                    {% endfor %}
+                </select>
+            </td>
+        </tr>
+        <tr>
+            <td>Plane</td>
+            <td>
+                <select id="planeselect" onchange="applyFilter();">
+                    <option value="0">All</option>
+                    {% for plane in planes %}
+                    <option>{{ plane.aircraft }}</option>
+                    {% endfor %}
+                </select>
+            </td>
+        </tr>
+    </table>
+
     {% if not query_username %}
     <h4>Share</h4>
     <p>You can share this page at <a href="{% url "profile" username=username %}">{% url "profile" username=username %}</a>. Choose privacy options in your settings.</p>
@@ -95,20 +131,84 @@
 
 <script>
     $('#leftbar').show('slide', {direction: 'left'}, 400);
-    
+
+    function applyFilter() {
+        airport = document.getElementById("airportselect").value;
+        airline = document.getElementById("airlineselect").value;
+        plane = document.getElementById("planeselect").value;
+
+        $('.ajaxpanel').remove();
+
+        $.ajax({
+            url: '{% url "draw_map" username=display_username %}',
+            data: {
+                'airport': airport,
+                'airline': airline,
+                'plane': plane,
+            },
+            success: function (data) {
+                $('#viewport').append(data);
+                $('.ajaxpanel').hide();
+            }
+        });
+
+        $.ajax({
+            url: '{% url "draw_list" username=display_username %}',
+            data: {
+                'airport': airport,
+                'airline': airline,
+                'plane': plane,
+            },
+            success: function (data) {
+                $('#viewport').append(data);
+                $('.ajaxpanel').hide();
+            }
+        });
+
+        $.ajax({
+            url: '{% url "draw_stats" username=display_username %}',
+            data: {
+                'airport': airport,
+                'airline': airline,
+                'plane': plane,
+            },
+            success: function (data) {
+                $('#viewport').append(data);
+                $('.ajaxpanel').hide();
+                currentView = $('aside > ul > li > .activenav').attr('id');
+                if (currentView == 'map_link') {
+                    //$('#map').show();
+                }
+                else if (currentView == 'list_link') {
+                    $('.ajaxpanel').hide();
+                    showList();
+                }
+                else if (currentView == 'statistics_link') {
+                    $('.statstable').show();
+                }
+                else if (currentView == 'add_link') {
+                    $('#addform').show();
+                }
+            }
+        });
+
+
+
+    }
+
     function showMap() {
         $('aside > ul > li > a').removeClass('activenav');
         $('#map_link').addClass('activenav');
         $('.ajaxpanel').hide();
         $('#map').show();
     }
-    
+
     function showList() {
         $('aside > ul > li > a').removeClass('activenav');
         $('#list_link').addClass('activenav');
-        $('#map').hide()
+        $('#map').hide();
         $('.ajaxpanel').hide();
-        
+
         if ($('#flightlist').length == 0) {
             $.ajax({
                 url: '{% url "draw_list" username=display_username %}',
@@ -124,13 +224,13 @@
             $('#flightlist').show();
         }
     }
-    
+
     function showStatistics() {
         $('aside > ul > li > a').removeClass('activenav');
         $('#statistics_link').addClass('activenav');
         $('#map').hide()
         $('.ajaxpanel').hide();
-        
+
         if ($('.statstable').length == 0) {
             $.ajax({
                 url: '{% url "draw_stats" username=display_username %}',
@@ -146,13 +246,13 @@
             $('.statstable').show();
         }
     }
-    
+
     function showAdd() {
         $('aside > ul > li > a').removeClass('activenav');
         $('#add_link').addClass('activenav');
         $('#map').hide()
         $('.ajaxpanel').hide();
-        
+
         if ($('#addform').length == 0) {
             $.ajax({
                 url: '{% url "draw_add" %}',
@@ -168,7 +268,7 @@
             $('#addform').show();
         }
     }
-    
+
     showMap();
 </script>
 
@@ -216,26 +316,16 @@
 </script>
 
 <script>
-    {% for airport in airports %}
-    {% with 'flights/img/flags/24/'|add:airport.country_iso|add:'.png' as image_static %}
-    
-    var marker = new L.marker([{{ airport.latitude }}, {{ airport.longitude }}], {icon: icon1}).bindPopup('<b>{{ airport.name }}</b><br><i>{{ airport.city }}, {{ airport.country }}</i><br>Flights: {{ airport.id__count }} <img style="float: right;" src="{% static image_static %}">');
-
-    markersLayer.addLayer(marker); 
-
-    {% endwith %}
-    {% endfor %}
-
-    {% for route in routes %}
-    var generator = new arc.GreatCircle({x: {{ route.origin__longitude }}, y: {{ route.origin__latitude }} },
-                                        {x: {{ route.destination__longitude }}, y: {{ route.destination__latitude }} },
-                                        {'name': 'test'});
-    var line = generator.Arc(100, {offset: 10});
-    var lineMarker = new L.geoJson(line.json(), {weight: 2, clickable: false, color: '#555555' });
-    linesLayer.addLayer(lineMarker);
-    {% endfor %}
+$.ajax({
+    url: '{% url "draw_map" username=display_username %}',
+    data: {
+        'input_string': 'empty'
+    },
+    success: function (data) {
+        $('#viewport').append(data);
+    }
+});
 </script>
-
 
 <script>
     $(document).ready(function () {

@@ -40,21 +40,21 @@ def gcmap(request):
 def export(request):
     if request.method != 'POST':
         raise PermissionDenied
-    
+
     data = request.POST
-    
+
     if data['filetype'] == 'pdf':
         response = HttpResponse(content_type='application/pdf')
     elif data['filetype'] == 'png':
         response = HttpResponse(content_type='image/png')
     else:
         raise UnreadablePostError
-    
+
     # Checkboxes don't POST????
     #if data['borders']:
     #    m.drawcoastlines()
     #    m.drawcountries()
-        
+
     ### Start interpret search string...should be abstracted ###
     try:
         input_routes = data['search_string'].split(",")
@@ -99,59 +99,59 @@ def export(request):
                 raise ValueError('Invalid AJAX data')
         route_airports.append(route_airports[0].distance_to(route_airports[1]))
         route_pairs.append(route_airports)
-        
+
     airports = [route_pairs[0][0], route_pairs[0][1]]
     for i in range(1, len(route_pairs)):
         if route_pairs[i-1][1] != route_pairs[i][0]:
             airports.append(route_pairs[i][0])
         airports.append(route_pairs[i][1])
     ### End interpret search string...should be abstracted ###
-    
+
     lat_0 = float(sum([airport.latitude for airport in airports])) / max(len(airports), 1)
     lon_0 = float(sum([airport.longitude for airport in airports])) / max(len(airports), 1)
-    
+
     llcrnrlon = min([airport.longitude for airport in airports]) - 10.0
     llcrnrlat = min([airport.latitude for airport in airports]) - 10.0
     urcrnrlon = max([airport.longitude for airport in airports]) + 10.0
     urcrnrlat = max([airport.latitude for airport in airports]) + 10.0
-    
+
     plt.figure()
     if data['projection'] in ['ortho', 'robin', 'moll']:
-        m = Basemap(width=10000000, 
-                    height=10000000, 
-                    projection=data['projection'], 
-                    lat_0=lat_0, 
-                    lon_0=lon_0, 
-                    resolution='l', 
+        m = Basemap(width=10000000,
+                    height=10000000,
+                    projection=data['projection'],
+                    lat_0=lat_0,
+                    lon_0=lon_0,
+                    resolution='l',
                     area_thresh=1000.0
                    )
     elif data['projection'] in ['mill', 'stere']:
         return HttpResponse('Selected projection doesn\'t work yet')
         m = Basemap(width=10000000,
-                    height=10000000, 
-                    projection=data['projection'], 
+                    height=10000000,
+                    projection=data['projection'],
                     llcrnrlon=llcrnrlon,
                     llcrnrlat=llcrnrlat,
                     urcrnrlon=urcrnrlon-360.0,
                     urcrnrlat=urcrnrlat,
-                    resolution='l', 
+                    resolution='l',
                     area_thresh=1000.0
                    )
-    
+
     m.shadedrelief(scale=0.45)
-    
+
     for airport in airports:
         m.scatter(airport.longitude, airport.latitude, s=3, latlon=True, color='red', zorder=100)
-    
+
     for route in route_pairs:
         m.drawgreatcircle(route[0].longitude, route[0].latitude, route[1].longitude, route[1].latitude, del_s=100.0, color='red')
-    
+
     plt.savefig(response, format=data['filetype'], dpi=300)
     return response
 
 def flights(request, username=None):
     start = time.time()
-    
+
     if request.method == 'POST':
         try:
             f = FlightForm(request.POST)
@@ -167,7 +167,7 @@ def flights(request, username=None):
             new_flight.set_distance()
         except:
             return HttpRequest("Form validation error")
-    
+
     if username == None:
         if request.user.is_authenticated:
             user = request.user
@@ -177,24 +177,27 @@ def flights(request, username=None):
     else:
         user = User.objects.get(username=username)
         nav_id = None
-        
+
     flights_list = Flight.objects.filter(owner=user)
 
     airports_list = Airport.objects.filter(Q(origins__owner=user) | Q(destinations__owner=user)).distinct()
-    
+
     top_airports = airports_list.annotate(
         id__count=Count('origins', filter=Q(origins__owner=user), distinct=True)+Count('destinations', filter=Q(destinations__owner=user), distinct=True)
-    )
-    
+    ).order_by('iata')
+
+    planes = flights_list.values('aircraft').distinct().order_by('aircraft')
+    airlines = flights_list.values('airline').distinct().order_by('airline')
+
     routes_list = flights_list.values('origin__latitude', 'origin__longitude', 'destination__latitude', 'destination__longitude').annotate(Count('id'))
-    
+
     try:
         distance_mi = flights_list.aggregate(Sum('distance'))['distance__sum']
         distance_km = distance_mi * 6371.0/3959.0
     except:
         # flights_list is empty
         distance_mi = distance_km = 0
-    
+
     context = {'nav_id': nav_id,
                'username': request.user.username,
                'query_username': username,
@@ -202,12 +205,14 @@ def flights(request, username=None):
                'flights': flights_list,
                'airports': top_airports,
                'routes': routes_list,
+               'planes': planes,
+               'airlines': airlines,
                'loading_time': time.time() - start,
                'method': request.method,
                'distance_mi': distance_mi,
                'distance_km': distance_km,
               }
-    
+
     return render(request, 'flights/flights.html', context)
 
 def create_account(request):
@@ -223,4 +228,3 @@ def create_account(request):
     else:
         form = UserCreationForm()
     return render(request, 'registration/create_account.html', {'form': form})
-

@@ -1,0 +1,23 @@
+{% load static %}
+<script>
+    markersLayer.clearLayers();
+    linesLayer.clearLayers();
+    {% for airport in airports %}
+    {% with 'flights/img/flags/24/'|add:airport.country_iso|add:'.png' as image_static %}
+
+    var marker = new L.marker([{{ airport.latitude }}, {{ airport.longitude }}], {icon: icon1}).bindPopup('<b>{{ airport.name }}</b><br><i>{{ airport.city }}, {{ airport.country }}</i><br>Flights: {{ airport.id__count }} <img style="float: right;" src="{% static image_static %}">');
+
+    markersLayer.addLayer(marker);
+
+    {% endwith %}
+    {% endfor %}
+
+    {% for route in routes %}
+    var generator = new arc.GreatCircle({x: {{ route.origin__longitude }}, y: {{ route.origin__latitude }} },
+                                        {x: {{ route.destination__longitude }}, y: {{ route.destination__latitude }} },
+                                        {'name': 'test'});
+    var line = generator.Arc(100, {offset: 10});
+    var lineMarker = new L.geoJson(line.json(), {weight: 2, clickable: false, color: '#555555' });
+    linesLayer.addLayer(lineMarker);
+    {% endfor %}
+</script>

@@ -78,13 +78,63 @@ def draw_gcmap(request):
 
     return HttpResponse(html)
 
+def draw_map(request, username):
+    user = User.objects.get(username=username)
+
+    try:
+        airport = Airport.objects.get(pk=request.GET.get('airport'))
+    except:
+        airport = None
+    airline = request.GET.get('airline') # GETs None if no filter
+    plane = request.GET.get('plane')
+
+    flights_list = Flight.objects.filter(owner=user)
+
+    if airport != None:
+        flights_list = flights_list.filter(Q(origin=airport) | Q(destination=airport))
+    if airline != None and airline != '0':
+        flights_list = flights_list.filter(airline=airline)
+    if plane != None and plane != '0':
+        flights_list = flights_list.filter(aircraft=plane)
+
+    #airports_list = Airport.objects.filter(Q(origins__owner=user) | Q(destinations__owner=user)).distinct()
+
+    airports_list = Airport.objects.filter(Q(origins__in=flights_list) | Q(destinations__in=flights_list)).distinct()
+
+    top_airports = airports_list.annotate(
+        id__count=Count('origins', filter=Q(origins__in=flights_list), distinct=True)+Count('destinations', filter=Q(destinations__in=flights_list), distinct=True)
+    ).order_by('iata')
+    routes_list = flights_list.values('origin__latitude', 'origin__longitude', 'destination__latitude', 'destination__longitude').annotate(Count('id'))
+
+    context = {'airports': top_airports,
+               'routes': routes_list,
+               }
+    html = render_to_string('flights/ajax/map.html', context, request=request)
+
+    return HttpResponse(html)
+
 def draw_list(request, username):
     if not request.is_ajax():
         raise PermissionDenied
-    user = User.objects.get(username=username)
-    flights_list = Flight.objects.filter(owner=user).order_by('-sortid')
 
-    context = {'flights': flights_list,
+    user = User.objects.get(username=username)
+
+    try:
+        airport = Airport.objects.get(pk=request.GET.get('airport'))
+    except:
+        airport = None
+    airline = request.GET.get('airline') # GETs None if no filter
+    plane = request.GET.get('plane')
+
+    flights_list = Flight.objects.filter(owner=user)
+    if airport != None:
+        flights_list = flights_list.filter(Q(origin=airport) | Q(destination=airport))
+    if airline != None and airline != '0':
+        flights_list = flights_list.filter(airline=airline)
+    if plane != None and plane != '0':
+        flights_list = flights_list.filter(aircraft=plane)
+
+    context = {'flights': flights_list.order_by('-sortid'),
                'query_username': user.username,
                'username': request.user.username,
               }
@@ -97,10 +147,24 @@ def draw_stats(request, username):
     if not request.is_ajax():
         raise PermissionDenied
     user = User.objects.get(username=username)
+
+    try:
+        airport = Airport.objects.get(pk=request.GET.get('airport'))
+    except:
+        airport = None
+    airline = request.GET.get('airline') # GETs None if no filter
+    plane = request.GET.get('plane')
+
     flights_list = Flight.objects.filter(owner=user)
+    if airport != None:
+        flights_list = flights_list.filter(Q(origin=airport) | Q(destination=airport))
+    if airline != None and airline != '0':
+        flights_list = flights_list.filter(airline=airline)
+    if plane != None and plane != '0':
+        flights_list = flights_list.filter(aircraft=plane)
 
     top_airports = Airport.objects.annotate(
-        id__count=Count('origins', filter=Q(origins__owner=user), distinct=True)+Count('destinations', filter=Q(destinations__owner=user), distinct=True)
+        id__count=Count('origins', filter=Q(origins__in=flights_list), distinct=True)+Count('destinations', filter=Q(destinations__in=flights_list), distinct=True)
     ).filter(Q(id__count__gt=0)).order_by('-id__count')
 
     top_planes = flights_list.values('aircraft').annotate(Count('id')).order_by('-id__count')
