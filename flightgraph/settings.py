@@ -23,9 +23,9 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SECRET_KEY = '837g)bo)=)os%c-!*g*ukav%8ykpjlld*kjvkk+d^2hzk-@##n'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
-ALLOWED_HOSTS = ['127.0.0.1', '54.91.110.22', '54.234.162.159', '54.197.73.8']
+ALLOWED_HOSTS = ['127.0.0.1', '54.91.110.22', '54.234.162.159', '54.197.73.8', 'www.flightgraph.eu']
 
 
 # Application definition
