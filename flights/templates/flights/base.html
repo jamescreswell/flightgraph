@@ -24,7 +24,7 @@
                 <a href="{% url 'logout' %}">Logout</a>
             </div>
             {% else %}
-            <a id="userbox" href="{% url 'login' %}">Log in/create account</a>
+            <a id="userbox" {#href="{% url 'login' %}"#}>Log in/create account</a>
             {% endif %}
         </div>
         <div id="content">
