@@ -190,7 +190,6 @@ def flights(request, username=None):
     airlines = flights_list.values('airline').distinct().order_by('airline')
 
     routes_list = flights_list.values('origin__latitude', 'origin__longitude', 'destination__latitude', 'destination__longitude').annotate(Count('id'))
-
     try:
         distance_mi = flights_list.aggregate(Sum('distance'))['distance__sum']
         distance_km = distance_mi * 6371.0/3959.0
