@@ -63,6 +63,13 @@
 
 <h4>Map settings</h4>
 
+<table>
+    <tr>
+        <td>Route colour</td>
+        <td><input type="color" id="routeColour" value="#ff2525" onchange="changeRouteColour();"></td>
+    </tr>
+</table>
+
 <h4>Export</h4>
 
 <div id="left-bar-export">
@@ -107,3 +114,11 @@
     </script>
 </div>
 
+<script>
+    function changeRouteColour() {
+        colorCode = document.getElementById("routeColour").value;
+        linesLayer.eachLayer(function (layer) {
+            layer.setStyle({color: colorCode});
+        });
+    }
+</script>

@@ -3,7 +3,7 @@
 <!DOCTYPE html>
 <html>
     <head>
-        <title>Title</title>
+        <title>flightgraph.eu</title>
         <link rel="stylesheet" type="text/css" href="{% static 'flights/css/base.css' %}" />
         <link href="https://fonts.googleapis.com/css?family=Open+Sans" rel="stylesheet">
         {% block links %}
@@ -12,9 +12,9 @@
     
     <body>
         <div class="topnav">
-            <a {#href="{% url 'index' %}"#} id="index_nav">flightgraph.org {{ test }}</a>
+            <a {#href="{% url 'index' %}"#} id="index_nav">flightgraph.eu</a>
             <a {#href="{% url 'gcmap' %}"#} id="gcmap_nav">Route mapper</a>
-            <a {#href="{% url 'flights' %}"#} id="flights_nav">My flights</a>
+            <a href="{% url 'flights' %}" id="flights_nav">My flights</a>
             <a id="airport_nav">Airport database</a>
             {% if username %}
             <a id='userbox' onclick="myFunction();">{{ username }}</a>

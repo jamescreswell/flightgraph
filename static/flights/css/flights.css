@@ -40,13 +40,20 @@ body {
     right: 0;
 }
 
+.listtable {
+    width: 90%;
+}
+
 .statstable {
     display: inline-block;
+    margin-left: 15px;
+    margin-right: 15px;
 }
 
 #viewport {
     text-align: center;
     padding-left: 340px;
+    /*overflow-x: scroll;*/
 }
 
 #map {

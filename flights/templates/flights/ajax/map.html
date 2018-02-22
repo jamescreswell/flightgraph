@@ -17,7 +17,7 @@
                                         {x: {{ route.destination__longitude }}, y: {{ route.destination__latitude }} },
                                         {'name': 'test'});
     var line = generator.Arc(100, {offset: 10});
-    var lineMarker = new L.geoJson(line.json(), {weight: 2, clickable: false, color: '#555555' });
+    var lineMarker = new L.geoJson(line.json(), {weight: 1.5, clickable: false, color: '#ff2525', opacity: 1.0});
     linesLayer.addLayer(lineMarker);
     {% endfor %}
 </script>

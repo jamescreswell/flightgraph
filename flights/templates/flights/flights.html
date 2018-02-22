@@ -114,6 +114,15 @@
             </td>
         </tr>
     </table>
+    
+    <h4>Map options</h4>
+    
+    <table>
+        <tr>
+            <td>Route colour</td>
+            <td><input type="color" id="routeColour" value="#ff2525" onchange="changeRouteColour();"></td>
+        </tr>
+    </table>
 
     {% if not query_username %}
     <h4>Share</h4>
@@ -297,7 +306,7 @@
 
     var x = 12;
     var icon1 = L.icon({
-        iconUrl: "{% static 'flights/img/airport-icon.png' %}",
+        iconUrl: "{% static 'flights/img/airport-icon-red.png' %}",
         iconSize: [x, x],
         iconAnchor: [x/2, x/2],
         popupAnchor: [0, 0]
@@ -335,6 +344,15 @@ $.ajax({
             $("#loading").hide();
         });
     });
+</script>
+
+<script>
+    function changeRouteColour() {
+        colorCode = document.getElementById("routeColour").value;
+        linesLayer.eachLayer(function (layer) {
+            layer.setStyle({color: colorCode});
+        });
+    }
 </script>
 
 

@@ -1,7 +1,10 @@
-# flightgraph.org
+# flightgraph.eu
 
-This repository contains the source code for flightgraph.org. It is writen in 
-Python and uses the Django web framework.
+flightgraph.eu is a website aimed at aviation enthusiasts, providing tools for visualising flight paths, accessing airport information, and recording flight logs. This repository contains the source code for the website. Client-side scripts are written entirely in Python, using Django.
+
+Maps are rendered using leaflet.js with data from Natural Earth.
+
+The server and database configuration is described below.
 
 ## Server configuration
 
