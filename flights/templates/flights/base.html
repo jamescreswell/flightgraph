@@ -19,8 +19,8 @@
             {% if username %}
             <a id='userbox' onclick="myFunction();">{{ username }}</a>
             <div class="dropdown-content" id="user_dropdown">
-                <a href="">Profile</a>
-                <a href="">Settings</a>
+                <a href="{% url 'profile' username=username %}">Public profile</a>
+                <a href="{% url 'settings' %}">Settings</a>
                 <a href="{% url 'logout' %}">Logout</a>
             </div>
             {% else %}

@@ -2,7 +2,7 @@ from django.shortcuts import render, redirect
 from django.http import HttpResponse, JsonResponse, HttpResponseForbidden, UnreadablePostError
 from django.core import serializers
 from django.core.exceptions import PermissionDenied
-from .models import Airport, Flight
+from .models import Airport, Flight, UserProfile
 from .forms import FlightForm
 from django.template.loader import render_to_string
 from django.contrib.auth.decorators import login_required
@@ -29,7 +29,6 @@ def index(request):
 def airports(request):
     pass
 
-
 def gcmap(request):
     context = {'method': 'GET',
                'nav_id': 'gcmap_nav',
@@ -37,6 +36,7 @@ def gcmap(request):
               }
 
     return render(request, 'flights/gcmap.html', context)
+
 def export(request):
     if request.method != 'POST':
         raise PermissionDenied
@@ -213,6 +213,18 @@ def flights(request, username=None):
               }
 
     return render(request, 'flights/flights.html', context)
+
+@login_required
+def settings(request):
+    if request.method == 'POST':
+        pass
+    user = request.user
+    user_profile = UserProfile.objects.get(user=user)
+    
+    context = {'nav_id': None,
+               'username': request.user.username}
+    
+    return render(request, 'flights/settings.html', context)
 
 def create_account(request):
     if request.method == 'POST':

@@ -16,8 +16,9 @@ urlpatterns = [
     url(r'^ajax/move_flights/$', ajax.move_flights, name='move_flights'),
     url(r'^ajax/delete_flight/$', ajax.delete_flight, name='delete_flight'),
     url(r'gcmap/export/$', views.export, name='export'),
-    url(r'flights/$', views.flights, name='flights'),
-    url(r'accounts/', include('django.contrib.auth.urls')),
-    url(r'accounts/create_account/$', views.create_account, name='create_account'),
+    url(r'^flights/$', views.flights, name='flights'),
+    url(r'^settings/$', views.settings, name='settings'),
+    url(r'^accounts/', include('django.contrib.auth.urls')),
+    url(r'^accounts/create_account/$', views.create_account, name='create_account'),
     path('profile/<str:username>/', views.flights, name='profile'),
 ]

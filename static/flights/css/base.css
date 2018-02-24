@@ -184,3 +184,20 @@ canvas {
 .loginbox h3 {
     text-align: center;
 }
+
+.settingsbox {
+    position: absolute;
+    width: 500px;
+    left: 50%;
+    top: 100px;
+    margin-left: -250px;
+    background-color: #f3f3f3;
+    border-radius: 3px;
+    box-shadow: 0 2px 4px rgba(0,0,0,.15);
+    padding: 10px;
+    vertical-align: top;
+}
+
+.settingsbox h3 {
+    text-align: center;
+}
