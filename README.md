@@ -2,7 +2,7 @@
 
 flightgraph.eu is a website aimed at aviation enthusiasts, providing tools for visualising flight paths, accessing airport information, and recording flight logs. This repository contains the source code for the website. Client-side scripts are written entirely in Python, using Django.
 
-Maps are rendered using leaflet.js with data from Natural Earth.
+Maps are rendered using leaflet.js with the public domain border data from Natural Earth.
 
 The server and database configuration is described below.
 
