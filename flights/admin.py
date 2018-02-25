@@ -3,7 +3,7 @@ from django.contrib import admin
 from .models import Airport, Flight, UserProfile
 
 class AirportAdmin(admin.ModelAdmin):
-    list_display = ('iata', 'icao', 'name', 'city', 'region', 'country', 'id')
+    list_display = ('__str__', 'iata', 'icao', 'name', 'city', 'region', 'country', 'id')
     list_display_links = ('name',)
     
     search_fields = ('name', 'iata', 'icao')

@@ -17,6 +17,7 @@
     {% for route in top_routes %}
     <tr>
         <td>
+            {# Why doesn't this work? { route.origin__html_name|safe }} – {{ route.destination__html_name }} #}
             <abbr title="{{ route.origin__name }}, {{ route.origin__city }}, {{ route.origin__country }}">{{ route.origin__iata }}</abbr> – 
             <abbr title="{{ route.destination__name }}, {{ route.destination__city }}, {{ route.destination__country }}">{{ route.destination__iata }}</abbr>
         </td>
