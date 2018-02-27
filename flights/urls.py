@@ -21,4 +21,5 @@ urlpatterns = [
     url(r'^accounts/', include('django.contrib.auth.urls')),
     url(r'^accounts/create_account/$', views.create_account, name='create_account'),
     path('profile/<str:username>/', views.flights, name='profile'),
+    path('compare/<str:username1>/<str:username2>/', views.compare, name='compare'),
 ]

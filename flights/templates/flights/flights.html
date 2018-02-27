@@ -15,6 +15,8 @@
 
 <script src="{% static 'flights/geo/arc.js' %}"></script>
 
+<script src="https://unpkg.com/leaflet.vectorgrid@latest/dist/Leaflet.VectorGrid.bundled.js"></script>
+
 <style>
     .leaflet-container {
         background: #acd5f9;
@@ -282,11 +284,12 @@
 </script>
 
 <script>
-    var map = L.map('map', {zoomControl: false, worldCopyJump: true}).setView([25, 0], 3);
+    var map = L.map('map', {zoomControl: false, worldCopyJump: true, inertia: false}).setView([25, 0], 3);
 
     L.control.zoom({position: 'bottomright'}).addTo(map);
 
-    var myGeoJSONPath = '{% static "flights/geo/ne_10m_admin_0_countries_lakes.json" %}';
+    //var myGeoJSONPath = '{% static "flights/geo/ne_10m_admin_0_countries_lakes.json" %}';
+    var myGeoJSONPath = '{% static "flights/geo/countries-hires.json" %}';
     var myCustomStyle = {
         stroke: true,
         color: '#6e7a8c',
@@ -296,12 +299,30 @@
         fillOpacity: 1,
         clickable: false
     }
-
+    
+    var mapLayer = new L.LayerGroup().addTo(map);
+    
     $.getJSON(myGeoJSONPath, function(data) {
-        L.geoJson(data, {
-            clickable: false,
-            style: myCustomStyle
-        }).addTo(map).bringToBack();
+        //L.geoJson(data, {
+        //    clickable: false,
+        //    pane: 'tilePane',
+        //    style: myCustomStyle
+        //}).addTo(mapLayer);
+        var vectorGrid = L.vectorGrid.slicer(data, {
+            vectorTileLayerStyles: {
+                sliced: function(properties, zoom) {
+                    return {
+                        fillColor: '#87B8A1',
+                        stroke: true,
+                        fill: true,
+                        color: '#6E7A8C',
+                        weight: 0.25,
+                        fillOpacity: 1,
+                    }
+                }
+            },
+        })
+        .addTo(mapLayer);
     });
 
     var x = 12;
@@ -319,7 +340,8 @@
     };
     var overlays = {
         "Airports": markersLayer,
-        "Routes": linesLayer
+        "Routes": linesLayer,
+        "Map": mapLayer
     };
     L.control.layers(baseLayers, overlays, {position: 'bottomright'}).addTo(map);
 </script>
