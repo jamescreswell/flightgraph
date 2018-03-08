@@ -1,6 +1,6 @@
 body {
     color: #333;
-    background-color: #ededed;
+    background-color: #f6f6f6;
 }
 
 .flighttable {
@@ -79,4 +79,43 @@ i {
     box-shadow: 0 2px 4px rgba(0,0,0,.15);
     padding: 10px;
     padding-bottom: 15px;
+}
+
+#comparison {
+    padding-left: 250px;
+    padding-right: 250px;
+}
+
+#comparison h2 {
+    font-weight: 400;
+    font-size: 24px;
+    border-bottom: 1px solid #cfcfcf;
+}
+
+.compare-table {
+    border: 1px solid #ddd;
+    text-align: left;
+    width: 97.5%;
+    margin-left: auto;
+    margin-right: auto;
+    margin-top: 29px;
+    margin-bottom: 29px;
+    border-collapse: collapse;
+}
+
+.compare-table th {
+    color: #fff;
+    font-weight: 400;
+    background-color: #008cba;
+    padding: 2px;
+}
+
+.compare-table td {
+    border-top: 1px solid #ddd;
+    border-left: 1px solid #ddd;
+    padding: 2px;
+}
+
+.winner {
+    background-color: #e6f4e6;
 }

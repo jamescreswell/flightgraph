@@ -218,6 +218,73 @@ def compare(request, username1, username2):
     user1 = User.objects.get(username=username1)
     user2 = User.objects.get(username=username2)
     
+    flights_list1 = Flight.objects.filter(owner=user1)
+    flights_list2 = Flight.objects.filter(owner=user2)
+
+    top_airports1 = Airport.objects.annotate(
+        id__count=Count('origins', filter=Q(origins__in=flights_list1), distinct=True)+Count('destinations', filter=Q(destinations__in=flights_list1), distinct=True)
+    ).filter(Q(id__count__gt=0)).order_by('-id__count')
+    top_planes1 = flights_list1.values('aircraft').annotate(Count('id')).order_by('-id__count')
+    top_airlines1 = flights_list1.values('airline').annotate(Count('id')).order_by('-id__count')
+    top_routes1 = flights_list1.values('origin__iata', 'origin__name', 'origin__city', 'origin__country', 'destination__iata', 'destination__name', 'destination__city', 'destination__country', 'origin__latitude', 'origin__longitude', 'destination__latitude', 'destination__longitude').annotate(Count('id')).order_by('-id__count')
+    
+    top_airports2 = Airport.objects.annotate(
+        id__count=Count('origins', filter=Q(origins__in=flights_list2), distinct=True)+Count('destinations', filter=Q(destinations__in=flights_list2), distinct=True)
+    ).filter(Q(id__count__gt=0)).order_by('-id__count')
+    top_planes2 = flights_list2.values('aircraft').annotate(Count('id')).order_by('-id__count')
+    top_airlines2 = flights_list2.values('airline').annotate(Count('id')).order_by('-id__count')
+    top_routes2 = flights_list2.values('origin__iata', 'origin__name', 'origin__city', 'origin__country', 'destination__iata', 'destination__name', 'destination__city', 'destination__country', 'origin__latitude', 'origin__longitude', 'destination__latitude', 'destination__longitude').annotate(Count('id')).order_by('-id__count')
+    
+    try:
+        distance_mi1 = flights_list1.aggregate(Sum('distance'))['distance__sum']
+        distance_km1 = distance_mi1 * 6371.0/3959.0
+    except:
+        # flights_list is empty
+        distance_mi1 = distance_km1 = 0
+        
+    try:
+        distance_mi2 = flights_list2.aggregate(Sum('distance'))['distance__sum']
+        distance_km2 = distance_mi2 * 6371.0/3959.0
+    except:
+        # flights_list is empty
+        distance_mi2 = distance_km2 = 0
+        
+    planes_both = flights_list1.filter(aircraft__in=flights_list2.values('aircraft')).values('aircraft').annotate(
+        count1=Count('id')
+    ).order_by('-count1')
+    for plane in planes_both:
+        plane['count2'] = top_planes2.get(aircraft=plane['aircraft'])['id__count']
+    
+    planes_only1 = flights_list1.exclude(aircraft__in=flights_list2.values('aircraft')).values('aircraft').annotate(
+        count1=Count('id')
+    ).order_by('-count1')
+    
+    planes_only2 = flights_list2.exclude(aircraft__in=flights_list1.values('aircraft')).values('aircraft').annotate(
+        count2=Count('id')
+    ).order_by('-count2')
+    # TODO: sort planes_both by count1
+    
+    
+    
+    flights_list1.values('aircraft').intersection(flights_list2.values('aircraft'))#flights_list1.values('aircraft').intersection(flights_list2.values('aircraft'))
+   
+    
+    context = {'username1': user1.username,
+               'username2': user2.username,
+               'n_flights1': len(flights_list1),
+               'n_flights2': len(flights_list2),
+               'distance_mi1': distance_mi1,
+               'distance_km1': distance_km1,
+               'distance_mi2': distance_mi2,
+               'distance_km2': distance_km2,
+               'top_airports1': top_airports1,
+               'top_airports2': top_airports2,
+               'planes_both': planes_both,
+               'planes_only1': planes_only1,
+               'planes_only2': planes_only2,
+              }
+    
+    return render(request, 'flights/compare.html', context)
 
 
 @login_required
@@ -226,6 +293,7 @@ def settings(request):
         pass
     user = request.user
     user_profile = UserProfile.objects.get(user=user)
+    
     
     context = {'nav_id': None,
                'username': request.user.username}
