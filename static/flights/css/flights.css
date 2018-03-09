@@ -117,5 +117,13 @@ i {
 }
 
 .winner {
-    background-color: #e6f4e6;
+    background-color: #d6f4d6;
+}
+
+.header {
+    cursor: pointer;
+}
+
+.compare-table .header th:hover {
+    background-color: #007caa;
 }

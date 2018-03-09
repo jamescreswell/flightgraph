@@ -248,7 +248,21 @@ def compare(request, username1, username2):
     except:
         # flights_list is empty
         distance_mi2 = distance_km2 = 0
+    
+    airports_both = Airport.objects.filter((Q(origins__in=flights_list1)|Q(destinations__in=flights_list1)) & (Q(origins__in=flights_list2)|Q(destinations__in=flights_list2))).annotate(
+        id__count=Count('origins', filter=Q(origins__in=flights_list1), distinct=True)+Count('destinations', filter=Q(destinations__in=flights_list1), distinct=True)
+    )
+    
+    for airport in airports_both:
+        airport.count1 = top_airports1.get(pk=airport.pk).id__count
+        airport.count2 = top_airports2.get(pk=airport.pk).id__count
         
+    airports_only1 = top_airports1.exclude(pk__in=airports_both)
+    airports_only2 = top_airports2.exclude(pk__in=airports_both)
+    
+    airports_both = sorted(airports_both, key=lambda x: x.count1, reverse=True)
+
+    
     planes_both = flights_list1.filter(aircraft__in=flights_list2.values('aircraft')).values('aircraft').annotate(
         count1=Count('id')
     ).order_by('-count1')
@@ -262,11 +276,26 @@ def compare(request, username1, username2):
     planes_only2 = flights_list2.exclude(aircraft__in=flights_list1.values('aircraft')).values('aircraft').annotate(
         count2=Count('id')
     ).order_by('-count2')
-    # TODO: sort planes_both by count1
     
     
     
-    flights_list1.values('aircraft').intersection(flights_list2.values('aircraft'))#flights_list1.values('aircraft').intersection(flights_list2.values('aircraft'))
+    airlines_both = flights_list1.filter(airline__in=flights_list2.values('airline')).values('airline').annotate(
+        count1=Count('id')
+    ).order_by('-count1')
+    for airline in airlines_both:
+        airline['count2'] = top_airlines2.get(airline=airline['airline'])['id__count']
+    
+    airlines_only1 = flights_list1.exclude(airline__in=flights_list2.values('airline')).values('airline').annotate(
+        count1=Count('id')
+    ).order_by('-count1')
+    
+    airlines_only2 = flights_list2.exclude(airline__in=flights_list1.values('airline')).values('airline').annotate(
+        count2=Count('id')
+    ).order_by('-count2')
+    
+    
+    
+    #flights_list1.values('aircraft').intersection(flights_list2.values('aircraft'))#flights_list1.values('aircraft').intersection(flights_list2.values('aircraft'))
    
     
     context = {'username1': user1.username,
@@ -279,9 +308,15 @@ def compare(request, username1, username2):
                'distance_km2': distance_km2,
                'top_airports1': top_airports1,
                'top_airports2': top_airports2,
+               'airports_both': airports_both,
+               'airports_only1': airports_only1,
+               'airports_only2': airports_only2,
                'planes_both': planes_both,
                'planes_only1': planes_only1,
                'planes_only2': planes_only2,
+               'airlines_both': airlines_both,
+               'airlines_only1': airlines_only1,
+               'airlines_only2': airlines_only2,
               }
     
     return render(request, 'flights/compare.html', context)

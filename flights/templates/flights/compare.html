@@ -4,7 +4,10 @@
 {% load humanize %}
 
 
-{% block links %}<link rel="stylesheet" type="text/css" href="{% static 'flights/css/flights.css' %}" />{% endblock %}
+{% block links %}<link rel="stylesheet" type="text/css" href="{% static 'flights/css/flights.css' %}" />
+<script src="http://code.jquery.com/jquery-1.10.2.min.js"></script>
+<script src="https://code.jquery.com/ui/1.12.1/jquery-ui.min.js"></script>
+{% endblock %}
 
 
 {% block content %}
@@ -33,34 +36,81 @@
             <td>{{top_airports1|length}}</td>
             <td>{{top_airports2|length}}</td>
         </tr>
+        <tr>
+            <td>Unique aircraft</td>
+            {% with planes_only1|length as len1 %}
+            {% with planes_only2|length as len2 %}
+            <td>{{planes_both|length|add:len1}}</td>
+            <td>{{planes_both|length|add:len2}}</td>
+            {% endwith %}
+            {% endwith %}
+        </tr>
+        <tr>
+            <td>Unique airlines</td>
+            {% with airlines_only1|length as len1 %}
+            {% with airlines_only2|length as len2 %}
+            <td>{{airlines_both|length|add:len1}}</td>
+            <td>{{airlines_both|length|add:len2}}</td>
+            {% endwith %}
+            {% endwith %}
+        </tr>        
     </table>
     
     
     <h2>Airports</h2>
     
     <table class="compare-table">
-        <tr>
+        <tr class="header">
             <th colspan="3">Airports visited by {{username1}} and {{username2}}</th>
         </tr>
+        {% for airport in airports_both %}
+        <tr>
+            <td>{{airport.html_name|safe}}</td>
+            {% if airport.count1 >= airport.count2 %}
+            <td class="winner">{{airport.count1}}</td>
+            {% else %}
+            <td>{{airport.count1}}</td>
+            {% endif %}
+            {% if airport.count2 >= airport.count1 %}
+            <td class="winner">{{airport.count2}}</td>
+            {% else %}
+            <td>{{airport.count2}}</td>
+            {% endif %}
+        </tr>
+        {% endfor %}
     </table>
     
     <table class="compare-table">
-        <tr>
+        <tr class="header">
             <th colspan="3">Airports visited only by {{username1}}</th>
         </tr>
+        {% for airport in airports_only1 %}
+        <tr>
+            <td>{{airport.html_name|safe}}</td>
+            <td class="winner">{{airport.id__count}}</td>
+            <td>0</td>
+        </tr>
+        {% endfor %}
     </table>
     
     <table class="compare-table">
-        <tr>
+        <tr class="header">
             <th colspan="3">Airports visited only by {{username2}}</th>
         </tr>
+        {% for airport in airports_only2 %}
+        <tr>
+            <td>{{airport.html_name|safe}}</td>
+            <td>0</td>
+            <td class="winner">{{airport.id__count}}</td>
+        </tr>
+        {% endfor %}
     </table>
     
     
     <h2>Aircraft</h2>
     
     <table class="compare-table">
-        <tr>
+        <tr class="header">
             <th colspan="3">Aircraft flown by {{username1}} and {{username2}}</th>
         </tr>
         {% for plane in planes_both %}
@@ -71,7 +121,7 @@
             {% else %}
             <td>{{plane.count1}}</td>
             {% endif %}
-            {% if plane.count1 <= plane.count2 %}
+            {% if plane.count2 >= plane.count1 %}
             <td class="winner">{{plane.count2}}</td>
             {% else %}
             <td>{{plane.count2}}</td>
@@ -81,7 +131,7 @@
     </table>
     
     <table class="compare-table">
-        <tr>
+        <tr class="header">
             <th colspan="3">Aircraft flown only by {{username1}}</th>
         </tr>
         {% for plane in planes_only1 %}
@@ -94,7 +144,7 @@
     </table>
     
     <table class="compare-table">
-        <tr>
+        <tr class="header">
             <th colspan="3">Aircraft flown only by {{username2}}</th>
         </tr>
         {% for plane in planes_only2 %}
@@ -105,6 +155,65 @@
         </tr>
         {% endfor %}
     </table>
+
+
+
+    <h2>Airlines</h2>
+    
+    <table class="compare-table">
+        <tr class="header">
+            <th colspan="3">Airlines flown by {{username1}} and {{username2}}</th>
+        </tr>
+        {% for airline in airlines_both %}
+        <tr>
+            <td>{{airline.airline}}</td>
+            {% if airline.count1 >= airline.count2 %}
+            <td class='winner'>{{airline.count1}}</td>
+            {% else %}
+            <td>{{airline.count1}}</td>
+            {% endif %}
+            {% if airline.count2 >= airline.count1 %}
+            <td class="winner">{{airline.count2}}</td>
+            {% else %}
+            <td>{{airline.count2}}</td>
+            {% endif %}
+        </tr>
+        {% endfor %}
+    </table>
+    
+    <table class="compare-table">
+        <tr class="header">
+            <th colspan="3">Airlines flown only by {{username1}}</th>
+        </tr>
+        {% for airline in airlines_only1 %}
+        <tr>
+            <td>{{airline.airline}}</td>
+            <td class='winner'>{{airline.count1}}</td>
+            <td>0</td>
+        </tr>
+        {% endfor %}
+    </table>
+    
+    <table class="compare-table">
+        <tr class="header">
+            <th colspan="3">Airlines flown only by {{username2}}</th>
+        </tr>
+        {% for airline in airlines_only2 %}
+        <tr>
+            <td>{{airline.airline}}</td>
+            <td>0</td>
+            <td class='winner'>{{airline.count2}}</td>
+        </tr>
+        {% endfor %}
+    </table>
 </div>
+
+<script>
+    $('.header').on("click", function() {
+        $(this).nextUntil('tr.header').toggle();
+    });
+    
+    $('.compare-table').append('<col style="width:50%"><col style="width:25%"><col style="width:25%">');
+</script>
 
 {% endblock %}
