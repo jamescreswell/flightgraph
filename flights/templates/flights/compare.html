@@ -32,12 +32,17 @@
             <td>{{distance_mi2|floatformat:0|intcomma}} mi<br>{{distance_km2|floatformat:0|intcomma}} km</td>
         </tr>
         <tr>
-            <td>Unique airports</td>
+            <td>Airports</td>
             <td>{{top_airports1|length}}</td>
             <td>{{top_airports2|length}}</td>
         </tr>
         <tr>
-            <td>Unique aircraft</td>
+            <td>Countries</td>
+            <td>{{top_countries1|length}}</td>
+            <td>{{top_countries2|length}}</td>
+        </tr>
+        <tr>
+            <td>Aircraft</td>
             {% with planes_only1|length as len1 %}
             {% with planes_only2|length as len2 %}
             <td>{{planes_both|length|add:len1}}</td>
@@ -46,7 +51,7 @@
             {% endwith %}
         </tr>
         <tr>
-            <td>Unique airlines</td>
+            <td>Airlines</td>
             {% with airlines_only1|length as len1 %}
             {% with airlines_only2|length as len2 %}
             <td>{{airlines_both|length|add:len1}}</td>
@@ -56,6 +61,9 @@
         </tr>        
     </table>
     
+    <div>
+        <span class="toggle-button" onclick="showAll();">Show all tables</span> <span class="toggle-button" onclick="hideAll();">Hide all tables</span>
+    </div>
     
     <h2>Airports</h2>
     
@@ -106,6 +114,64 @@
         {% endfor %}
     </table>
     
+    
+    
+    
+    
+    <h2>Countries</h2>
+    
+    <table class="compare-table">
+        <tr class="header">
+            <th colspan="3">Countries visited by {{username1}} and {{username2}}</th>
+        </tr>
+        {% for country in countries_both %}
+        <tr>
+            {% with 'flights/img/flags/24/'|add:country.country_iso|add:'.png' as image_static %}
+            <td><img src="{% static image_static %}"> {{country.country}} </td>
+            {% endwith %}
+            {% if country.count1 >= country.count2 %}
+            <td class="winner">{{country.count1}}</td>
+            {% else %}
+            <td>{{country.count1}}</td>
+            {% endif %}
+            {% if country.count2 >= country.count1 %}
+            <td class="winner">{{country.count2}}</td>
+            {% else %}
+            <td>{{country.count2}}</td>
+            {% endif %}
+        </tr>
+        {% endfor %}
+    </table>
+    
+    <table class="compare-table">
+        <tr class="header">
+            <th colspan="3">Countries visited only by {{username1}}</th>
+        </tr>
+        {% for country in countries_only1 %}
+        <tr>
+            {% with 'flights/img/flags/24/'|add:country.country_iso|add:'.png' as image_static %}
+            <td><img src="{% static image_static %}"> {{country.country}} </td>
+            {% endwith %}
+            <td class="winner">{{country.id__count}}</td>
+            <td>0</td>
+        </tr>
+        {% endfor %}
+    </table>
+    
+    <table class="compare-table">
+        <tr class="header">
+            <th colspan="3">Countries visited only by {{username2}}</th>
+        </tr>
+        {% for country in countries_only2 %}
+        <tr>
+            {% with 'flights/img/flags/24/'|add:country.country_iso|add:'.png' as image_static %}
+            <td><img src="{% static image_static %}"> {{country.country}} </td>
+            {% endwith %}
+            <td>0</td>
+            <td class="winner">{{country.id__count}}</td>
+        </tr>
+        {% endfor %}
+    </table>
     
     <h2>Aircraft</h2>
     
@@ -214,6 +280,16 @@
     });
     
     $('.compare-table').append('<col style="width:50%"><col style="width:25%"><col style="width:25%">');
+</script>
+
+<script>
+    function showAll() {
+        $('.header').nextUntil('tr.header').show();
+    }
+    
+    function hideAll() {
+        $('.header').nextUntil('tr.header').hide();
+    }
 </script>
 
 {% endblock %}

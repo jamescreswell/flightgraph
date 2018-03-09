@@ -127,3 +127,16 @@ i {
 .compare-table .header th:hover {
     background-color: #007caa;
 }
+
+.compare-table img {
+    vertical-align: middle;
+}
+
+.toggle-button {
+    cursor: pointer;
+    margin-left: 1.25%;
+}
+
+.toggle-button:hover {
+    text-decoration: underline;
+}

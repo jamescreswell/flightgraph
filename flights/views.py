@@ -228,6 +228,20 @@ def compare(request, username1, username2):
     top_airlines1 = flights_list1.values('airline').annotate(Count('id')).order_by('-id__count')
     top_routes1 = flights_list1.values('origin__iata', 'origin__name', 'origin__city', 'origin__country', 'destination__iata', 'destination__name', 'destination__city', 'destination__country', 'origin__latitude', 'origin__longitude', 'destination__latitude', 'destination__longitude').annotate(Count('id')).order_by('-id__count')
     
+    
+    
+    top_countries1 = Airport.objects.values('country', 'country_iso').annotate(
+        id__count=Count('origins', filter=Q(origins__in=flights_list1), distinct=True)+Count('destinations', filter=Q(destinations__in=flights_list1), distinct=True)
+    ).filter(Q(id__count__gt=0))
+    
+    top_countries2 = Airport.objects.values('country', 'country_iso').annotate(
+        id__count=Count('origins', filter=Q(origins__in=flights_list2), distinct=True)+Count('destinations', filter=Q(destinations__in=flights_list2), distinct=True)
+    ).filter(Q(id__count__gt=0))
+    
+    
+    
+    
+    
     top_airports2 = Airport.objects.annotate(
         id__count=Count('origins', filter=Q(origins__in=flights_list2), distinct=True)+Count('destinations', filter=Q(destinations__in=flights_list2), distinct=True)
     ).filter(Q(id__count__gt=0)).order_by('-id__count')
@@ -261,6 +275,21 @@ def compare(request, username1, username2):
     airports_only2 = top_airports2.exclude(pk__in=airports_both)
     
     airports_both = sorted(airports_both, key=lambda x: x.count1, reverse=True)
+    
+    
+    
+    countries_both = Airport.objects.filter((Q(origins__in=flights_list1)|Q(destinations__in=flights_list1)) & (Q(origins__in=flights_list2)|Q(destinations__in=flights_list2))).values('country', 'country_iso').annotate(
+        id__count=Count('origins', filter=Q(origins__in=flights_list1), distinct=True)+Count('destinations', filter=Q(destinations__in=flights_list1), distinct=True)
+    )
+
+    for country in countries_both:
+        country['count1'] = top_countries1.get(country_iso=country['country_iso'])['id__count']
+        country['count2'] = top_countries2.get(country_iso=country['country_iso'])['id__count']
+        
+    countries_only1 = top_countries1.exclude(country__in=countries_both.values('country')).order_by('-id__count')
+    countries_only2 = top_countries2.exclude(country__in=countries_both.values('country')).order_by('-id__count')
+    
+    countries_both = sorted(countries_both, key=lambda x: x['count1'], reverse=True)
 
     
     planes_both = flights_list1.filter(aircraft__in=flights_list2.values('aircraft')).values('aircraft').annotate(
@@ -317,6 +346,11 @@ def compare(request, username1, username2):
                'airlines_both': airlines_both,
                'airlines_only1': airlines_only1,
                'airlines_only2': airlines_only2,
+               'countries_both': countries_both,
+               'countries_only1': countries_only1,
+               'countries_only2': countries_only2,
+               'top_countries1': top_countries1,
+               'top_countries2': top_countries2,
               }
     
     return render(request, 'flights/compare.html', context)
