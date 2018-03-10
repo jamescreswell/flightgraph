@@ -263,14 +263,24 @@ def compare(request, username1, username2):
         # flights_list is empty
         distance_mi2 = distance_km2 = 0
     
-    airports_both = Airport.objects.filter((Q(origins__in=flights_list1)|Q(destinations__in=flights_list1)) & (Q(origins__in=flights_list2)|Q(destinations__in=flights_list2))).annotate(
-        id__count=Count('origins', filter=Q(origins__in=flights_list1), distinct=True)+Count('destinations', filter=Q(destinations__in=flights_list1), distinct=True)
-    )
+    #airports_both = Airport.objects.filter(Q(origins__in=flights_list1)|Q(destinations__in=flights_list1)).filter(Q(origins__in=flights_list2)|Q(destinations__in=flights_list2)).distinct().annotate(
+    #    id__count=Count('origins', filter=Q(origins__in=flights_list1), distinct=True)+Count('destinations', filter=Q(destinations__in=flights_list1), distinct=True)
+    #)
     
+    #airports1 = Airport.objects.filter(Q(origins__in=flights_list1)|Q(destinations__in=flights_list1)).values('iata', distinct=True)
+    #print(airports1)
+    airports_both1 = Airport.objects.filter(Q(origins__in=flights_list1)|Q(destinations__in=flights_list1)).distinct()
+    airports_both2 = Airport.objects.filter(Q(origins__in=flights_list2)|Q(destinations__in=flights_list2)).distinct()
+    airports_both = airports_both1.filter(pk__in=airports_both2)
+    print(airports_both.query)
+    #print(airports_both.get(iata='PVG'))
+    #print(airports_test)
+    #print(list(airports_both))
     for airport in airports_both:
         airport.count1 = top_airports1.get(pk=airport.pk).id__count
         airport.count2 = top_airports2.get(pk=airport.pk).id__count
-        
+    
+    
     airports_only1 = top_airports1.exclude(pk__in=airports_both)
     airports_only2 = top_airports2.exclude(pk__in=airports_both)
     
@@ -278,13 +288,17 @@ def compare(request, username1, username2):
     
     
     
-    countries_both = Airport.objects.filter((Q(origins__in=flights_list1)|Q(destinations__in=flights_list1)) & (Q(origins__in=flights_list2)|Q(destinations__in=flights_list2))).values('country', 'country_iso').annotate(
-        id__count=Count('origins', filter=Q(origins__in=flights_list1), distinct=True)+Count('destinations', filter=Q(destinations__in=flights_list1), distinct=True)
-    )
-
+    #countries_both = Airport.objects.filter((Q(origins__in=flights_list1)|Q(destinations__in=flights_list1)) & (Q(origins__in=flights_list2)|Q(destinations__in=flights_list2))).values('country', 'country_iso').annotate(
+    #    id__count=Count('origins', filter=Q(origins__in=flights_list1), distinct=True)+Count('destinations', filter=Q(destinations__in=flights_list1), distinct=True)
+    #)
+    
+    countries_both1 = Airport.objects.filter(Q(origins__in=flights_list1)|Q(destinations__in=flights_list1)).distinct().values('country')#, 'country_iso')
+    countries_both2 = Airport.objects.filter(Q(origins__in=flights_list2)|Q(destinations__in=flights_list2)).distinct().values('country')#, 'country_iso')
+    countries_both = countries_both1.filter(country__in=countries_both2)
     for country in countries_both:
-        country['count1'] = top_countries1.get(country_iso=country['country_iso'])['id__count']
-        country['count2'] = top_countries2.get(country_iso=country['country_iso'])['id__count']
+        country['count1'] = top_countries1.get(country=country['country'])['id__count']
+        country['count2'] = top_countries2.get(country=country['country'])['id__count']
+        country['country_iso'] = top_countries1.get(country=country['country'])['country_iso']
         
     countries_only1 = top_countries1.exclude(country__in=countries_both.values('country')).order_by('-id__count')
     countries_only2 = top_countries2.exclude(country__in=countries_both.values('country')).order_by('-id__count')
