@@ -189,8 +189,8 @@
                 'aircraft_registration': row.cells[5].innerHTML.split('(')[1].slice(0, -1),
             },
             success: function (data) {
-                document.getElementById('viewport').innerHTML = '';
-                showList();
+                //document.getElementById('viewport').innerHTML = '';
+                //showList();
             },
             error: function (data) {
                 alert('Invalid data.');
