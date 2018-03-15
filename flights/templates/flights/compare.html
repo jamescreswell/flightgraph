@@ -8,6 +8,21 @@
 <script src="http://code.jquery.com/jquery-1.10.2.min.js"></script>
 <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.min.js"></script>
 
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.2.0/dist/leaflet.css" integrity="sha512-M2wvCLH6DSRazYeZRIm1JnYyh22purTM+FDB5CsyxtQJYeKq83arPe5wgbNmcFXGqiSH2XR8dT/fJISVA1r/zQ==" crossorigin=""/>
+<script src="https://unpkg.com/leaflet@1.2.0/dist/leaflet.js" integrity="sha512-lInM/apFSqyy1o6s89K4iQUKg6ppXEgsVxT35HbzUupEVRh2Eu9Wdl4tHj7dZO0s1uvplcYGmt3498TtHq+log==" crossorigin=""></script>
+
+<script src="http://www.webglearth.com/v2/api.js"></script>
+
+<script src="{% static 'flights/geo/arc.js' %}"></script>
+
+<script src="https://unpkg.com/leaflet.vectorgrid@latest/dist/Leaflet.VectorGrid.bundled.js"></script>
+
+<style>
+    .leaflet-container {
+        background: #acd5f9;
+    }
+</style>
+
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 
 {% endblock %}
@@ -15,7 +30,11 @@
 
 {% block content %}
 
+
+
 <div id="comparison">
+    <div id="compare-map">
+    </div>
     <h2>Summary</h2>
     
     <table class="compare-table">
@@ -301,5 +320,148 @@
         $('.fa-angle-down').show();
     }
 </script>
+
+<script>
+    var map = L.map('compare-map', {zoomControl: false, worldCopyJump: true, inertia: false}).setView([25, 0], 3);
+
+    L.control.zoom({position: 'bottomright'}).addTo(map);
+
+    //var myGeoJSONPath = '{% static "flights/geo/ne_10m_admin_0_countries_lakes.json" %}';
+    var myGeoJSONPath = '{% static "flights/geo/countries-hires.json" %}';
+    var myCustomStyle = {
+        stroke: true,
+        color: '#6e7a8c',
+        weight: 0.25,
+        fill: true,
+        fillColor: '#87b8a1',
+        fillOpacity: 1,
+        clickable: false
+    }
+    
+    var mapLayer = new L.LayerGroup().addTo(map);
+    
+    $.getJSON(myGeoJSONPath, function(data) {
+        //L.geoJson(data, {
+        //    clickable: false,
+        //    pane: 'tilePane',
+        //    style: myCustomStyle
+        //}).addTo(mapLayer);
+        var vectorGrid = L.vectorGrid.slicer(data, {
+            vectorTileLayerStyles: {
+                sliced: function(properties, zoom) {
+                    return {
+                        fillColor: '#87B8A1',
+                        stroke: true,
+                        fill: true,
+                        color: '#6E7A8C',
+                        weight: 0.25,
+                        fillOpacity: 1,
+                    }
+                }
+            },
+        })
+        .addTo(mapLayer);
+    });
+    
+    var x = 16;
+    var icon0 = L.icon({
+        iconUrl: "{% static 'flights/img/4.png' %}",
+        iconSize: [x, x],
+        iconAnchor: [x/2, x/2],
+        popupAnchor: [0, 0]
+    });
+    
+    var x = 12;
+    var icon1 = L.icon({
+        iconUrl: "{% static 'flights/img/airport-icon-red.png' %}",
+        iconSize: [x, x],
+        iconAnchor: [x/2, x/2],
+        popupAnchor: [0, 0]
+    });
+    
+    var icon2 = L.icon({
+        iconUrl: "{% static 'flights/img/airport-icon.png' %}",
+        iconSize: [x, x],
+        iconAnchor: [x/2, x/2],
+        popupAnchor: [0, 0]
+    });
+    
+    var layerGroup0 = new L.LayerGroup().addTo(map);
+    var layerGroup1 = new L.LayerGroup().addTo(map);
+    var layerGroup2 = new L.LayerGroup().addTo(map);
+
+    var baseLayers = {
+    };
+    var overlays = {
+        "Both": layerGroup0,
+        "{{username1}} only": layerGroup1,
+        "{{username2}} only": layerGroup2,
+        "Map": mapLayer
+    };
+    L.control.layers(baseLayers, overlays, {position: 'bottomright'}).addTo(map);
+</script>
+
+<script>
+    {% for airport in airports_both %}
+    {% with 'flights/img/flags/24/'|add:airport.country_iso|add:'.png' as image_static %}
+
+    var marker = new L.marker([{{ airport.latitude }}, {{ airport.longitude }}], {icon: icon0}).bindPopup('<b>{{ airport.name }}</b><br><i>{{ airport.city }}, {{ airport.country }}</i><br>Flights: {{ airport.id__count }} <img style="float: right;" src="{% static image_static %}">');
+
+    layerGroup0.addLayer(marker);
+     
+    var marker = new L.marker([{{ airport.latitude }}, {{ airport.longitude|add:360.0 }}], {icon: icon0}).bindPopup('<b>{{ airport.name }}</b><br><i>{{ airport.city }}, {{ airport.country }}</i><br>Flights: {{ airport.id__count }} <img style="float: right;" src="{% static image_static %}">');
+
+    layerGroup0.addLayer(marker);
+
+    var marker = new L.marker([{{ airport.latitude }}, {{ airport.longitude|add:-360.0 }}], {icon: icon0}).bindPopup('<b>{{ airport.name }}</b><br><i>{{ airport.city }}, {{ airport.country }}</i><br>Flights: {{ airport.id__count }} <img style="float: right;" src="{% static image_static %}">');
+
+    layerGroup0.addLayer(marker);
+     
+    {% endwith %}
+    {% endfor %}
+    
+    
+    {% for airport in airports_only1 %}
+    {% with 'flights/img/flags/24/'|add:airport.country_iso|add:'.png' as image_static %}
+
+    var marker = new L.marker([{{ airport.latitude }}, {{ airport.longitude }}], {icon: icon1}).bindPopup('<b>{{ airport.name }}</b><br><i>{{ airport.city }}, {{ airport.country }}</i><br>Flights: {{ airport.id__count }} <img style="float: right;" src="{% static image_static %}">');
+
+    layerGroup1.addLayer(marker);
+     
+    var marker = new L.marker([{{ airport.latitude }}, {{ airport.longitude|add:360.0 }}], {icon: icon1}).bindPopup('<b>{{ airport.name }}</b><br><i>{{ airport.city }}, {{ airport.country }}</i><br>Flights: {{ airport.id__count }} <img style="float: right;" src="{% static image_static %}">');
+
+    layerGroup1.addLayer(marker);
+
+    var marker = new L.marker([{{ airport.latitude }}, {{ airport.longitude|add:-360.0 }}], {icon: icon1}).bindPopup('<b>{{ airport.name }}</b><br><i>{{ airport.city }}, {{ airport.country }}</i><br>Flights: {{ airport.id__count }} <img style="float: right;" src="{% static image_static %}">');
+
+    layerGroup1.addLayer(marker);
+     
+    {% endwith %}
+    {% endfor %}
+    
+    
+    
+    {% for airport in airports_only2 %}
+    {% with 'flights/img/flags/24/'|add:airport.country_iso|add:'.png' as image_static %}
+
+    var marker = new L.marker([{{ airport.latitude }}, {{ airport.longitude }}], {icon: icon2}).bindPopup('<b>{{ airport.name }}</b><br><i>{{ airport.city }}, {{ airport.country }}</i><br>Flights: {{ airport.id__count }} <img style="float: right;" src="{% static image_static %}">');
+
+    layerGroup2.addLayer(marker);
+     
+    var marker = new L.marker([{{ airport.latitude }}, {{ airport.longitude|add:360.0 }}], {icon: icon2}).bindPopup('<b>{{ airport.name }}</b><br><i>{{ airport.city }}, {{ airport.country }}</i><br>Flights: {{ airport.id__count }} <img style="float: right;" src="{% static image_static %}">');
+
+    layerGroup2.addLayer(marker);
+
+    var marker = new L.marker([{{ airport.latitude }}, {{ airport.longitude|add:-360.0 }}], {icon: icon2}).bindPopup('<b>{{ airport.name }}</b><br><i>{{ airport.city }}, {{ airport.country }}</i><br>Flights: {{ airport.id__count }} <img style="float: right;" src="{% static image_static %}">');
+
+    layerGroup2.addLayer(marker);
+     
+    {% endwith %}
+    {% endfor %}
+
+    
+    
+</script>
+
 
 {% endblock %}

@@ -365,6 +365,8 @@ def compare(request, username1, username2):
                'countries_only2': countries_only2,
                'top_countries1': top_countries1,
                'top_countries2': top_countries2,
+               'top_routes1': top_routes1,
+               'top_routes2': top_routes2,
               }
     
     return render(request, 'flights/compare.html', context)
