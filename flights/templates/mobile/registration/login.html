@@ -1,0 +1,41 @@
+{% extends 'mobile/base.html' %}
+
+{% block content %}
+
+<div class="mobile-header">flightgraph.eu</div>
+
+{% if next %}
+    {% if user.is_authenticated %}
+    <p>Your account doesn't have access to this page. To proceed,
+    please login with an account that has access.</p>
+    {% else %}
+    <p>Please login to see this page.</p>
+    {% endif %}
+{% endif %}
+
+
+<div class="mobile-loginbox">
+    <form method="post" action="{% url 'login' %}">{% csrf_token %}
+        <div class="mobile-inputdiv">
+            {{ form.username }}
+        </div>
+        <div class="mobile-inputdiv">
+            {{ form.password }}
+        </div>
+        {% if form.errors %}
+        <p style="color: red;">Your username and password didn't match. Please try again.</p>
+        {% endif %}
+
+    <input type="submit" value="Login" id="id_submit"/>
+    <input type="hidden" name="next" value="{% url 'mobile_index' %}" />
+    </form>
+    
+    <p><a href="{% url 'create_account' %}">Create account</a></p>
+    <p><a href="{% url 'password_reset' %}">Lost password?</a></p>
+</div>
+
+<script>
+    document.getElementById('id_username').placeholder = 'Username';
+    document.getElementById('id_password').placeholder = 'Password';
+</script>
+{% endblock %}

@@ -3,23 +3,35 @@
 {% block content %}
 
 <div class="mobile-header">flightgraph.eu</div>
+{% if username %}
+<div class="mobile-item mobile-detail-item">You are logged in as {{ username }}. <br><a href="">Settings</a> <a href="{% url 'logout' %}">Log out</a></div>
 
 <div class="mobile-item mobile-link" id="add-link">ADD FLIGHT <i class="fa fa-angle-right fa-lg"></i></div>
 
 <div class="mobile-item mobile-link" id="flights-link">MY FLIGHTS <i class="fa fa-angle-right fa-lg"></i></div>
+{% else %}
 
+<div class="mobile-item mobile-link" id="login-link">LOG IN <i class="fa fa-angle-right fa-lg"></i></div>
+{% endif %}
 <div class="mobile-item mobile-link" id="routes-link">ROUTE MAPPER <i class="fa fa-angle-right fa-lg"></i></div>
 
 <div class="mobile-item mobile-link" id="airports-link">AIRPORT INFORMATION <i class="fa fa-angle-right fa-lg"></i></div>
 
 <script>
-    document.getElementById("add-link").onclick = function () {
-        location.href = "www.yoursite.com";
-    };
+    {% if username %}
     
     document.getElementById("flights-link").onclick = function () {
         location.href = "{% url 'mobile_flights' %}";
     }
+    
+    {% else %}
+    
+    document.getElementById("login-link").onclick = function () {
+        location.href = "{% url 'mobile_login' %}";
+    };
+     
+    {% endif %}
+
 </script>
 
 

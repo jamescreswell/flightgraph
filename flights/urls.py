@@ -1,6 +1,8 @@
 from django.conf.urls import url, include
 from django.urls import path
 
+from django.contrib.auth import views as auth_views
+
 from . import views, ajax, mobile_views
 
 urlpatterns = [
@@ -27,4 +29,5 @@ urlpatterns = [
     path('mobile/flights/', mobile_views.flights, name='mobile_flights'),
     path('mobile/list/', mobile_views.list, name='mobile_list'),
     path('mobile/flight/<int:flight_pk>/', mobile_views.flight_details, name='mobile_details'),
+    path('mobile/accounts/login/', auth_views.LoginView.as_view(template_name='mobile/registration/login.html'), name='mobile_login'),
 ]
