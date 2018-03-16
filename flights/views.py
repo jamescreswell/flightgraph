@@ -371,7 +371,6 @@ def compare(request, username1, username2):
     
     return render(request, 'flights/compare.html', context)
 
-
 @login_required
 def settings(request):
     if request.method == 'POST':

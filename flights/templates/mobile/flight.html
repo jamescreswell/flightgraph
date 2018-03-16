@@ -1,0 +1,30 @@
+{% extends 'mobile/base.html' %}
+{% load static %}
+
+{% block content %}
+
+<div class="mobile-header">flightgraph.eu/flights/list/{{flight.pk}}</div>
+
+
+<div class="mobile-item mobile-detail-item">Date: <span class="mobile-answer">{{ flight.date.isoformat }}</span></div>
+
+<div class="mobile-item mobile-detail-item">Number: <span class="mobile-answer">{{ flight.number }}</span></div>
+
+{% with 'flights/img/flags/24/'|add:flight.origin.country_iso|add:'.png' as image_static %}
+<div class="mobile-item mobile-detail-item">Origin: <span class="mobile-answer">{{ flight.origin }}</span><br>&nbsp;<span class="mobile-answer">{{ flight.origin.name }}</span><br><img src="{% static image_static %}">&nbsp;<span class="mobile-answer">{{ flight.origin.city }}, {{ flight.origin.country }}</span></div>
+{% endwith %}
+
+{% with 'flights/img/flags/24/'|add:flight.destination.country_iso|add:'.png' as image_static %}
+<div class="mobile-item mobile-detail-item">Destination: <span class="mobile-answer">{{ flight.destination }}</span><br>&nbsp;<span class="mobile-answer">{{ flight.destination.name }}</span><br><img src="{% static image_static %}">&nbsp;<span class="mobile-answer">{{ flight.destination.city }}, {{ flight.destination.country }}</span></div>
+{% endwith %}
+
+<div class="mobile-item mobile-detail-item">Airline: <span class="mobile-answer">{{ flight.airline }}</span></div>
+
+<div class="mobile-item mobile-detail-item">Aircraft: <span class="mobile-answer">{{ flight.aircraft }}</span></div>
+
+<div class="mobile-item mobile-detail-item">Registration: <span class="mobile-answer">{{ flight.aircraft_registration }}</span></div>
+
+
+
+
+{% endblock %}

@@ -1,0 +1,26 @@
+{% extends 'mobile/base.html' %}
+
+{% block content %}
+
+<div class="mobile-header">flightgraph.eu</div>
+
+<div class="mobile-item mobile-link" id="add-link">ADD FLIGHT <i class="fa fa-angle-right fa-lg"></i></div>
+
+<div class="mobile-item mobile-link" id="flights-link">MY FLIGHTS <i class="fa fa-angle-right fa-lg"></i></div>
+
+<div class="mobile-item mobile-link" id="routes-link">ROUTE MAPPER <i class="fa fa-angle-right fa-lg"></i></div>
+
+<div class="mobile-item mobile-link" id="airports-link">AIRPORT INFORMATION <i class="fa fa-angle-right fa-lg"></i></div>
+
+<script>
+    document.getElementById("add-link").onclick = function () {
+        location.href = "www.yoursite.com";
+    };
+    
+    document.getElementById("flights-link").onclick = function () {
+        location.href = "{% url 'mobile_flights' %}";
+    }
+</script>
+
+
+{% endblock %}

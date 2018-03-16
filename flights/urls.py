@@ -1,7 +1,7 @@
 from django.conf.urls import url, include
 from django.urls import path
 
-from . import views, ajax
+from . import views, ajax, mobile_views
 
 urlpatterns = [
     url(r'^$', views.index, name='index'),
@@ -22,4 +22,9 @@ urlpatterns = [
     url(r'^accounts/create_account/$', views.create_account, name='create_account'),
     path('profile/<str:username>/', views.flights, name='profile'),
     path('compare/<str:username1>/<str:username2>/', views.compare, name='compare'),
+    
+    path('mobile/', mobile_views.index, name='mobile_index'),
+    path('mobile/flights/', mobile_views.flights, name='mobile_flights'),
+    path('mobile/list/', mobile_views.list, name='mobile_list'),
+    path('mobile/flight/<int:flight_pk>/', mobile_views.flight_details, name='mobile_details'),
 ]

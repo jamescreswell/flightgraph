@@ -1,0 +1,21 @@
+{% extends 'mobile/base.html' %}
+
+{% block content %}
+
+<div class="mobile-header">flightgraph.eu/flights/list/</div>
+
+{% for flight in flights %}
+
+<div class="mobile-item mobile-list-item" id="flight-link-{{ flight.pk }}">{{ flight.date.isoformat }} | {{ flight.number }} | {{ flight.origin }}–{{ flight.destination }} <i class="fa fa-angle-right"></i></div>
+
+{% endfor %}
+
+<script>
+    {% for flight in flights %}
+    document.getElementById("flight-link-{{ flight.pk }}").onclick = function () {
+        location.href = '{% url "mobile_details" flight.pk %}';
+    };
+    {% endfor %}
+</script>
+
+{% endblock %}
