@@ -50,15 +50,40 @@ def flight_details(request, flight_pk):
     }
     return render(request, 'mobile/flight.html', context)
 
+@login_required
 def add(request):
     if request.method == 'POST':
         try:
-            pass
+            origin_airport = Airport.objects.get(pk=request.POST['origin-pk'])
+            destination_airport = Airport.objects.get(pk=request.POST['destination-pk'])
+            try:
+                next_sortid = Flight.objects.filter(owner=request.user).order_by('-sortid')[0].sortid + 1
+            except:
+                next_sortid = 0
+            f = Flight(date = request.POST['date'],
+                       number = request.POST['number'],
+                       origin = origin_airport,
+                       destination = destination_airport,
+                       airline = request.POST['airline'],
+                       aircraft = request.POST['aircraft'],
+                       aircraft_registration = request.POST['registration'],
+                       owner=request.user,
+                       distance=-1.0,
+                       sortid=next_sortid)
+            f.save()
+            #new_flight.distance = new_flight.origin.distance_to(new_flight.destination)
+            #new_flight.save()
+            f.set_distance()
+            #return redirect(index)
+            added = True
         except:
-            return HttpRequest("Form validation error")
+            return HttpResponse("Form validation error")
     else:
-        context = {'form': 0}
-        return render(request, 'mobile/add.html', context)
+        added = False
+    context = {'form': 0, 
+               'added': added
+              }
+    return render(request, 'mobile/add.html', context)
 
 @csrf_exempt # This disables all CSRF security, please fix as soon as possible (JS fetch POSTs without credentials...)
 def search_airports(request):
@@ -67,6 +92,6 @@ def search_airports(request):
             airport = Airport.objects.get(iata=request.body.decode('utf-8').strip().upper())
             # if multiple hits, take the most recent
             # if no iata, not possible from this function
-            return JsonResponse({'status': 1, 'name': airport.name, 'iata': airport.iata})
+            return JsonResponse({'status': 1, 'name': airport.name, 'iata': airport.iata, 'pk': airport.pk})
         except:
             return JsonResponse({'status': 0});

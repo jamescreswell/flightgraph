@@ -5,30 +5,34 @@
 <div class="mobile-header">flightgraph.eu/add/</div>
 
 
+{% if added %}
+<div class="mobile-item mobile-detail-item" style="color:green;">Flight successfully added.</div>
+{% endif %}
 
-
-<div class="mobile-loginbox">
-    <form method="post" action="{% url 'mobile_add' %}">{% csrf_token %}
+<div class="mobile-loginbox" autocomplete="off">
+    <form method="post" action="">{% csrf_token %}
         <div class="mobile-inputdiv">
-            <input type="text" onfocus="(this.type='date')" onblur="(this.type='text')" placeholder="YYYY-MM-DD">
+            <input type="text" onfocus="(this.type='date')" onblur="(this.type='text')" placeholder="YYYY-MM-DD" name="date" autocomplete="off">
         </div>
         <div class="mobile-inputdiv">
-            <input type="text" placeholder="Flight number">
+            <input type="text" placeholder="Flight number" name="number" autocomplete="off">
         </div>
         <div class="mobile-inputdiv">
-            <input type="text" placeholder="Origin" id="origin-field">
+            <input type="text" placeholder="Origin" id="origin-field" name="origin-name" autocomplete="off">
+            <input type="hidden" id="origin-field-hidden" name="origin-pk" value="">
         </div>
         <div class="mobile-inputdiv">
-            <input type="text" placeholder="Destination" id="destination-field">
+            <input type="text" placeholder="Destination" id="destination-field" name="destination-name" autocomplete="off">
+            <input type="hidden" id="destination-field-hidden" name="destination-pk" value="">
         </div>
         <div class="mobile-inputdiv">
-            <input type="text" placeholder="Airline">
+            <input type="text" placeholder="Airline" name="airline" autocomplete="off">
         </div>
         <div class="mobile-inputdiv">
-            <input type="text" placeholder="Aircraft">
+            <input type="text" placeholder="Aircraft" name="aircraft" autocomplete="off">
         </div>
         <div class="mobile-inputdiv">
-            <input type="text" placeholder="Registration">
+            <input type="text" placeholder="Registration" name="registration" autocomplete="off">
         </div>
     
         <input type="submit" value="Add" id="id_submit"/>
@@ -51,6 +55,7 @@
             if (data['status'] == 1) {
                 document.getElementById(id).style.color = 'green';
                 document.getElementById(id).value = data['iata'] + ' - ' + data['name'];
+                document.getElementById(id + '-hidden').value = data['pk'];
                 console.log('success');
             }
             if (data['status'] == 0) {
