@@ -30,4 +30,7 @@ urlpatterns = [
     path('mobile/list/', mobile_views.list, name='mobile_list'),
     path('mobile/flight/<int:flight_pk>/', mobile_views.flight_details, name='mobile_details'),
     path('mobile/accounts/login/', auth_views.LoginView.as_view(template_name='mobile/registration/login.html'), name='mobile_login'),
+    path('mobile/add/', mobile_views.add, name='mobile_add'),
+    
+    path('api/search_airports/', mobile_views.search_airports, name='search_airports'),
 ]

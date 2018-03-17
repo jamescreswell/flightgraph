@@ -1,0 +1,86 @@
+{% extends 'mobile/base.html' %}
+
+{% block content %}
+
+<div class="mobile-header">flightgraph.eu/add/</div>
+
+
+
+
+<div class="mobile-loginbox">
+    <form method="post" action="{% url 'mobile_add' %}">{% csrf_token %}
+        <div class="mobile-inputdiv">
+            <input type="text" onfocus="(this.type='date')" onblur="(this.type='text')" placeholder="YYYY-MM-DD">
+        </div>
+        <div class="mobile-inputdiv">
+            <input type="text" placeholder="Flight number">
+        </div>
+        <div class="mobile-inputdiv">
+            <input type="text" placeholder="Origin" id="origin-field">
+        </div>
+        <div class="mobile-inputdiv">
+            <input type="text" placeholder="Destination" id="destination-field">
+        </div>
+        <div class="mobile-inputdiv">
+            <input type="text" placeholder="Airline">
+        </div>
+        <div class="mobile-inputdiv">
+            <input type="text" placeholder="Aircraft">
+        </div>
+        <div class="mobile-inputdiv">
+            <input type="text" placeholder="Registration">
+        </div>
+    
+        <input type="submit" value="Add" id="id_submit"/>
+        <input type="hidden" name="next" value="{% url 'mobile_index' %}" />
+    </form>
+    
+</div>
+
+
+<script>
+    // Using the JS "fetch" api instead of AJAX because we don't have jQuery in the mobile site...this function is extremely fragile
+    function query_airport_code(code, id) {
+        opts = {
+            method: 'POST',
+            body: code,
+        };
+        fetch('{% url "search_airports" %}', opts)
+        .then((resp) => resp.json())
+        .then(function(data) {
+            if (data['status'] == 1) {
+                document.getElementById(id).style.color = 'green';
+                document.getElementById(id).value = data['iata'] + ' - ' + data['name'];
+                console.log('success');
+            }
+            if (data['status'] == 0) {
+                document.getElementById(id).style.color = 'red';
+                document.getElementById(id).value += ' - airport not found';
+            }
+        })
+        .catch(function(error) {
+            console.log(error);
+        });
+    }
+    
+    document.getElementById('origin-field').onblur = function () {
+        if (this.value != "") {
+            query_airport_code(this.value, 'origin-field');
+        }
+    };
+    
+    document.getElementById('origin-field').onclick = function () {
+        this.value = "";
+    };
+    
+    document.getElementById('destination-field').onblur = function () {
+        if (this.value != "") {
+            query_airport_code(this.value, 'destination-field');
+        }
+    };
+    
+    document.getElementById('destination-field').onclick = function () {
+        this.value = "";
+    };
+</script>
+{% endblock %}

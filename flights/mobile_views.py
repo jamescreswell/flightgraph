@@ -12,6 +12,8 @@ import time
 from django.db.models import Q, Count, Sum
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User
+from django.views.decorators.csrf import csrf_exempt, ensure_csrf_cookie
+import json
 
 def index(request):
     context = {
@@ -47,3 +49,24 @@ def flight_details(request, flight_pk):
         'flight': flight,
     }
     return render(request, 'mobile/flight.html', context)
+
+def add(request):
+    if request.method == 'POST':
+        try:
+            pass
+        except:
+            return HttpRequest("Form validation error")
+    else:
+        context = {'form': 0}
+        return render(request, 'mobile/add.html', context)
+
+@csrf_exempt # This disables all CSRF security, please fix as soon as possible (JS fetch POSTs without credentials...)
+def search_airports(request):
+    if request.method == 'POST':
+        try: 
+            airport = Airport.objects.get(iata=request.body.decode('utf-8').strip().upper())
+            # if multiple hits, take the most recent
+            # if no iata, not possible from this function
+            return JsonResponse({'status': 1, 'name': airport.name, 'iata': airport.iata})
+        except:
+            return JsonResponse({'status': 0});

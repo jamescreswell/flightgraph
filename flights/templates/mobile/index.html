@@ -24,6 +24,10 @@
         location.href = "{% url 'mobile_flights' %}";
     }
     
+    document.getElementById('add-link').onclick = function () {
+        location.href = "{% url 'mobile_add' %}";
+    }
+    
     {% else %}
     
     document.getElementById("login-link").onclick = function () {
@@ -31,6 +35,7 @@
     };
      
     {% endif %}
+    
 
 </script>
 
