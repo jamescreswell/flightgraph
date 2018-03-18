@@ -26,6 +26,9 @@
 
 <div class="mobile-item mobile-detail-item">Distance: <span class="mobile-answer">{{ flight.distance|floatformat:0 }} mi</span></div>
 
+{% if flight.picture_link %}
+<div class="mobile-item mobile-detail-item"><a href="{{ flight.picture_link }}" target="_blank"><img src="{{ flight.picture_link }}" style="width: 100%;"></a></div>
+{% endif %}
 
 
 {% endblock %}

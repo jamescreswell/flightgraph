@@ -145,3 +145,7 @@ i {
 .toggle-button:hover {
     text-decoration: underline;
 }
+
+.list-thumbnail {
+    height: 20px;
+}

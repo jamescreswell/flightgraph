@@ -66,6 +66,7 @@ class Flight(models.Model):
     owner = models.ForeignKey(User, on_delete=models.CASCADE, related_name='owners')
     
     picture = models.ImageField(upload_to='flights/user_pics', blank=True)
+    picture_link = models.URLField(blank=True)
     
     def calculate_distance(self, dim='mi'):
         return self.origin.distance_to(self.destination, dim)

@@ -19,7 +19,7 @@
         <td>{{ flight.destination.html_name|safe }}</td>
         <td>{{ flight.airline }}</td>
         <td>{{ flight.aircraft }} ({{ flight.aircraft_registration }})</td>
-        <td></td>
+        <td><a href="{{ flight.picture_link }}" target="_blank"><img src="{{ flight.picture_link }}" class="list-thumbnail"></a></td>
         {% if query_username == username %}
         <td>
             <i class="fa fa-pencil" title="Edit flight"></i>

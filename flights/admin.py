@@ -13,6 +13,7 @@ class AirportAdmin(admin.ModelAdmin):
 class FlightAdmin(admin.ModelAdmin):
     list_display = ('number', 'date', 'origin', 'destination', 'owner')
     list_display_links = ('number',)
+    list_filter = ['owner', 'airline']
     
 class UserProfileAdmin(admin.ModelAdmin):
     list_display = ('user', 'public', 'public_delay',)
