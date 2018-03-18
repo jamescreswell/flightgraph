@@ -28,6 +28,7 @@ urlpatterns = [
     path('mobile/', mobile_views.index, name='mobile_index'),
     path('mobile/flights/', mobile_views.flights, name='mobile_flights'),
     path('mobile/list/', mobile_views.list, name='mobile_list'),
+    path('mobile/statistics/', mobile_views.statistics, name='mobile_statistics'),
     path('mobile/flight/<int:flight_pk>/', mobile_views.flight_details, name='mobile_details'),
     path('mobile/accounts/login/', auth_views.LoginView.as_view(template_name='mobile/registration/login.html'), name='mobile_login'),
     path('mobile/add/', mobile_views.add, name='mobile_add'),

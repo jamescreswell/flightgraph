@@ -95,3 +95,26 @@ def search_airports(request):
             return JsonResponse({'status': 1, 'name': airport.name, 'iata': airport.iata, 'pk': airport.pk})
         except:
             return JsonResponse({'status': 0});
+        
+@login_required        
+def statistics(request):
+    user = request.user
+
+    flights_list = Flight.objects.filter(owner=user)
+
+    top_airports = Airport.objects.annotate(
+        id__count=Count('origins', filter=Q(origins__in=flights_list), distinct=True)+Count('destinations', filter=Q(destinations__in=flights_list), distinct=True)
+    ).filter(Q(id__count__gt=0)).order_by('-id__count')
+
+    top_planes = flights_list.values('aircraft').annotate(Count('id')).order_by('-id__count')
+    top_airlines = flights_list.values('airline').annotate(Count('id')).order_by('-id__count')
+
+    top_routes = flights_list.values('origin__iata', 'origin__name', 'origin__city', 'origin__country', 'destination__iata', 'destination__name', 'destination__city', 'destination__country', 'origin__latitude', 'origin__longitude', 'destination__latitude', 'destination__longitude').annotate(Count('id')).order_by('-id__count')
+
+    context = {'top_airports': top_airports,
+               'top_planes': top_planes,
+               'top_airlines': top_airlines,
+               'top_routes': top_routes,
+              }
+    
+    return render(request, 'mobile/statistics.html', context)

@@ -1,0 +1,102 @@
+{% extends 'mobile/base.html' %}
+
+{% block content %}
+
+<div class="mobile-header">flightgraph.eu/flights/stats/</div>
+
+<div class="mobile-item mobile-link" id="airports-header">Airports <i class="fa fa-angle-down"></i></div>
+
+{% for airport in top_airports %}
+<div class="mobile-item mobile-list-item airport" style="display:none;">{{ airport.html_name|safe }} <span class="mobile-answer">{{ airport.id__count }}</span></div>
+{% endfor %}
+
+<div class="mobile-item mobile-link" id="routes-header">Routes <i class="fa fa-angle-down"></i></div>
+
+{% for route in top_routes %}
+<div class="mobile-item mobile-list-item route" style="display:none;"><abbr title="{{ route.origin__name }}, {{ route.origin__city }}, {{ route.origin__country }}">{{ route.origin__iata }}</abbr> – 
+            <abbr title="{{ route.destination__name }}, {{ route.destination__city }}, {{ route.destination__country }}">{{ route.destination__iata }}</abbr> <span class="mobile-answer">{{ route.id__count }}</span></div>
+{% endfor %}
+
+<div class="mobile-item mobile-link" id="airline-header">Airlines <i class="fa fa-angle-down"></i></div>
+
+{% for airline in top_airlines %}
+<div class="mobile-item mobile-list-item airline" style="display:none;">{{ airline.airline }} <span class="mobile-answer">{{ airline.id__count }}</span></div>
+{% endfor %}
+
+<div class="mobile-item mobile-link" id="aircraft-header">Aircraft <i class="fa fa-angle-down"></i></div>
+
+{% for plane in top_planes %}
+<div class="mobile-item mobile-list-item aircraft" style="display:none;">{{ plane.aircraft }} <span class="mobile-answer">{{ plane.id__count }}</span></div>
+{% endfor %}
+
+<script>
+    document.getElementById("airports-header").onclick = function () {
+        var divs = document.getElementsByClassName("airport");
+        for(var i = 0; i < divs.length; i++) {
+            if (divs[i].style.display == 'none') {
+                divs[i].style.display = '';
+            }
+            else {
+                divs[i].style.display = 'none';
+            }
+        }
+    };
+    
+    document.getElementById("routes-header").onclick = function () {
+        var divs = document.getElementsByClassName("route");
+        for(var i = 0; i < divs.length; i++) {
+            if (divs[i].style.display == 'none') {
+                divs[i].style.display = '';
+            }
+            else {
+                divs[i].style.display = 'none';
+            }
+        }
+    };
+    
+    document.getElementById("airline-header").onclick = function () {
+        var divs = document.getElementsByClassName("airline");
+        for(var i = 0; i < divs.length; i++) {
+            if (divs[i].style.display == 'none') {
+                divs[i].style.display = '';
+            }
+            else {
+                divs[i].style.display = 'none';
+            }
+        }
+    };
+    
+    document.getElementById("aircraft-header").onclick = function () {
+        var divs = document.getElementsByClassName("aircraft");
+        for(var i = 0; i < divs.length; i++) {
+            if (divs[i].style.display == 'none') {
+                divs[i].style.display = '';
+            }
+            else {
+                divs[i].style.display = 'none';
+            }
+        }
+    };
+    
+    var divs = document.getElementsByClassName("airport");
+    for(var i = 0; i < divs.length; i++) {
+        divs[i].style.display = 'none';
+    }
+    
+    var divs = document.getElementsByClassName("route");
+    for(var i = 0; i < divs.length; i++) {
+        divs[i].style.display = 'none';
+    }
+    
+    var divs = document.getElementsByClassName("airline");
+    for(var i = 0; i < divs.length; i++) {
+        divs[i].style.display = 'none';
+    }
+    
+    var divs = document.getElementsByClassName("aircraft");
+    for(var i = 0; i < divs.length; i++) {
+        divs[i].style.display = 'none';
+    }
+</script>
+
+{% endblock %}

@@ -108,3 +108,12 @@ input[type='date'] {
     float: right;
     transform: translateY(4px);
 }
+
+.fa-angle-down {
+    float: right;
+    transform: translateY(4px);
+}
+
+.fa-angle-up {
+    float: right;
+}
