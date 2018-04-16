@@ -45,6 +45,7 @@
 <script>
     // Using the JS "fetch" api instead of AJAX because we don't have jQuery in the mobile site...this function is extremely fragile
     function query_airport_code(code, id) {
+        document.getElementById(id).value = "Searching..."
         opts = {
             method: 'POST',
             body: code,
@@ -60,7 +61,7 @@
             }
             if (data['status'] == 0) {
                 document.getElementById(id).style.color = 'red';
-                document.getElementById(id).value += ' - airport not found';
+                document.getElementById(id).value = 'Airport not found';
             }
         })
         .catch(function(error) {
