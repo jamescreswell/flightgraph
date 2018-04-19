@@ -17,7 +17,7 @@ from django.contrib.auth.models import User
 import matplotlib
 matplotlib.use('Agg') # Server has no GUI
 import matplotlib.pyplot as plt
-from mpl_toolkits.basemap import Basemap
+#from mpl_toolkits.basemap import Basemap
 
 def index(request):
     context = {'nav_id': 'index_nav',
@@ -414,7 +414,7 @@ def mileage_graph(request, user1, user2):
     
     
     
-    response = HttpResponse(content_type='image/png')
+    #response = HttpResponse(content_type='image/png')
     
     plt.figure()
     
@@ -424,9 +424,11 @@ def mileage_graph(request, user1, user2):
     plt.legend()
     plt.xlabel('Date')
     plt.ylabel('Distance (mi)')
-
+    import io
+    buf = io.BytesIO()
 
     
-    plt.savefig(response, format='png', dpi=150, bbox_inches='tight')
+    plt.savefig(buf, format='png', dpi=150, bbox_inches='tight')
+    response = HttpResponse(buf.getvalue(), content_type='image/png')
     return response
  
