@@ -79,7 +79,7 @@
         {% endif %}
     </ul>
 
-    <h4>Filter</h4>
+    <!--<h4>Filter</h4>
 
     <table class="" id="airport" onchange="">
         <tr>
@@ -115,16 +115,16 @@
                 </select>
             </td>
         </tr>
-    </table>
+    </table>-->
     
-    <h4>Map options</h4>
+    <!--<h4>Map options</h4>
     
     <table>
         <tr>
             <td>Route colour</td>
             <td><input type="color" id="routeColour" value="#ff2525" onchange="changeRouteColour();"></td>
         </tr>
-    </table>
+    </table>-->
 
     {% if not query_username %}
     <h4>Share</h4>
@@ -142,71 +142,7 @@
 
 <script>
     $('#leftbar').show('slide', {direction: 'left'}, 400);
-
-    function applyFilter() {
-        airport = document.getElementById("airportselect").value;
-        airline = document.getElementById("airlineselect").value;
-        plane = document.getElementById("planeselect").value;
-
-        $('.ajaxpanel').remove();
-
-        $.ajax({
-            url: '{% url "draw_map" username=display_username %}',
-            data: {
-                'airport': airport,
-                'airline': airline,
-                'plane': plane,
-            },
-            success: function (data) {
-                $('#viewport').append(data);
-                $('.ajaxpanel').hide();
-            }
-        });
-
-        $.ajax({
-            url: '{% url "draw_list" username=display_username %}',
-            data: {
-                'airport': airport,
-                'airline': airline,
-                'plane': plane,
-            },
-            success: function (data) {
-                $('#viewport').append(data);
-                $('.ajaxpanel').hide();
-            }
-        });
-
-        $.ajax({
-            url: '{% url "draw_stats" username=display_username %}',
-            data: {
-                'airport': airport,
-                'airline': airline,
-                'plane': plane,
-            },
-            success: function (data) {
-                $('#viewport').append(data);
-                $('.ajaxpanel').hide();
-                currentView = $('aside > ul > li > .activenav').attr('id');
-                if (currentView == 'map_link') {
-                    //$('#map').show();
-                }
-                else if (currentView == 'list_link') {
-                    $('.ajaxpanel').hide();
-                    showList();
-                }
-                else if (currentView == 'statistics_link') {
-                    $('.statstable').show();
-                }
-                else if (currentView == 'add_link') {
-                    $('#addform').show();
-                }
-            }
-        });
-
-
-
-    }
-
+    
     function showMap() {
         $('aside > ul > li > a').removeClass('activenav');
         $('#map_link').addClass('activenav');
@@ -257,6 +193,7 @@
             $('.statstable').show();
         }
     }
+
 
     function showAdd() {
         $('aside > ul > li > a').removeClass('activenav');
@@ -374,6 +311,74 @@ $.ajax({
         linesLayer.eachLayer(function (layer) {
             layer.setStyle({color: colorCode});
         });
+    }
+</script>
+
+
+<script>
+    // Old filter function, must be rewritten. Preserved for reference only
+    function applyFilter() {
+        airport = document.getElementById("airportselect").value;
+        airline = document.getElementById("airlineselect").value;
+        plane = document.getElementById("planeselect").value;
+
+        $('.ajaxpanel').remove();
+
+        $.ajax({
+            url: '{% url "draw_map" username=display_username %}',
+            data: {
+                'airport': airport,
+                'airline': airline,
+                'plane': plane,
+            },
+            success: function (data) {
+                $('#viewport').append(data);
+                $('.ajaxpanel').hide();
+            }
+        });
+
+        $.ajax({
+            url: '{% url "draw_list" username=display_username %}',
+            data: {
+                'airport': airport,
+                'airline': airline,
+                'plane': plane,
+            },
+            success: function (data) {
+                $('#viewport').append(data);
+                $('.ajaxpanel').hide();
+            }
+        });
+
+        $.ajax({
+            url: '{% url "draw_stats" username=display_username %}',
+            data: {
+                'airport': airport,
+                'airline': airline,
+                'plane': plane,
+            },
+            success: function (data) {
+                $('#viewport').append(data);
+                $('.ajaxpanel').hide();
+                currentView = $('aside > ul > li > .activenav').attr('id');
+                if (currentView == 'map_link') {
+                    //$('#map').show();
+                }
+                else if (currentView == 'list_link') {
+                    $('.ajaxpanel').hide();
+                    showList();
+                }
+                else if (currentView == 'statistics_link') {
+                    $('.statstable').show();
+                }
+                else if (currentView == 'add_link') {
+                    $('#addform').show();
+                }
+            }
+        });
+
+
+
     }
 </script>
 

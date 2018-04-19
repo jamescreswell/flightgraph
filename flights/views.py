@@ -14,10 +14,10 @@ from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User
 
 
-#import matplotlib
-#matplotlib.use('Agg') # Server has no GUI
-#import matplotlib.pyplot as plt
-#from mpl_toolkits.basemap import Basemap
+import matplotlib
+matplotlib.use('Agg') # Server has no GUI
+import matplotlib.pyplot as plt
+from mpl_toolkits.basemap import Basemap
 
 def index(request):
     context = {'nav_id': 'index_nav',
@@ -397,3 +397,36 @@ def create_account(request):
     else:
         form = UserCreationForm()
     return render(request, 'registration/create_account.html', {'form': form})
+
+def mileage_graph(request, user1, user2):
+    if user2 != 'null':
+        usernames = [user1, user2]
+    else:
+        usernames = [user1,]
+    dates, dists = {}, {}
+    for user in usernames:
+        flights = Flight.objects.filter(owner__username=user).order_by('date')
+        dates[user] = []
+        dists[user] = [0]
+        for flight in flights:
+            dates[user].append(matplotlib.dates.date2num(flight.date))
+            dists[user].append(dists[user][-1] + flight.distance)
+    
+    
+    
+    response = HttpResponse(content_type='image/png')
+    
+    plt.figure()
+    
+    for user in usernames:
+        plt.plot_date(dates[user], dists[user][1:], marker=None, linestyle='-', xdate=True, label=user)
+    
+    plt.legend()
+    plt.xlabel('Date')
+    plt.ylabel('Distance (mi)')
+
+
+    
+    plt.savefig(response, format='png', dpi=150, bbox_inches='tight')
+    return response
+ 

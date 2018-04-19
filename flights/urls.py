@@ -34,4 +34,5 @@ urlpatterns = [
     path('mobile/add/', mobile_views.add, name='mobile_add'),
     
     path('api/search_airports/', mobile_views.search_airports, name='search_airports'),
+    path('api/mileage_graph/usr1=<str:user1>&usr2=<str:user2>', views.mileage_graph, name='mileage_graph'),
 ]
