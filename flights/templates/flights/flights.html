@@ -19,12 +19,10 @@
 
 <style>
     .leaflet-container {
-        background: #acd5f9;
+        /*background: #acd5f9;*/
+        background: #C6ECFF;
     }
 </style>
-
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
-
 {% endblock %}
 
 
@@ -43,7 +41,7 @@
 </div>
 {% endif %}
 
-<aside id="leftbar">
+<!--<aside id="leftbar">
     {% if not query_username %}
     <h2>Your flights</h2>
     {% else %}
@@ -125,12 +123,13 @@
             <td><input type="color" id="routeColour" value="#ff2525" onchange="changeRouteColour();"></td>
         </tr>
     </table>-->
+    <!--
 
     {% if not query_username %}
     <h4>Share</h4>
     <p>You can share this page at <a href="{% url "profile" username=username %}">{% url "profile" username=username %}</a>. Choose privacy options in your settings.</p>
     {% endif %}
-</aside>
+</aside>-->
 
 
 <div id="viewport">
@@ -226,7 +225,7 @@
     L.control.zoom({position: 'bottomright'}).addTo(map);
 
     //var myGeoJSONPath = '{% static "flights/geo/ne_10m_admin_0_countries_lakes.json" %}';
-    var myGeoJSONPath = '{% static "flights/geo/countries-hires.json" %}';
+    var myGeoJSONPath = '{% static "flights/geo/ne_10m_admin_0_countries_lakes.json" %}';
     var myCustomStyle = {
         stroke: true,
         color: '#6e7a8c',
@@ -249,10 +248,10 @@
             vectorTileLayerStyles: {
                 sliced: function(properties, zoom) {
                     return {
-                        fillColor: '#87B8A1',
+                        fillColor: '#E0E0E0',//'#87B8A1',
                         stroke: true,
                         fill: true,
-                        color: '#6E7A8C',
+                        color: '#646464',
                         weight: 0.25,
                         fillOpacity: 1,
                     }
@@ -382,5 +381,10 @@ $.ajax({
     }
 </script>
 
+<script>
+    function airportClick(e) {
+        alert(this.name);
+    }
+</script>
 
 {% endblock %}

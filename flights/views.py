@@ -214,6 +214,9 @@ def flights(request, username=None):
 
     return render(request, 'flights/flights.html', context)
 
+def flights_map(request):
+    pass
+
 def compare(request, username1, username2):
     user1 = User.objects.get(username=username1)
     user2 = User.objects.get(username=username2)

@@ -6,17 +6,31 @@
         <title>flightgraph.eu</title>
         <link rel="stylesheet" type="text/css" href="{% static 'flights/css/base.css' %}" />
         <link href="https://fonts.googleapis.com/css?family=Open+Sans" rel="stylesheet">
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
         {% block links %}
         {% endblock %}
     </head>
     
     <body>
-        <div class="topnav">
-            <a {#href="{% url 'index' %}"#} id="index_nav">flightgraph.eu</a>
-            <a {#href="{% url 'gcmap' %}"#} id="gcmap_nav">Route mapper</a>
-            <a href="{% url 'flights' %}" id="flights_nav">My flights</a>
+        <div class="navbar">
+            <a href="{% url 'index' %}" id="index_nav">flightgraph.eu</a>
+            <a href="{% url 'gcmap' %}" id="gcmap_nav">Route mapper</a>
+            <!--<a href="{% url 'flights' %}" id="flights_nav">My flights</a>-->
             <a id="airport_nav">Airport database</a>
-            {% if username %}
+            <div class="dropdown" id="flights_nav">
+                <button onclick="myFunction();">
+                    My flights <i class="fa fa-caret-down"></i>
+                </button>
+                <div class="dropdown-content" id="flights_content">
+                    <a href="#">Map</a>
+                    <a href="#">List</a>
+                    <a href="#">Statistics</a>
+                    <a href="#">Graphs</a>
+                    <a href="#">Compare</a>
+                    <a href="#">Add flight</a>
+                </div>
+            </div>
+            <!--{% if username %}
             <a id='userbox' onclick="myFunction();">{{ username }}</a>
             <div class="dropdown-content" id="user_dropdown">
                 <a href="{% url 'profile' username=username %}">Public profile</a>
@@ -25,7 +39,7 @@
             </div>
             {% else %}
             <a id="userbox" {#href="{% url 'login' %}"#}>Log in/create account</a>
-            {% endif %}
+            {% endif %}-->
         </div>
         <div id="content">
             {% block content %}
@@ -34,11 +48,31 @@
     </body>
     
     <script>
+    /* When the user clicks on the button, 
+    toggle between hiding and showing the dropdown content */
+    function myFunction() {
+        //alert(document.getElementById("flights_content").classList);
+        document.getElementById("flights_content").classList.toggle("show");
+        //alert(document.getElementById("flights_content").classList);
+    }
+
+    // Close the dropdown if the user clicks outside of it
+    //window.onclick = function(e) {
+    //  if (!e.target.matches('.flights_nav')) {
+    //    var myDropdown = document.getElementById("flights_content");
+    //      if (myDropdown.classList.contains('show')) {
+    //        myDropdown.classList.remove('show');
+    //      }
+    //  }
+    //}
+    </script>
+    
+    <script>
         document.getElementById('{{ nav_id }}').classList.add('activenav');;
     </script>
     
     {% if username %}
-    <script>
+    <!--<script>
     /* When the user clicks on the button, 
     toggle between hiding and showing the dropdown content */
     function myFunction() {
@@ -55,5 +89,5 @@
       }
     }
     </script>
-    {% endif %}
+    {% endif %}-->
 </html>
