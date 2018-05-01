@@ -114,9 +114,9 @@
             </td>
         </tr>
     </table>-->
-    
+
     <!--<h4>Map options</h4>
-    
+
     <table>
         <tr>
             <td>Route colour</td>
@@ -141,7 +141,7 @@
 
 <script>
     $('#leftbar').show('slide', {direction: 'left'}, 400);
-    
+
     function showMap() {
         $('aside > ul > li > a').removeClass('activenav');
         $('#map_link').addClass('activenav');
@@ -235,9 +235,9 @@
         fillOpacity: 1,
         clickable: false
     }
-    
+
     var mapLayer = new L.LayerGroup().addTo(map);
-    
+
     $.getJSON(myGeoJSONPath, function(data) {
         //L.geoJson(data, {
         //    clickable: false,
@@ -248,7 +248,7 @@
             vectorTileLayerStyles: {
                 sliced: function(properties, zoom) {
                     return {
-                        fillColor: '#E0E0E0',//'#87B8A1',
+                        fillColor: '#FEFEE9',//'#87B8A1',
                         stroke: true,
                         fill: true,
                         color: '#646464',

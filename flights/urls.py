@@ -24,7 +24,7 @@ urlpatterns = [
     url(r'^accounts/create_account/$', views.create_account, name='create_account'),
     path('profile/<str:username>/', views.flights, name='profile'),
     path('compare/<str:username1>/<str:username2>/', views.compare, name='compare'),
-    
+
     path('mobile/', mobile_views.index, name='mobile_index'),
     path('mobile/flights/', mobile_views.flights, name='mobile_flights'),
     path('mobile/list/', mobile_views.list, name='mobile_list'),
@@ -32,7 +32,9 @@ urlpatterns = [
     path('mobile/flight/<int:flight_pk>/', mobile_views.flight_details, name='mobile_details'),
     path('mobile/accounts/login/', auth_views.LoginView.as_view(template_name='mobile/registration/login.html'), name='mobile_login'),
     path('mobile/add/', mobile_views.add, name='mobile_add'),
-    
+
     path('api/search_airports/', mobile_views.search_airports, name='search_airports'),
     path('api/mileage_graph/usr1=<str:user1>&usr2=<str:user2>', views.mileage_graph, name='mileage_graph'),
+
+    path('map', views.map, name='map'),
 ]

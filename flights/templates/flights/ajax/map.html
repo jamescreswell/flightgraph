@@ -7,17 +7,17 @@
 
     var marker = new L.marker([{{ airport.latitude }}, {{ airport.longitude }}], {icon: icon1}).on('click', airportClick, {name: "{{ airport.name }}"});;//.bindPopup('<b>{{ airport.name }}</b><br><i>{{ airport.city }}, {{ airport.country }}</i><br>Flights: {{ airport.id__count }} <img style="float: right;" src="{% static image_static %}">');
 
-    markersLayer.addLayer(marker);
-     
-     
+    //markersLayer.addLayer(marker);
+
+
     var marker = new L.marker([{{ airport.latitude }}, {{ airport.longitude|add:360.0 }}], {icon: icon1});//.bindPopup('<b>{{ airport.name }}</b><br><i>{{ airport.city }}, {{ airport.country }}</i><br>Flights: {{ airport.id__count }} <img style="float: right;" src="{% static image_static %}">');
 
-    markersLayer.addLayer(marker);
+    //markersLayer.addLayer(marker);
 
     var marker = new L.marker([{{ airport.latitude }}, {{ airport.longitude|add:-360.0 }}], {icon: icon1});//.bindPopup('<b>{{ airport.name }}</b><br><i>{{ airport.city }}, {{ airport.country }}</i><br>Flights: {{ airport.id__count }} <img style="float: right;" src="{% static image_static %}">');
 
-    markersLayer.addLayer(marker);
-     
+    //markersLayer.addLayer(marker);
+
     {% endwith %}
     {% endfor %}
 
@@ -27,26 +27,26 @@
                                         {'name': 'test'});
     var line = generator.Arc(100, {offset: 10});
     var lineMarker = new L.geoJson(line.json(), {weight: 1.5, clickable: false, color: '#e41a1c', opacity: 1.0});
-    linesLayer.addLayer(lineMarker);
-     
+    //linesLayer.addLayer(lineMarker);
+
     //var vectorGrid = L.vectorGrid.slicer(line.json()).addTo(linesLayer)
-     
+
     var line = generator.Arc(100, {offset: 10});
     for (i = 0; i < line.geometries[0].coords.length; i++){
         line.geometries[0].coords[i][0] += 360;
     }
     var lineMarker = new L.geoJson(line.json(), {weight: 1.5, clickable: false, color: '#e41a1c', opacity: 1.0});
-    linesLayer.addLayer(lineMarker); 
-     
-     
+    linesLayer.addLayer(lineMarker);
+
+
     var line = generator.Arc(100, {offset: 10});
     for (i = 0; i < line.geometries[0].coords.length; i++){
         line.geometries[0].coords[i][0] -= 360;
     }
     var lineMarker = new L.geoJson(line.json(), {weight: 1.5, clickable: false, color: '#e41a1c', opacity: 1.0});
     linesLayer.addLayer(lineMarker);
-    
-     
+
+
     var generator = new arc.GreatCircle({x: {{ route.destination__longitude }}, y: {{ route.destination__latitude }} },
                                         {x: {{ route.origin__longitude }}, y: {{ route.origin__latitude }} },
                                         {'name': 'test'});
@@ -55,15 +55,15 @@
         line.geometries[0].coords[i][0] += 360;
     }
     var lineMarker = new L.geoJson(line.json(), {weight: 1.5, clickable: false, color: '#e41a1c', opacity: 1.0});
-    linesLayer.addLayer(lineMarker); 
-     
-     
+    linesLayer.addLayer(lineMarker);
+
+
     var line = generator.Arc(100, {offset: 10});
     for (i = 0; i < line.geometries[0].coords.length; i++){
         line.geometries[0].coords[i][0] -= 360;
     }
     var lineMarker = new L.geoJson(line.json(), {weight: 1.5, clickable: false, color: '#e41a1c', opacity: 1.0});
     linesLayer.addLayer(lineMarker);
-    
+
     {% endfor %}
 </script>

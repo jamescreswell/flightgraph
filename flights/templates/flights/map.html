@@ -1,0 +1,114 @@
+{% extends 'flights/base.html' %}
+{% load static %}
+
+{% block links %}
+<link rel="stylesheet" type="text/css" href="{% static 'flights/css/map.css' %}" />
+
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.2.0/dist/leaflet.css" integrity="sha512-M2wvCLH6DSRazYeZRIm1JnYyh22purTM+FDB5CsyxtQJYeKq83arPe5wgbNmcFXGqiSH2XR8dT/fJISVA1r/zQ==" crossorigin=""/>
+<script src="https://unpkg.com/leaflet@1.2.0/dist/leaflet.js" integrity="sha512-lInM/apFSqyy1o6s89K4iQUKg6ppXEgsVxT35HbzUupEVRh2Eu9Wdl4tHj7dZO0s1uvplcYGmt3498TtHq+log==" crossorigin=""></script>
+<script src="{% static 'flights/geo/arc.js' %}"></script>
+
+<!--<script src="http://www.webglearth.com/v2/api.js"></script>-->
+
+<script src="http://code.jquery.com/jquery-1.10.2.min.js"></script>
+<script src="https://code.jquery.com/ui/1.12.1/jquery-ui.min.js"></script>
+
+<script src="https://unpkg.com/leaflet.vectorgrid@latest/dist/Leaflet.VectorGrid.bundled.js"></script>
+<style>
+    .leaflet-container {
+        background: #C6ECFF;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div id="map">
+</div>
+
+<aside>
+    &nbsp;<br>&nbsp;<br>
+    <h1>
+        Dallas/Fort Worth International Airport
+    </h1>
+
+</aside>
+
+<script>
+    // Create map in element with id 'map'
+    var map = L.map('map', {
+        zoomControl: false,
+        worldCopyJump: true,
+        inertia: false
+    }).setView([25, 0], 3);
+
+    // Add zoom control to map
+    L.control.zoom({position: 'bottomright'}).addTo(map);
+
+    // Set GEOjson path
+    var geoJSONPath = '{% static "flights/geo/ne_10m_admin_0_countries_lakes.json" %}';
+
+    // Define map style
+    var mapStyle = {
+        stroke: true,
+        color: '#6e7a8c',
+        weight: 0.25,
+        fill: true,
+        fillColor: '#87b8a1',
+        fillOpacity: 1,
+        clickable: false
+    }
+
+    // Create map layer group to hold map tiles
+    var mapLayer = new L.LayerGroup().addTo(map);
+
+    // No idea how this works but it does
+    $.getJSON(geoJSONPath, function(data) {
+        //L.geoJson(data, {
+        //    clickable: false,
+        //    pane: 'tilePane',
+        //    style: mapStyle
+        //}).addTo(mapLayer);
+        var vectorGrid = L.vectorGrid.slicer(data, {
+            vectorTileLayerStyles: {
+                sliced: function(properties, zoom) {
+                    return {
+                        fillColor: '#FEFEE9',//'#87B8A1',
+                        stroke: true,
+                        fill: true,
+                        color: '#646464',
+                        weight: 0.25,
+                        fillOpacity: 1,
+                    }
+                }
+            },
+        })
+        .addTo(mapLayer);
+    });
+
+    // Create airport icon
+    var x = 12;
+    var icon1 = L.icon({
+        iconUrl: "{% static 'flights/img/airport-icon-red.png' %}",
+        iconSize: [x, x],
+        iconAnchor: [x/2, x/2],
+        popupAnchor: [0, 0]
+    });
+
+    // Create layer groups for lines and markers
+    var markersLayer = new L.LayerGroup().addTo(map);
+    var linesLayer = new L.LayerGroup().addTo(map);
+
+    // ?
+    var baseLayers = {
+    };
+
+    // For layer group control
+    var overlays = {
+        "Airports": markersLayer,
+        "Routes": linesLayer,
+        "Map": mapLayer
+    };
+    L.control.layers(baseLayers, overlays, {position: 'bottomright'}).addTo(map);
+</script>
+
+{% endblock %}

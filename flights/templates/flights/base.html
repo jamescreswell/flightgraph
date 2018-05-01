@@ -10,19 +10,20 @@
         {% block links %}
         {% endblock %}
     </head>
-    
+
     <body>
         <div class="navbar">
             <a href="{% url 'index' %}" id="index_nav">flightgraph.eu</a>
             <a href="{% url 'gcmap' %}" id="gcmap_nav">Route mapper</a>
             <!--<a href="{% url 'flights' %}" id="flights_nav">My flights</a>-->
             <a id="airport_nav">Airport database</a>
+            {% if user.is_authenticated %}
             <div class="dropdown" id="flights_nav">
-                <button onclick="myFunction();">
+                <button onclick="myFunction('flights_content');">
                     My flights <i class="fa fa-caret-down"></i>
                 </button>
                 <div class="dropdown-content" id="flights_content">
-                    <a href="#">Map</a>
+                    <a href="{% url 'map' %}">Map</a>
                     <a href="#">List</a>
                     <a href="#">Statistics</a>
                     <a href="#">Graphs</a>
@@ -30,6 +31,19 @@
                     <a href="#">Add flight</a>
                 </div>
             </div>
+            {% endif %}
+            {% if user.is_authenticated %}
+            <div class="dropdown" id="account_nav" style="float:right;">
+                <button onclick="myFunction('account_content');">
+                    {{ user }} <i class="fa fa-caret-down"></i>
+                </button>
+                <div class="dropdown-content" id="account_content">
+                    <a href="#">Settings</a>
+                    <a href="#">Profile</a>
+                    <a href="#">Log out</a>
+                </div>
+            </div>
+            {% endif %}
             <!--{% if username %}
             <a id='userbox' onclick="myFunction();">{{ username }}</a>
             <div class="dropdown-content" id="user_dropdown">
@@ -46,13 +60,13 @@
             {% endblock %}
         </div>
     </body>
-    
+
     <script>
-    /* When the user clicks on the button, 
+    /* When the user clicks on the button,
     toggle between hiding and showing the dropdown content */
-    function myFunction() {
+    function myFunction(id) {
         //alert(document.getElementById("flights_content").classList);
-        document.getElementById("flights_content").classList.toggle("show");
+        document.getElementById(id).classList.toggle("show");
         //alert(document.getElementById("flights_content").classList);
     }
 
@@ -66,14 +80,14 @@
     //  }
     //}
     </script>
-    
+
     <script>
         document.getElementById('{{ nav_id }}').classList.add('activenav');;
     </script>
-    
-    {% if username %}
+
+    <!--{% if username %}
     <!--<script>
-    /* When the user clicks on the button, 
+    /* When the user clicks on the button,
     toggle between hiding and showing the dropdown content */
     function myFunction() {
         document.getElementById("user_dropdown").style.display="block";
