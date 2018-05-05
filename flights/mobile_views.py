@@ -84,17 +84,6 @@ def add(request):
                'added': added
               }
     return render(request, 'mobile/add.html', context)
-
-@csrf_exempt # This disables all CSRF security, please fix as soon as possible (JS fetch POSTs without credentials...)
-def search_airports(request):
-    if request.method == 'POST':
-        try: 
-            airport = Airport.objects.get(iata=request.body.decode('utf-8').strip().upper())
-            # if multiple hits, take the most recent
-            # if no iata, not possible from this function
-            return JsonResponse({'status': 1, 'name': airport.name, 'iata': airport.iata, 'pk': airport.pk})
-        except:
-            return JsonResponse({'status': 0});
         
 @login_required        
 def statistics(request):

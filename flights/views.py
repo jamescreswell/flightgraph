@@ -29,9 +29,22 @@ def index(request):
 def airports(request):
     pass
 
-#@login_required
-def map(request):
-    context = {}
+def map(request, username=None):
+    if username is not None:
+        user = User.objects.get(username=username)
+    else:
+        user = request.user
+    
+    #flights_list = Flight.objects.filter(owner=user)
+    airports_list = Airport.objects.filter(Q(origins__owner=user) | Q(destinations__owner=user)).distinct()
+    
+    routes_list = Flight.objects.filter(owner=user).values('origin__pk', 'origin__latitude', 'origin__longitude', 'destination__pk', 'destination__latitude', 'destination__longitude').annotate(Count('id'))
+    
+    context = {'airports': airports_list,
+               'routes': routes_list,
+               'username': user.username,
+              }
+    
     return render(request, 'flights/map.html', context)
 
 def gcmap(request):

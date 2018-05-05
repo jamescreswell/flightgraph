@@ -3,7 +3,7 @@ from django.urls import path
 
 from django.contrib.auth import views as auth_views
 
-from . import views, ajax, mobile_views
+from . import views, ajax, mobile_views, api
 
 urlpatterns = [
     url(r'^$', views.index, name='index'),
@@ -22,7 +22,7 @@ urlpatterns = [
     url(r'^settings/$', views.settings, name='settings'),
     url(r'^accounts/', include('django.contrib.auth.urls')),
     url(r'^accounts/create_account/$', views.create_account, name='create_account'),
-    path('profile/<str:username>/', views.flights, name='profile'),
+    path('profile/<str:username>/', views.map, name='profile'),
     path('compare/<str:username1>/<str:username2>/', views.compare, name='compare'),
 
     path('mobile/', mobile_views.index, name='mobile_index'),
@@ -33,8 +33,11 @@ urlpatterns = [
     path('mobile/accounts/login/', auth_views.LoginView.as_view(template_name='mobile/registration/login.html'), name='mobile_login'),
     path('mobile/add/', mobile_views.add, name='mobile_add'),
 
-    path('api/search_airports/', mobile_views.search_airports, name='search_airports'),
+    path('api/search_airports/', api.search_airports, name='search_airports'),
     path('api/mileage_graph/usr1=<str:user1>&usr2=<str:user2>', views.mileage_graph, name='mileage_graph'),
-
+    
+    path('api/get_airport/<int:airport_id>', api.get_airport, name='get_airport'),
+    path('api/get_airport_flights/<str:username>/<int:airport_id>', api.get_airport_flights, name='get_airport_flights'),
+    
     path('map', views.map, name='map'),
 ]

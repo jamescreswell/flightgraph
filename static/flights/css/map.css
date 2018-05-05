@@ -8,17 +8,128 @@
 }
 
 
-aside {
-    background-color: #e5e5e5;
-    width: 20vw;
-    position: absolute;
-    top: 0;
+#airport-panel {
+    background-color: #f9f9f9;
+    width: 300px;
+    position: fixed;
+    top: 45px;
     bottom: 0;
     left: 0;
     z-index: -50;
-    box-shadow: 0 0 10px #e5e5e5;
+    border-right: 1px solid #ddd;
+    display: none;
+    padding: 5px;
+    overflow-y: scroll;
 }
 
-aside h1 {
-    
+#airport-panel header {
+    background-color: #f9f9f9;
+    border-bottom: 1px solid #ddd;
+}
+
+#airport-name {
+    max-width: calc(100% - 30px); /* Just to make sure doesn't cover flag */
+    font-weight: 700;
+    color: #e41a1c;
+}
+
+#airport-location {
+    max-width: calc(100% - 30px);
+    color: #666;
+}
+
+#airport-codes {
+    font-size: 11pt;
+    color: #666;
+}
+
+#airport-flag {
+    position: absolute;
+    right: 3px;
+    top: 3px;
+}
+
+#flights-list {
+    list-style-type: none;
+    padding-left: 0px;
+    font-size: 9pt;
+    color: #333;
+}
+
+#flights-list li {
+    background-color: #eee;
+    margin-top: 4px;
+    white-space: nowrap;
+    overflow-x: hidden;
+}
+
+#flights-list li:hover {
+    background-color: #e2e2e2!important;
+}
+
+.flight-summary div {
+    display: inline-block;
+    padding: 3px;
+}
+
+.flight-date {
+    width: 45px;
+}
+
+.flight-route {
+    width: 45px;
+}
+
+.flight-plane {
+    /* No width set because we let this just take what is left...this should be done properly with css flex... */
+}
+
+.flight-arrow {
+    font-size: 14pt;
+    color: #e41a1c;
+    float: right;
+}
+
+.flight-details {
+    margin-top: 0!important;
+    background-color: #e2e2e2!important;
+}
+
+.flight-details div {
+    display: inline-block;
+    padding: 1px 5px;
+    margin-bottom: 3px;
+}
+
+.flight-details-img {
+    width: 100%;
+}
+
+#close-button {
+    position: absolute;
+    top: 50%;
+    left: 310px;
+    z-index: 100;
+    background-color: #f9f9f9;
+    font-size: 26pt;
+    color: #e41a1c;
+    cursor: pointer;
+    border-right: 1px solid #ddd;
+    border-top: 1px solid #ddd;
+    border-bottom: 1px solid #ddd;
+    padding: 4px;
+}
+
+#close-button:hover {
+    color: #eee;
+    background-color: #e41a1c;
+}
+
+
+
+
+
+
+abbr {
+    text-decoration: none;
 }

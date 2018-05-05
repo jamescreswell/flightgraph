@@ -15,11 +15,11 @@
         <div class="navbar">
             <a href="{% url 'index' %}" id="index_nav">flightgraph.eu</a>
             <a href="{% url 'gcmap' %}" id="gcmap_nav">Route mapper</a>
-            <!--<a href="{% url 'flights' %}" id="flights_nav">My flights</a>-->
             <a id="airport_nav">Airport database</a>
+            
             {% if user.is_authenticated %}
             <div class="dropdown" id="flights_nav">
-                <button onclick="myFunction('flights_content');">
+                <button onclick="dropdown('flights_content');">
                     My flights <i class="fa fa-caret-down"></i>
                 </button>
                 <div class="dropdown-content" id="flights_content">
@@ -27,14 +27,16 @@
                     <a href="#">List</a>
                     <a href="#">Statistics</a>
                     <a href="#">Graphs</a>
+                    <a href="#">Filter</a>
                     <a href="#">Compare</a>
                     <a href="#">Add flight</a>
                 </div>
             </div>
             {% endif %}
+            
             {% if user.is_authenticated %}
             <div class="dropdown" id="account_nav" style="float:right;">
-                <button onclick="myFunction('account_content');">
+                <button onclick="dropdown('account_content');">
                     {{ user }} <i class="fa fa-caret-down"></i>
                 </button>
                 <div class="dropdown-content" id="account_content">
@@ -44,16 +46,7 @@
                 </div>
             </div>
             {% endif %}
-            <!--{% if username %}
-            <a id='userbox' onclick="myFunction();">{{ username }}</a>
-            <div class="dropdown-content" id="user_dropdown">
-                <a href="{% url 'profile' username=username %}">Public profile</a>
-                <a href="{% url 'settings' %}">Settings</a>
-                <a href="{% url 'logout' %}">Logout</a>
-            </div>
-            {% else %}
-            <a id="userbox" {#href="{% url 'login' %}"#}>Log in/create account</a>
-            {% endif %}-->
+            
         </div>
         <div id="content">
             {% block content %}
@@ -62,46 +55,24 @@
     </body>
 
     <script>
-    /* When the user clicks on the button,
-    toggle between hiding and showing the dropdown content */
-    function myFunction(id) {
-        //alert(document.getElementById("flights_content").classList);
-        document.getElementById(id).classList.toggle("show");
-        //alert(document.getElementById("flights_content").classList);
-    }
+        function dropdown(id) {
+            document.getElementById(id).classList.toggle("show");
+        }
 
-    // Close the dropdown if the user clicks outside of it
-    //window.onclick = function(e) {
-    //  if (!e.target.matches('.flights_nav')) {
-    //    var myDropdown = document.getElementById("flights_content");
-    //      if (myDropdown.classList.contains('show')) {
-    //        myDropdown.classList.remove('show');
-    //      }
-    //  }
-    //}
+        window.onclick = function(e) {
+            if (!e.target.matches('.dropdown button')) {
+                var dropdowns = document.getElementsByClassName("dropdown-content");
+                for (i = 0; i<dropdowns.length; i++) {
+                    if (dropdowns[i].classList.contains('show')) {
+                        dropdowns[i].classList.remove('show');
+                    }
+                }
+            }
+        }
     </script>
 
     <script>
-        document.getElementById('{{ nav_id }}').classList.add('activenav');;
+        //document.getElementById('{{ nav_id }}').classList.add('activenav');;
     </script>
 
-    <!--{% if username %}
-    <!--<script>
-    /* When the user clicks on the button,
-    toggle between hiding and showing the dropdown content */
-    function myFunction() {
-        document.getElementById("user_dropdown").style.display="block";
-    }
-
-    // Close the dropdown if the user clicks outside of it
-    window.onclick = function(e) {
-      if (!e.target.matches('#userbox')) {
-            var myDropdown = document.getElementById("user_dropdown");
-              if (myDropdown.style.display=='block') {
-                myDropdown.style.display = 'none';
-              }
-      }
-    }
-    </script>
-    {% endif %}-->
 </html>
