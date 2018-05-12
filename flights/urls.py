@@ -38,6 +38,8 @@ urlpatterns = [
     
     path('api/get_airport/<int:airport_id>', api.get_airport, name='get_airport'),
     path('api/get_airport_flights/<str:username>/<int:airport_id>', api.get_airport_flights, name='get_airport_flights'),
+    path('api/get_route/<int:id1>/<int:id2>', api.get_route, name='get_route'),
+    path('api/get_route_flights/<str:username>/<int:id1>/<int:id2>', api.get_route_flights, name='get_route_flights'),
     
     path('map', views.map, name='map'),
 ]

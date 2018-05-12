@@ -59,12 +59,81 @@ def get_airport_flights(request, username, airport_id):
          'destination_lat': flight.destination.latitude,
          'origin_long': flight.origin.longitude,
          'destination_long': flight.destination.longitude,
-         'airport_pk': airport_id
+         'airport_pk': airport_id,
+         'origin_pk': flight.destination.pk,
+         'destination_pk': flight.origin.pk,
+         'pk': flight.pk,
         } 
         for flight in flights[::-1]
     ]
     
     return JsonResponse(flights_dictionary, safe=False)
+
+def get_route(request, id1, id2):
+    airport1 = Airport.objects.get(pk=id1)
+    airport2 = Airport.objects.get(pk=id2)
+    return JsonResponse({
+        'origin_name': airport1.name,
+        'origin_iata': airport1.iata if airport1.icao else " · ",
+        'origin_icao': airport1.icao if airport1.icao else " · ",
+        'origin_city': airport1.city,
+        'origin_region': airport1.region,
+        'origin_region_iso': airport1.region_iso,
+        'origin_country': airport1.country,
+        'origin_country_iso': airport1.country_iso,
+        'origin_latitude': airport1.latitude,
+        'origin_longitude': airport1.longitude,
+        'origin_elevation': airport1.elevation,
+        'destination_name': airport2.name,
+        'destination_iata': airport2.iata if airport2.icao else " · ",
+        'destination_icao': airport2.icao if airport2.icao else " · ",
+        'destination_city': airport2.city,
+        'destination_region': airport2.region,
+        'destination_region_iso': airport2.region_iso,
+        'destination_country': airport2.country,
+        'destination_country_iso': airport2.country_iso,
+        'destination_latitude': airport2.latitude,
+        'destination_longitude': airport2.longitude,
+        'destination_elevation': airport2.elevation,
+        'distance': int(airport1.distance_to(airport2)),
+        'duration': np.round((30.0 + airport1.distance_to(airport2)/500.0 * 60.0) / 60.0),
+    })
+    
+def get_route_flights(request, username, id1, id2):
+    user = User.objects.get(username=username)
+    airport1 = Airport.objects.get(pk=id1)
+    airport2 = Airport.objects.get(pk=id2)
+    flights = Flight.objects.filter(owner=user).filter(Q(origin=airport1,destination=airport2) | Q(destination=airport1,origin=airport2))
+    
+    flights_dictionary = [
+        {"number": flight.number,
+         "origin": str(flight.origin),
+         "destination": str(flight.destination),
+         "date": str(flight.date),
+         "airline": flight.airline,
+         "plane": flight.aircraft,
+         'registration': flight.aircraft_registration,
+         'picture': flight.picture_link,
+         'distance': int(flight.distance),
+         'duration': np.round((30.0 + flight.distance/500.0 * 60.0) / 60.0),
+         'operator': flight.operator,
+         'seat': flight.seat,
+         'class': flight.travel_class,
+         'origin_lat': flight.origin.latitude,
+         'destination_lat': flight.destination.latitude,
+         'origin_long': flight.origin.longitude,
+         'destination_long': flight.destination.longitude,
+         'origin_pk': flight.destination.pk,
+         'destination_pk': flight.origin.pk,
+         'origin_city': flight.origin.city,
+         'destination_city': flight.destination.city,
+         'pk': flight.pk,
+        } 
+        for flight in flights[::-1]
+    ]
+    
+    return JsonResponse(flights_dictionary, safe=False)
+    
     
 @csrf_exempt # This disables all CSRF security, please fix as soon as possible (JS fetch POSTs without credentials...)
 def search_airports(request):

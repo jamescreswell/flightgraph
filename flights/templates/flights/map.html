@@ -14,6 +14,8 @@
 <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.min.js"></script>
 
 <script src="https://unpkg.com/leaflet.vectorgrid@latest/dist/Leaflet.VectorGrid.bundled.js"></script>
+
+<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
 <style>
     .leaflet-container {
         background: #C6ECFF;
@@ -22,26 +24,282 @@
 {% endblock %}
 
 {% block content %}
-<div id="map">
-</div>
+<div id="app">
+    <div id="map">
+    </div>
 
-<aside id="airport-panel">
-    <header>
-        <div id="airport-name"></div>
-        <div id="airport-location"></div>
-        <div id="airport-codes"></div>
-        <div id="airport-flag"></div>
-        <!--<button class="airport-panel-close"><i class="fa fa-times"></i></button>-->
-    </header>
-    <section id="airport-flights">
-        <ol id="flights-list">
-            <!--Needs tabs for flight list, stats-->
-        </ol>
-    </section>
-</aside>
+    <aside id="airport-panel" class="side-panel">
+        <header>
+            <div id="airport-name">[[ airport.name ]]</div>
+            <div id="airport-location">[[ airport.city ]], [[ airport.country ]]</div>
+            <div id="airport-codes">[[ airport.iata ]]/[[ airport.icao ]]</div>
+            <div id="airport-flag">
+                <img v-bind:src="'/static/flights/img/flags/32/' + airport.country_iso + '.png'" v-bind:title="airport.country">
+                <template v-if="airport.country_iso == 'GB'">
+                    <br>
+                    <img v-bind:src="'/static/flights/img/flags/32/_' + airport.region.toLowerCase() + '.png'" v-bind:title="airport.region" style="transform:translateY(-10px);">
+                </template>
+            </div>
+            <!--<button class="airport-panel-close"><i class="fa fa-times"></i></button>-->
+        </header>
+        <section id="airport-flights">
+            <ol id="flights-list">
+                <!--Needs tabs for flight list, stats-->
+                <template v-for="flight in flights">
+                    <li class="flight-summary" v-bind:id="'flight-' + flight.pk" style="cursor:pointer;" v-on:click="newToggleFlightDetails(flight.pk, flight.origin_long, flight.origin_lat, flight.destination_long, flight.destination_lat)">
+                        <div class="flight-arrow" v-bind:id="'flight-arrow-' + flight.pk">
+                            <i class="fa fa-angle-down"></i>
+                        </div>
+
+                        <div class="flight-date">
+                            [[ flight.dateString ]]<br>[[ flight.yearString ]]
+                        </div>
+
+                        <div class="flight-route">
+                            <abbr v-if="flight.direction == 'arrival'" v-bind:title="'arrived from ' + flight.city">🡶<span style="font-weight:700;">[[ flight.origin ]]</span><br>[[ flight.number ]]</abbr>
+                            <abbr v-else v-bind:title="'departed to ' + flight.city">🡵<span style="font-weight:700;">[[ flight.destination ]]</span><br>[[ flight.number ]]</abbr>
+                        </div>
+
+                        <div class="flight-plane">
+                            [[ flight.airline ]]<br><nobr>[[ flight.plane ]]</nobr>
+                        </div>
+                    </li>
+                    
+                    <li class="flight-details" v-bind:id="'flight-details-' + flight.pk" style="display:none;" v-on:click="newToggleFlightDetails(flight.pk,0,0,0,0)">
+                        <img v-if="flight.picture != ''" class="flight-details-img" v-bind:src="flight.picture"> 
+                        
+                        <div>
+                            <span style="font-variant:small-caps;">
+                                From
+                            </span>
+                            <br>
+                            <span style="font-weight:700;">
+                                [[ flight.origin ]]
+                            </span>
+                        </div>
+                        
+                        <div>
+                            <span style="font-variant:small-caps;">
+                                To
+                            </span>
+                            <br>
+                            <span style="font-weight:700;">
+                                [[ flight.destination ]]
+                            </span>
+                        </div>
+                        
+                        <div>
+                            <span style="font-variant:small-caps;">Distance</span>
+                            <br>
+                            <span style="font-weight:700;">[[ flight.distance ]] mi</span>
+                        </div>
+                        
+                        <div>
+                            <span style="font-variant:small-caps;">Approximate duration</span>
+                            <br>
+                            <span style="font-weight:700;">[[ flight.duration ]] hr</span>
+                        </div>
+                        
+                        <br>
+                        
+                        <div>
+                            <span style="font-variant:small-caps;">Airline</span>
+                            <br>
+                            <span style="font-weight:700;">[[ flight.airline ]]</span>
+                        </div>
+                        
+                        <div v-if="flight.operator != ''">
+                            <span style="font-variant:small-caps;">Operator</span>
+                            <br>
+                            <span style="font-weight:700;">[[ flight.operator ]]</span>
+                        </div>
+                        
+                        <br>
+                        
+                        <div class="flight-details-plane">
+                            <span style="font-variant:small-caps;">Aircraft</span>
+                            <br>
+                            <span style="font-weight:700;">[[ flight.plane ]]</span>
+                        </div>
+                        
+                        <div>
+                            <span style="font-variant:small-caps;">Registration</span>
+                            <br>
+                            <span style="font-weight:700;">[[ flight.registration ]]</span>
+                        </div>
+                        <br>
+                        
+                        <div v-if="flight.class != ''">
+                            <span style="font-variant:small-caps;">Class</span><br><span style="font-weight:700;">[[ flight.class ]]</span>
+                        </div>
+                        
+                        <div v-if="flight.seat != ''">
+                            <span style="font-variant:small-caps;">Seat</span><br><span style="font-weight:700;">[[ flight.seat ]]</span>
+                        </div>
+                    </li>
+                </template>
+            </ol>
+        </section>
+    </aside>
+    
+    <aside id="route-panel" class="side-panel">
+        <header>
+            <div id="route-name">[[ route.origin_iata ]] – [[ route.destination_iata ]]</div>
+            <div id="airport-flag">
+                <img v-bind:src="'/static/flights/img/flags/32/' + route.origin_country_iso + '.png'" v-bind:title="route.origin_country">
+                <!-- Put arrow img here -->
+                <img v-if="route.origin_country != route.destination_country" v-bind:src="'/static/flights/img/flags/32/' + route.destination_country_iso + '.png'" v-bind:title="route.destination_country">
+            </div>
+            <div id="route-description">
+                <span style="font-variant:small-caps;color: #666;">
+                    From
+                </span>
+                <br>
+                <span style="font-weight:700;color:#e41a1c;">
+                    [[ route.origin_name ]]
+                </span>
+                <br>
+                <span style="font-size:9pt;">
+                    [[ route.origin_city ]], [[ route.origin_country ]]
+                </span>
+                <br>
+                <span style="font-variant:small-caps;color: #666;">
+                    To
+                </span>
+                <br>
+                <span style="font-weight:700;color:#e41a1c;">
+                    [[ route.destination_name ]]
+                </span>   
+                <br>
+                <span style="font-size:9pt;">
+                    [[ route.destination_city ]], [[ route.destination_country ]]
+                </span>
+            </div>
+            <div style="display:inline-block;padding-right:10px;padding-top:1px;">
+                <span style="font-variant:small-caps;color: #666;">Distance</span>
+                <br>
+                <span >[[ route.distance ]] mi</span>
+            </div>
+            <div style="display:inline-block;padding-right:10px;padding-top:1px;">
+                <span style="font-variant:small-caps;color: #666;">Approximate duration</span>
+                <br>
+                <span >[[ route.duration ]] hr</span>
+            </div>
+        </header>
+        <section id="airport-flights">
+            <ol id="flights-list">
+                <!--Needs tabs for flight list, stats-->
+                <template v-for="flight in flights">
+                    <li class="flight-summary" v-bind:id="'flightRoute-' + flight.pk" style="cursor:pointer;" v-on:click="newToggleRouteFlightDetails(flight.pk, flight.origin_long, flight.origin_lat, flight.destination_long, flight.destination_lat)">
+                        <div class="flight-arrow" v-bind:id="'flight-arrow-' + flight.pk">
+                            <i class="fa fa-angle-down"></i>
+                        </div>
+
+                        <div class="flight-date">
+                            [[ flight.dateString ]]<br>[[ flight.yearString ]]
+                        </div>
+
+                        <div class="flight-route">
+                            <abbr v-bind:title="'from ' + flight.origin_city + ' to ' + flight.destination_city">🡲<span style="font-weight:700;">[[ flight.destination ]]</span><br>[[ flight.number ]]</abbr>
+                        </div>
+
+                        <div class="flight-plane">
+                            [[ flight.airline ]]<br><nobr>[[ flight.plane ]]</nobr>
+                        </div>
+                    </li>
+                    
+                    <li class="flight-details" v-bind:id="'flight-details-' + flight.pk" style="display:none;" v-on:click="newToggleRouteFlightDetails(flight.pk,0,0,0,0)">
+                        <img v-if="flight.picture != ''" class="flight-details-img" v-bind:src="flight.picture"> 
+                        
+                        <div>
+                            <span style="font-variant:small-caps;">
+                                From
+                            </span>
+                            <br>
+                            <span style="font-weight:700;">
+                                [[ flight.origin ]]
+                            </span>
+                        </div>
+                        
+                        <div>
+                            <span style="font-variant:small-caps;">
+                                To
+                            </span>
+                            <br>
+                            <span style="font-weight:700;">
+                                [[ flight.destination ]]
+                            </span>
+                        </div>
+                        
+                        <br>
+                        
+                        <div>
+                            <span style="font-variant:small-caps;">Airline</span>
+                            <br>
+                            <span style="font-weight:700;">[[ flight.airline ]]</span>
+                        </div>
+                        
+                        <div v-if="flight.operator != ''">
+                            <span style="font-variant:small-caps;">Operator</span>
+                            <br>
+                            <span style="font-weight:700;">[[ flight.operator ]]</span>
+                        </div>
+                        
+                        <br>
+                        
+                        <div class="flight-details-plane">
+                            <span style="font-variant:small-caps;">Aircraft</span>
+                            <br>
+                            <span style="font-weight:700;">[[ flight.plane ]]</span>
+                        </div>
+                        
+                        <div>
+                            <span style="font-variant:small-caps;">Registration</span>
+                            <br>
+                            <span style="font-weight:700;">[[ flight.registration ]]</span>
+                        </div>
+                        <br>
+                        
+                        <div v-if="flight.class != ''">
+                            <span style="font-variant:small-caps;">Class</span><br><span style="font-weight:700;">[[ flight.class ]]</span>
+                        </div>
+                        
+                        <div v-if="flight.seat != ''">
+                            <span style="font-variant:small-caps;">Seat</span><br><span style="font-weight:700;">[[ flight.seat ]]</span>
+                        </div>
+                    </li>
+                </template>
+            </ol>
+        </section>
+    </aside>
+</div>
 <!--<div id="close-button">
     <i class="fa fa-angle-left"></i>
 </div>-->
+
+<script>
+    var app = new Vue({
+        delimiters: ['[[', ']]'],
+        el: '#app',
+        data: {
+            airport: {},
+            flights: [
+              {},
+            ],
+            route: {origin_pk: '', destination_pk: ''},
+        },
+        methods : {
+            newToggleFlightDetails: function(ii, long0, lat0, long1, lat1) {
+                $('#flight-' + ii).next().toggle();
+                $('#flight-' + ii).toggleClass('expanded');
+            },
+            newToggleRouteFlightDetails: function(ii, long0, lat0, long1, lat1) {
+                $('#flightRoute-' + ii).next().toggle();
+                $('#flightRoute-' + ii).toggleClass('expanded');
+            },
+        }
+    })
+</script>
 
 
 <script>
@@ -97,7 +355,7 @@
     });
 
     // Create airport icon
-    var x = 12;
+    var x = 16;
     var icon1 = L.icon({
         iconUrl: "{% static 'flights/img/airport-icon-red.png' %}",
         iconSize: [x, x],
@@ -121,173 +379,178 @@
     };
     L.control.layers(baseLayers, overlays, {position: 'bottomright'}).addTo(map);
     
-    map.on('click', function(e) {        
-        if (document.getElementById('airport-panel').style.display != 'none') {
+    // When you click on the map, reset
+    map.on('click', function(e) {
+        if (document.getElementById('airport-panel').style.display != 'none') { // Always hid the airport panel
             document.getElementById('airport-panel').style.display = 'none';
-            drawAllRoutes();
+        }
+        if (e.originalEvent.target.tagName == 'path') { // Clicked on route
+            //
+        }
+        else { // Didn't click on route
+            if (document.getElementById('route-panel').style.display != 'none') { // Always hid the airport panel
+                document.getElementById('route-panel').style.display = 'none';
+            }
+            drawRoutes(lats, longs, ids);
         }
     });
 </script>
 
 <script>    
     function airportClick(e) {
+        $('#route-panel').hide();
         $('#airport-panel').show();
-        
-        fill_airport_title(this.id);
-        fill_airport_flights(this.id);
-    }
-        
-    function fill_airport_title(id) {
-        fetch('/api/get_airport/' + id).then(
-            function(response) {                
-                response.json().then(function(data) {
-                    console.log('JSON received');
-                    console.log(data);
-                    document.getElementById('airport-name').innerHTML = data['name'];
-                    
-                    if (data['country_iso'] == 'US' || data['country_iso'] == 'GB') {
-                        document.getElementById('airport-location').innerHTML = data['city'] + ', ' + data['region'] + ', ' + data['country'];
-                    }
-                    else {
-                        document.getElementById('airport-location').innerHTML = data['city'] + ', ' + data['country'];
-                    }
-                    
-                    document.getElementById('airport-codes').innerHTML = data['iata'] + '/' + data['icao'];
-                    
-                    document.getElementById('airport-flag').innerHTML = '<img src="/static/flights/img/flags/32/' + data['country_iso'] + '.png" title="' + data['country'] + '">';
-                    if (data['country_iso'] == 'GB') {
-                        document.getElementById('airport-flag').innerHTML += '<br><img src="/static/flights/img/flags/32/_' + data['region'].toLowerCase() + '.png" title="' + data['region'] + '" style="transform:translateY(-10px);">';
-                    }
-                });
-            }
-        );
+        $('.flight-details').hide();
+        $('.expanded').toggleClass('expanded');
+        getAirportHeader(this.id);
+        getAirportFlights(this.id);
     }
     
-    function fill_airport_flights(id) {
-        fetch('/api/get_airport_flights/{{ username }}/' + id).then(
-            function(response) {
-                response.json().then(function(data) {
-                    
-                    console.log('JSON received');
-                    console.log(data);
-                    
-                    
-                    linesLayer.clearLayers();
-                    
-                    document.getElementById('flights-list').innerHTML = '';
-                    for (i=0; i<data.length; i++) {
-                        
-                        var generator = new arc.GreatCircle({x: data[i]['origin_long'], y: data[i]['origin_lat'] },
-                                                            {x: data[i]['destination_long'], y: data[i]['destination_lat'] },
-                                                            {'name': 'test'});
-                        var line = generator.Arc(100, {offset: 10});
-                        var lineMarker = new L.geoJson(line.json(), {weight: 1.5, clickable: false, color: '#e41a1c', opacity: 1.0});
-                        linesLayer.addLayer(lineMarker);
-                        
-                        
-                        var newrow = '<li class="flight-summary" id="flight-' + i.toString() + '" onclick="toggleFlightDetails(' + i.toString() + ',' + data[i]['origin_long'].toString() + ',' + data[i]['origin_lat'].toString() + ',' + data[i]['destination_long'].toString() + ',' + data[i]['destination_lat'].toString() + ');" style="cursor:pointer;">';
-                        // row onclick: expand, show pic and length and details and registration, highlight on map
-                        
-                        var date = new Date(data[i]['date']);
-                        var shortMonthName = new Intl.DateTimeFormat("en-US", { month: "short" }).format;
-                        var shortName = shortMonthName(date); // "Jul"
-                        
-                        newrow += '<div class="flight-arrow" id="flight-arrow-' + i.toString() + '"><i class="fa fa-angle-down"></i></div>';
-                        
-                        newrow += '<div class="flight-date">' + date.getDate() + ' ' + shortName + '<br>' + date.getFullYear() + '</div>';
-                        
-                        newrow += '<div class="flight-route">';
-                        if (data[i]['direction'] == 'arrival') {
-                            newrow += '<abbr title="arrived from ' + data[i]['city'] + '">↘<span style="font-weight:700;">' + data[i]['origin'] + '</span>';
-                        }
-                        else {
-                            newrow += '<abbr title="departed to ' + data[i]['city'] + '">↗<span style="font-weight:700;">' + data[i]['destination'] + '</span>';
-                        }
-                        newrow += '<br>' + data[i]['number'] + '</abbr></div>';
-                        
-                        newrow += '<div class="flight-plane">' + data[i]['airline'] + '<br><nobr>' + data[i]['plane'].substring(0,200) + '</nobr></div>';
-                        
-                        newrow += '</li>';
-                        
-                        document.getElementById('flights-list').innerHTML += newrow;
-                        
-                        
-                        var hiddenrows = '<li class="flight-details" id="flight-details-' + i.toString() + '" style="display:none;">';
-                        
-                        if (data[i]['picture'] != '') {
-                            hiddenrows += '<img class="flight-details-img" src="' + data[i]['picture'] + '"><br>';
-                        }
-                        
-                        hiddenrows += '<div><span style="font-variant:small-caps;">From</span><br><span style="font-weight:700;">' + data[i]['origin'] + '</span></div><div><span style="font-variant:small-caps;">To</span><br><span style="font-weight:700;">' + data[i]['destination'] + '</span></div>';
-                        
-                        hiddenrows += '<div><span style="font-variant:small-caps;">Distance</span><br><span style="font-weight:700;">' + data[i]['distance'] + ' mi</span></div>';
-                        hiddenrows += '<div><span style="font-variant:small-caps;">Approximate duration</span><br><span style="font-weight:700;">' + data[i]['duration'] + ' hr</span></div><br>';
-                        
-                        hiddenrows += '<div><span style="font-variant:small-caps;">Airline</span><br><span style="font-weight:700;">' + data[i]['airline'] + '</span></div>';
-                        
-                        if (data[i]['operator'] != '') {
-                            hiddenrows += '<div><span style="font-variant:small-caps;">Operator</span><br><span style="font-weight:700;">' + data[i]['operator'] + '</span></div>';
-                        }
-                        hiddenrows += '<br>';
-                        
-                        hiddenrows += '<div class="flight-details-plane"><span style="font-variant:small-caps;">Aircraft</span><br><span style="font-weight:700;">' + data[i]['plane'] + '</span></div>';
-                        
-                        hiddenrows += '<div><span style="font-variant:small-caps;">Registration</span><br><span style="font-weight:700;">' + data[i]['registration'] + '</span></div><br>';
-                        
-                        
-                        
-                        if (data[i]['class'] != '' | data[i]['seat'] != '') {
-                            hiddenrows += '<div><span style="font-variant:small-caps;">Class</span><br><span style="font-weight:700;">' + data[i]['class'] + '</span></div>';
-                            hiddenrows += '<div><span style="font-variant:small-caps;">Seat</span><br><span style="font-weight:700;">' + data[i]['seat'] + '</span></div>';
-                        }
-                        
-                        
-                        hiddenrows += '</li>';
-                        
-                        document.getElementById('flights-list').innerHTML += hiddenrows
-                    }
-                    
-                });
-            }
-        );
+    function routeClick(e) {
+        $('#airport-panel').hide();
+        $('#route-panel').show();
+        $('.flight-details').hide();
+        $('.expanded').toggleClass('expanded');
+        getRouteHeader(this.id);
+        getRouteFlights(this.id);
     }
+
     
-    function toggleFlightDetails(i, long0, lat0, long1, lat1) {
-        // this function could do the api call itself to prevent getting so much data at the beginning...
-        var details = document.getElementById('flight-details-' + i)
-        if (details.style.display != 'none') {
-            details.style.display = 'none';
-            document.getElementById('flight-' + i).style.backgroundColor = '#eee';
-            document.getElementById('flight-arrow-' + i).innerHTML = '<i class="fa fa-angle-down"></i>';
-            document.getElementById('flight-details-' + i).style.cursor = 'default';
-            linesLayer.removeLayer(highlightedLineMarkers['route' + i.toString()]);
-        }
-        else {
-            details.style.display = 'list-item';
-            document.getElementById('flight-' + i).style.backgroundColor = '#e2e2e2';
-            document.getElementById('flight-arrow-' + i).innerHTML = '<i class="fa fa-angle-up"></i>';
-            document.getElementById('flight-details-' + i).style.cursor = 'pointer';
-            document.getElementById('flight-details-' + i).onclick = function() { toggleFlightDetails(i); };
-            var generator = new arc.GreatCircle({x: long0, y: lat0 },
-                                                {x: long1, y: lat1 },
-                                                {'name': 'test'});
-            var line = generator.Arc(100, {offset: 10});
-            highlightedLineMarkers['route' + i.toString()] = new L.geoJson(line.json(), {weight: 3.5, clickable: false, color: '#0978AB', opacity: 1.0});
-            linesLayer.addLayer(highlightedLineMarkers['route' + i.toString()]);
-        }
-    }
-    
-    var highlightedLineMarkers = {};
+//    function toggleFlightDetails(i, long0, lat0, long1, lat1) {
+//        console.log(i);
+//        // this function could do the api call itself to prevent getting so much data at the beginning...
+//        var details = document.getElementById('flight-details-' + i)
+//        if (details.style.display != 'none') {
+//            details.style.display = 'none';
+//            document.getElementById('flight-' + i).style.backgroundColor = '#eee';
+//            document.getElementById('flight-arrow-' + i).innerHTML = '<i class="fa fa-angle-down"></i>';
+//            document.getElementById('flight-details-' + i).style.cursor = 'default';
+//            linesLayer.removeLayer(highlightedLineMarkers['route' + i.toString()]);
+//        }
+//        else {
+//            details.style.display = 'list-item';
+//            document.getElementById('flight-' + i).style.backgroundColor = '#e2e2e2';
+//            document.getElementById('flight-arrow-' + i).innerHTML = '<i class="fa fa-angle-up"></i>';
+//            document.getElementById('flight-details-' + i).style.cursor = 'pointer';
+//            document.getElementById('flight-details-' + i).onclick = function() { toggleFlightDetails(i); };
+//            var generator = new arc.GreatCircle({x: long0, y: lat0 },
+//                                                {x: long1, y: lat1 },
+//                                                {'name': 'test'});
+//            var line = generator.Arc(100, {offset: 10});
+//            highlightedLineMarkers['route' + i.toString()] = new L.geoJson(line.json(), {weight: 3.5, clickable: false, color: '#0978AB', opacity: 1.0});
+//            linesLayer.addLayer(highlightedLineMarkers['route' + i.toString()]);
+//        }
+//    }
+//    
+//    var highlightedLineMarkers = {};
 </script>
 
 <script>
+    function drawRoutes(lats, longs, ids) {
+        linesLayer.clearLayers();
+        for (i = 0; i < lats.length; i++) {
+            var generator = new arc.GreatCircle({x: longs[i][0], y: lats[i][0] },
+                                                {x: longs[i][1], y: lats[i][1] },
+                                                {'name': 'test'});
+            var line = generator.Arc(100, {offset: 10});
+            var lineMarker = new L.geoJson(
+                line.json(), 
+                {weight: 2.5, 
+                 clickable: true, 
+                 color: '#e41a1c', 
+                 opacity: 1.0}
+            )
+            .on('click', routeClick, {id: ids[i]})
+            .on('mouseover', function(e) {
+                this.setStyle({weight: 5.0,
+                               color: '#0978AB'});
+            })
+            .on('mouseout', function(e) {
+                this.setStyle({weight: 2.5, 
+                               color: '#e41a1c'})
+            });
+            
+            linesLayer.addLayer(lineMarker);
+        }
+    }
+    
+    function getAirportHeader(id) {
+        fetch('/api/get_airport/' + id).then(
+            function(response) {                
+                response.json().then(function(data) {
+                    app.airport = data;
+                });
+            }
+        );
+    }
+    
+    function getAirportFlights(id) {
+        fetch('/api/get_airport_flights/{{ username }}/' + id).then(
+            function(response) {
+               response.json().then(function(data) {
+                   app.flights = data;
+
+                   linesLayer.clearLayers();
+                   for (i=0; i<data.length; i++) {
+                       var generator = new arc.GreatCircle({x: data[i]['origin_long'], y: data[i]['origin_lat'] },
+                                                           {x: data[i]['destination_long'], y: data[i]['destination_lat'] },
+                                                           {'name': 'test'});
+                       var line = generator.Arc(100, {offset: 10});
+                       var lineMarker = new L.geoJson(line.json(), {weight: 2.5, clickable: true, color: '#e41a1c', opacity: 1.0}).on('click', routeClick, {id: [data[i]['origin_pk'], data[i]['destination_pk']]}).on('mouseover', function(e) {this.setStyle({weight: 5.0, color: '#0978AB'});}).on('mouseout', function(e) {this.setStyle({weight: 2.5, color: '#e41a1c'})});
+                       linesLayer.addLayer(lineMarker);
+
+                       // Could probably do this in python on the server...
+                       var date = new Date(data[i]['date']);
+                       var shortMonthName = new Intl.DateTimeFormat("en-US", { month: "short" }).format;
+                       var shortName = shortMonthName(date); // "Jul"
+                       app.flights[i].dateString = date.getDate() + ' ' + shortName;
+                       app.flights[i].yearString = date.getFullYear();
+                   }
+
+
+               });
+            }
+        );
+    }
+    
+    function getRouteHeader(id) {
+        fetch('/api/get_route/' + id[0] + '/' + id[1]).then(
+            function(response) {
+                response.json().then(function(data) {
+                    app.route = data;
+                })
+            }
+        )
+    }
+    
+    function getRouteFlights(id) {
+        fetch('/api/get_route_flights/{{ username }}/' + id[0] + '/' + id[1]).then(
+            function(response) {
+                response.json().then(function(data) {
+                    app.flights = data;
+                    for (i=0; i<data.length; i++) {
+                       // Could probably do this in python on the server...
+                       var date = new Date(data[i]['date']);
+                       var shortMonthName = new Intl.DateTimeFormat("en-US", { month: "short" }).format;
+                       var shortName = shortMonthName(date); // "Jul"
+                       app.flights[i].dateString = date.getDate() + ' ' + shortName;
+                       app.flights[i].yearString = date.getFullYear();
+                   }
+                })
+            }
+        );
+    }
+</script>
+
+<script>
+    // Initially populate map with airport icons...
     var coords = [
         {% for airport in airports %}[{{ airport.latitude }}, {{ airport.longitude }}],{% endfor %}
-    ]
+    ];
     
     var ids = [
         {% for airport in airports %}{{ airport.pk }},{% endfor %}
-    ]
+    ];
     
     for (i=0; i<coords.length; i++) {
         var marker = new L.marker(
@@ -297,92 +560,23 @@
 
         markersLayer.addLayer(marker);
     }
+    
+    // ...and all routes
+    var lats = [
+        {% for route in routes %}[{{ route.origin__latitude }}, {{ route.destination__latitude }}],{% endfor %}
+    ];
+
+    var longs = [
+        {% for route in routes %}[{{ route.origin__longitude }}, {{ route.destination__longitude }}],{% endfor %}
+    ];
+
+    var ids = [
+        {% for route in routes %}[{{ route.origin__pk }}, {{ route.destination__pk }}],{% endfor %}
+    ];
+    
+    drawRoutes(lats, longs, ids);
 </script>
 
-<script>
-    function drawAllRoutes() {
-        linesLayer.clearLayers();
-        
-        lats = [
-            {% for route in routes %}[{{ route.origin__latitude }}, {{ route.destination__latitude }}],{% endfor %}
-        ]
-        
-        longs = [
-            {% for route in routes %}[{{ route.origin__longitude }}, {{ route.destination__longitude }}],{% endfor %}
-        ]
-        
-        for (i = 0; i < lats.length; i++) {
-            var generator = new arc.GreatCircle({x: longs[i][0], y: lats[i][0] },
-                                                {x: longs[i][1], y: lats[i][1] },
-                                                {'name': 'test'});
-            var line = generator.Arc(100, {offset: 10});
-            var lineMarker = new L.geoJson(line.json(), {weight: 1.5, clickable: false, color: '#e41a1c', opacity: 1.0});
-            linesLayer.addLayer(lineMarker);
-        }
-    }
-    
-    
-    
-    
-    {% comment %}
-    function drawRoutes(airport1, airport2) {
-        linesLayer.clearLayers();
- 
-        
-        {% for route in routes %}
-        if (airport1 == undefined || airport1 == {{ route.origin__pk }} || airport1 == {{ route.destination__pk }}) {
-            if (airport2 == undefined || airport2 == {{route.origin__pk }} || airport2 == {{ route.destination__pk }}) {
-                
-                var generator = new arc.GreatCircle({x: {{ route.origin__longitude }}, y: {{ route.origin__latitude }} },
-                                                    {x: {{ route.destination__longitude }}, y: {{ route.destination__latitude }} },
-                                                    {'name': 'test'});
-                var line = generator.Arc(100, {offset: 10});
-                var lineMarker = new L.geoJson(line.json(), {weight: 1.5, clickable: false, color: '#e41a1c', opacity: 1.0});
-                linesLayer.addLayer(lineMarker);
-
-                //var vectorGrid = L.vectorGrid.slicer(line.json()).addTo(linesLayer)
-
-//                var line = generator.Arc(100, {offset: 10});
-//                for (i = 0; i < line.geometries[0].coords.length; i++){
-//                    line.geometries[0].coords[i][0] += 360;
-//                }
-//                var lineMarker = new L.geoJson(line.json(), {weight: 1.5, clickable: false, color: '#e41a1c', opacity: 1.0});
-//                linesLayer.addLayer(lineMarker);
-//
-//
-//                var line = generator.Arc(100, {offset: 10});
-//                for (i = 0; i < line.geometries[0].coords.length; i++){
-//                    line.geometries[0].coords[i][0] -= 360;
-//                }
-//                var lineMarker = new L.geoJson(line.json(), {weight: 1.5, clickable: false, color: '#e41a1c', opacity: 1.0});
-//                linesLayer.addLayer(lineMarker);
-//
-//
-//                var generator = new arc.GreatCircle({x: {{ route.destination__longitude }}, y: {{ route.destination__latitude }} },
-//                                                    {x: {{ route.origin__longitude }}, y: {{ route.origin__latitude }} },
-//                                                    {'name': 'test'});
-//                var line = generator.Arc(100, {offset: 10});
-//                for (i = 0; i < line.geometries[0].coords.length; i++){
-//                    line.geometries[0].coords[i][0] += 360;
-//                }
-//                var lineMarker = new L.geoJson(line.json(), {weight: 1.5, clickable: false, color: '#e41a1c', opacity: 1.0});
-//                linesLayer.addLayer(lineMarker);
-//
-//
-//                var line = generator.Arc(100, {offset: 10});
-//                for (i = 0; i < line.geometries[0].coords.length; i++){
-//                    line.geometries[0].coords[i][0] -= 360;
-//                }
-//                var lineMarker = new L.geoJson(line.json(), {weight: 1.5, clickable: false, color: '#e41a1c', opacity: 1.0});
-//                linesLayer.addLayer(lineMarker);
-            }
-        }
-
-        {% endfor %}
-    }
-         {% endcomment %}
-    drawAllRoutes();
-</script>
 
 
 
