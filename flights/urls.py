@@ -35,7 +35,9 @@ urlpatterns = [
 
     path('api/search_airports/', api.search_airports, name='search_airports'),
     path('api/mileage_graph/usr1=<str:user1>&usr2=<str:user2>', views.mileage_graph, name='mileage_graph'),
-    
+    path('api/airport_graph/usr1=<str:user1>&usr2=<str:user2>', views.airport_graph, name='airport_graph'),
+    path('api/country_graph/usr1=<str:user1>&usr2=<str:user2>', views.country_graph, name='country_graph'),
+
     path('api/get_airport/<int:airport_id>', api.get_airport, name='get_airport'),
     path('api/get_airport_flights/<str:username>/<int:airport_id>', api.get_airport_flights, name='get_airport_flights'),
     path('api/get_route/<int:id1>/<int:id2>', api.get_route, name='get_route'),

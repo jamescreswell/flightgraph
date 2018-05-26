@@ -452,3 +452,77 @@ def mileage_graph(request, user1, user2):
     plt.savefig(buf, format='png', dpi=150, bbox_inches='tight')
     response = HttpResponse(buf.getvalue(), content_type='image/png')
     return response
+
+def airport_graph(request, user1, user2):
+    if user2 != 'null':
+        usernames = [user1, user2]
+    else:
+        usernames = [user1,]
+    dates, airport_count, airports_visited = {}, {}, {}
+    for user in usernames:
+        flights = Flight.objects.filter(owner__username=user).order_by('date')
+        dates[user] = []
+        airport_count[user] = [0]
+        airports_visited[user] = set()
+        for flight in flights:
+            dates[user].append(matplotlib.dates.date2num(flight.date))
+            airports_visited[user].add(flight.origin.pk)
+            airports_visited[user].add(flight.destination.pk)
+            airport_count[user].append(len(airports_visited[user]))
+
+
+
+    #response = HttpResponse(content_type='image/png')
+
+    plt.figure()
+
+    for user in usernames:
+        plt.plot_date(dates[user], airport_count[user][1:], marker=None, linestyle='-', xdate=True, label=user)
+    
+    plt.legend()
+    plt.xlabel('Date')
+    plt.ylabel('Airports visited')
+    import io
+    buf = io.BytesIO()
+
+
+    plt.savefig(buf, format='png', dpi=150, bbox_inches='tight')
+    response = HttpResponse(buf.getvalue(), content_type='image/png')
+    return response
+
+def country_graph(request, user1, user2):
+    if user2 != 'null':
+        usernames = [user1, user2]
+    else:
+        usernames = [user1,]
+    dates, country_count, countries_visited = {}, {}, {}
+    for user in usernames:
+        flights = Flight.objects.filter(owner__username=user).order_by('date')
+        dates[user] = []
+        country_count[user] = [0]
+        countries_visited[user] = set()
+        for flight in flights:
+            dates[user].append(matplotlib.dates.date2num(flight.date))
+            countries_visited[user].add(flight.origin.country)
+            countries_visited[user].add(flight.destination.country)
+            country_count[user].append(len(countries_visited[user]))
+
+
+
+    #response = HttpResponse(content_type='image/png')
+
+    plt.figure()
+
+    for user in usernames:
+        plt.plot_date(dates[user], country_count[user][1:], marker=None, linestyle='-', xdate=True, label=user)
+
+    plt.legend()
+    plt.xlabel('Date')
+    plt.ylabel('Countries visited')
+    import io
+    buf = io.BytesIO()
+
+
+    plt.savefig(buf, format='png', dpi=150, bbox_inches='tight')
+    response = HttpResponse(buf.getvalue(), content_type='image/png')
+    return response
