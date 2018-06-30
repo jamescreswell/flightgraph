@@ -17,7 +17,7 @@ from django.contrib.auth.models import User
 import matplotlib
 matplotlib.use('Agg') # Server has no GUI
 import matplotlib.pyplot as plt
-#from mpl_toolkits.basemap import Basemap
+from mpl_toolkits.basemap import Basemap
 
 def index(request):
     context = {'nav_id': 'index_nav',
@@ -46,6 +46,17 @@ def map(request, username=None):
               }
     
     return render(request, 'flights/map.html', context)
+
+def list(request):
+    user = request.user    
+    context = {'username': user.username,
+              }
+    
+    return render(request, 'flights/list.html', context)
+
+
+
+
 
 def gcmap(request):
     context = {'method': 'GET',
@@ -519,6 +530,55 @@ def country_graph(request, user1, user2):
     plt.legend()
     plt.xlabel('Date')
     plt.ylabel('Countries visited')
+    import io
+    buf = io.BytesIO()
+
+
+    plt.savefig(buf, format='png', dpi=150, bbox_inches='tight')
+    response = HttpResponse(buf.getvalue(), content_type='image/png')
+    return response
+
+def top_airports_graph(request, username):
+    flights = Flight.objects.filter(owner__username=username).order_by('date')
+    dates = []
+    airport_counts = {}
+    airports_visited = Airport.objects.filter(Q(origins__in=flights)|Q(destinations__in=flights)).distinct()
+    for airport in airports_visited:
+        airport_counts[airport.pk] = [airport.iata, 0]
+    for flight in flights:
+        dates.append(matplotlib.dates.date2num(flight.date))
+        for airport in airports_visited:
+            if flight.origin.pk == airport.pk or flight.destination.pk == airport.pk:
+                airport_counts[airport.pk].append(airport_counts[airport.pk][-1] + 1)
+            else:
+                airport_counts[airport.pk].append(airport_counts[airport.pk][-1])
+    
+    lists = [airport_list for airport_list in airport_counts.values()]
+    lists.sort(key=lambda x: x[-1], reverse=True)
+    lists = lists[:10]
+    
+    output = [np.array(lis[2:]) for lis in lists]
+    
+    plt.figure()
+    plt.stackplot(dates, output, labels=[lis[0] for lis in lists], baseline='zero')
+    plt.legend(loc='upper left')
+    import io
+    buf = io.BytesIO()
+
+
+    plt.savefig(buf, format='png', dpi=150, bbox_inches='tight')
+    response = HttpResponse(buf.getvalue(), content_type='image/png')
+    return response
+
+def route_map(request, id1, id2):
+    airport1 = Airport.objects.get(pk=id1)
+    airport2 = Airport.objects.get(pk=id2)
+    print(airport1.longitude)
+    print(airport1.latitude)
+    plt.figure()
+    plt.scatter(airport1.longitude, airport1.latitude, color='black')
+    plt.scatter(airport2.longitude, airport2.latitude, color='black')
+    
     import io
     buf = io.BytesIO()
 

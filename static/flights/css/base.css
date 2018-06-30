@@ -23,6 +23,7 @@ abbr {
     background-color: #646464;
     box-shadow: 0 0 10px #646464;
     width: 100%;
+    min-width: 1000px;
 }
 
 .navbar a {

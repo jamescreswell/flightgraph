@@ -14,6 +14,7 @@ from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User
 from django.views.decorators.csrf import csrf_exempt, ensure_csrf_cookie
 import json
+from django.core import serializers
 
 
 def get_airport(request, airport_id):
@@ -134,6 +135,73 @@ def get_route_flights(request, username, id1, id2):
     
     return JsonResponse(flights_dictionary, safe=False)
     
+def get_flights(request, username):
+    flights_list = Flight.objects.filter(owner__username=username).order_by('-sortid')
+    
+    flights_dictionary = [
+        {"number": flight.number,
+         "origin": str(flight.origin),
+         "destination": str(flight.destination),
+         'day': flight.date.strftime('%A'),
+         'date': flight.date.strftime('%d %b %Y'),
+         "airline": flight.airline,
+         "plane": flight.aircraft,
+         'registration': flight.aircraft_registration,
+         'picture': flight.picture_link,
+         'distance': int(flight.distance),
+         'duration': np.round((30.0 + flight.distance/500.0 * 60.0) / 60.0),
+         'operator': flight.operator,
+         'seat': flight.seat,
+         'class': flight.travel_class,
+         'origin_lat': flight.origin.latitude,
+         'destination_lat': flight.destination.latitude,
+         'origin_long': flight.origin.longitude,
+         'destination_long': flight.destination.longitude,
+         'origin_pk': flight.destination.pk,
+         'destination_pk': flight.origin.pk,
+         'origin_city': flight.origin.city,
+         'destination_city': flight.destination.city,
+         'pk': flight.pk,
+         'origin_html_name': flight.origin.html_name(),
+         'destination_html_name': flight.destination.html_name(),
+        } 
+        for flight in flights_list
+    ]
+    
+    return JsonResponse(flights_dictionary, safe=False)
+
+def get_flight_details(request, id):
+    flight = Flight.objects.get(pk=id)
+    print(flight.aircraft)
+    flight_dictionary = {
+        'id': flight.pk,
+        'number': flight.number,
+        'origin': {
+            'name': flight.origin.name,
+            'iata': flight.origin.iata,
+            'city': flight.origin.city,
+            'country': flight.origin.country,
+        },
+        'destination': {
+            'name': flight.destination.name,
+            'iata': flight.destination.iata,
+            'city': flight.destination.city,
+            'country': flight.destination.country,
+        },
+        'distance': int(flight.distance),
+        'duration': np.round((30.0 + flight.distance/500.0 * 60.0) / 60.0),
+        'aircraft': flight.aircraft,
+        'registration': flight.aircraft_registration,
+        'airline': flight.airline,
+        'operator': flight.operator,
+        'class': flight.travel_class,
+        'seat': flight.seat,
+        'pictureLink': flight.picture_link,
+        #'origin': serializers.serialize("json", [flight.origin]),
+        #'destination': serializers.serialize("json", [flight.destination]),
+    }
+    
+    return JsonResponse(flight_dictionary, safe=False)
     
 @csrf_exempt # This disables all CSRF security, please fix as soon as possible (JS fetch POSTs without credentials...)
 def search_airports(request):
