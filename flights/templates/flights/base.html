@@ -16,7 +16,8 @@
             <a href="{% url 'index' %}" id="index_nav">flightgraph.eu</a>
             <a href="{% url 'gcmap' %}" id="gcmap_nav">Route mapper</a>
             <a id="airport_nav">Airport database</a>
-            
+            <a>API</a>
+
             {% if user.is_authenticated %}
             <div class="dropdown" id="flights_nav">
                 <button onclick="dropdown('flights_content');">
@@ -25,16 +26,16 @@
                 <div class="dropdown-content" id="flights_content">
                     <a href="{% url 'map' %}">Map</a>
                     <a href="{% url 'list' %}">List</a>
-                    <a href="#">Statistics</a>
+                    <a href="{% url 'statistics' %}">Statistics</a>
                     <a href="#">Graphs</a>
                     <a href="#">Compare</a>
                     <a href="#">Add flight</a>
                 </div>
             </div>
             {% endif %}
-            
-            <a>API</a><!--The flightgraph.eu server implements a large library of functions that retrieve information and perform computations related to airports, routes, and users' flight records. Some of these functions are used to render the HTML webpages you can see on the site, but this is not the full extent of the possible products. Furthermore, users may want to access information in a more simple way. The pages below contain the documentation for the full API. Most functions accept GET requests and return JSON <abbr>HTTP header: application/json) or PNG <abbr>HTTP header: image/png) responses, though there are others. Note that some functions are marked as 'restricted'; you will not be able to access specific details about the flights of flightgraph.eu users who have activated their privacy settings; if your own fligths are privacy protected, you must <a href=>login</a> and submit the API call from the browser holding the authentication cookie. NOTE: the flightgraph.eu API is for personal use only. The modest servers that power this site will be overloaded if you abuse the API as a content delivery network for a high-traffic website. banners-->
-            
+
+            <!--The flightgraph.eu server implements a large library of functions that retrieve information and perform computations related to airports, routes, and users' flight records. Some of these functions are used to render the HTML webpages you can see on the site, but this is not the full extent of the possible products. Furthermore, users may want to access information in a more simple way. The pages below contain the documentation for the full API. Most functions accept GET requests and return JSON <abbr>HTTP header: application/json) or PNG <abbr>HTTP header: image/png) responses, though there are others. Note that some functions are marked as 'restricted'; you will not be able to access specific details about the flights of flightgraph.eu users who have activated their privacy settings; if your own fligths are privacy protected, you must <a href=>login</a> and submit the API call from the browser holding the authentication cookie. NOTE: the flightgraph.eu API is for personal use only. The modest servers that power this site will be overloaded if you abuse the API as a content delivery network for a high-traffic website. banners-->
+
             {% if user.is_authenticated %}
             <div class="dropdown" id="account_nav" style="float:right;">
                 <button onclick="dropdown('account_content');">
@@ -43,11 +44,13 @@
                 <div class="dropdown-content" id="account_content">
                     <a href="#">Settings</a>
                     <a href="#">Profile</a>
-                    <a href="#">Log out</a>
+                    <a href="/accounts/logout">Log out</a>
                 </div>
             </div>
+            {% else %}
+            <a href="/accounts/login" style="float:right;">Login</a>
             {% endif %}
-            
+
         </div>
         <div id="content">
             {% block content %}

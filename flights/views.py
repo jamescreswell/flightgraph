@@ -17,7 +17,9 @@ from django.contrib.auth.models import User
 import matplotlib
 matplotlib.use('Agg') # Server has no GUI
 import matplotlib.pyplot as plt
-from mpl_toolkits.basemap import Basemap
+#from mpl_toolkits.basemap import Basemap
+import datetime # I hope this doesn't mess up the Django datetime ...
+
 
 def index(request):
     context = {'nav_id': 'index_nav',
@@ -34,27 +36,31 @@ def map(request, username=None):
         user = User.objects.get(username=username)
     else:
         user = request.user
-    
+
     #flights_list = Flight.objects.filter(owner=user)
     airports_list = Airport.objects.filter(Q(origins__owner=user) | Q(destinations__owner=user)).distinct()
-    
+
     routes_list = Flight.objects.filter(owner=user).values('origin__pk', 'origin__latitude', 'origin__longitude', 'destination__pk', 'destination__latitude', 'destination__longitude').annotate(Count('id'))
-    
+
     context = {'airports': airports_list,
                'routes': routes_list,
                'username': user.username,
               }
-    
+
     return render(request, 'flights/map.html', context)
 
 def list(request):
-    user = request.user    
+    user = request.user
     context = {'username': user.username,
               }
-    
+
     return render(request, 'flights/list.html', context)
 
+def statistics(request):
+    user = request.user
+    context = {'username': user.username,}
 
+    return render(request, 'flights/statistics.html', context)
 
 
 
@@ -430,7 +436,7 @@ def create_account(request):
         form = UserCreationForm()
     return render(request, 'registration/create_account.html', {'form': form})
 
-def mileage_graph(request, user1, user2):
+def mileage_graph(request, user1, user2, year1, year2):
     if user2 != 'null':
         usernames = [user1, user2]
     else:
@@ -456,6 +462,8 @@ def mileage_graph(request, user1, user2):
     plt.legend()
     plt.xlabel('Date')
     plt.ylabel('Distance (mi)')
+    plt.xlim([datetime.date(year1, 1, 1), datetime.date(year2, 12, 31)])
+
     import io
     buf = io.BytesIO()
 
@@ -489,7 +497,7 @@ def airport_graph(request, user1, user2):
 
     for user in usernames:
         plt.plot_date(dates[user], airport_count[user][1:], marker=None, linestyle='-', xdate=True, label=user)
-    
+
     plt.legend()
     plt.xlabel('Date')
     plt.ylabel('Airports visited')
@@ -552,13 +560,13 @@ def top_airports_graph(request, username):
                 airport_counts[airport.pk].append(airport_counts[airport.pk][-1] + 1)
             else:
                 airport_counts[airport.pk].append(airport_counts[airport.pk][-1])
-    
+
     lists = [airport_list for airport_list in airport_counts.values()]
     lists.sort(key=lambda x: x[-1], reverse=True)
     lists = lists[:10]
-    
+
     output = [np.array(lis[2:]) for lis in lists]
-    
+
     plt.figure()
     plt.stackplot(dates, output, labels=[lis[0] for lis in lists], baseline='zero')
     plt.legend(loc='upper left')
@@ -578,7 +586,7 @@ def route_map(request, id1, id2):
     plt.figure()
     plt.scatter(airport1.longitude, airport1.latitude, color='black')
     plt.scatter(airport2.longitude, airport2.latitude, color='black')
-    
+
     import io
     buf = io.BytesIO()
 

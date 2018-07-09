@@ -4,24 +4,9 @@
 {% load humanize %}
 
 
-{% block links %}<link rel="stylesheet" type="text/css" href="{% static 'flights/css/flights.css' %}" />
+{% block links %}<link rel="stylesheet" type="text/css" href="{% static 'flights/css/compare.css' %}" />
 <script src="http://code.jquery.com/jquery-1.10.2.min.js"></script>
 <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.min.js"></script>
-
-<link rel="stylesheet" href="https://unpkg.com/leaflet@1.2.0/dist/leaflet.css" integrity="sha512-M2wvCLH6DSRazYeZRIm1JnYyh22purTM+FDB5CsyxtQJYeKq83arPe5wgbNmcFXGqiSH2XR8dT/fJISVA1r/zQ==" crossorigin=""/>
-<script src="https://unpkg.com/leaflet@1.2.0/dist/leaflet.js" integrity="sha512-lInM/apFSqyy1o6s89K4iQUKg6ppXEgsVxT35HbzUupEVRh2Eu9Wdl4tHj7dZO0s1uvplcYGmt3498TtHq+log==" crossorigin=""></script>
-
-<script src="http://www.webglearth.com/v2/api.js"></script>
-
-<script src="{% static 'flights/geo/arc.js' %}"></script>
-
-<script src="https://unpkg.com/leaflet.vectorgrid@latest/dist/Leaflet.VectorGrid.bundled.js"></script>
-
-<style>
-    .leaflet-container {
-        background: #acd5f9;
-    }
-</style>
 
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 
@@ -33,10 +18,8 @@
 
 
 <div id="comparison">
-    <div id="compare-map">
-    </div>
     <h2>Summary</h2>
-    
+
     <table class="compare-table">
         <tr>
             <th>Username</th>
@@ -80,220 +63,223 @@
             <td>{{airlines_both|length|add:len2}}</td>
             {% endwith %}
             {% endwith %}
-        </tr>        
+        </tr>
     </table>
-    
+
     <div>
         <span class="toggle-button" onclick="showAll();">Show all tables</span> <span class="toggle-button" onclick="hideAll();">Hide all tables</span>
     </div>
-    
-    <h2>Airports</h2>
-    
-    <table class="compare-table">
-        <tr class="header">
-            <th colspan="3"><i class="fa fa-angle-down" style="display:none;"></i><i class="fa fa-angle-up"></i> Airports visited by {{username1}} and {{username2}}</th>
-        </tr>
-        {% for airport in airports_both %}
-        <tr>
-            <td>{{airport.html_name|safe}}</td>
-            {% if airport.count1 >= airport.count2 %}
-            <td class="winner">{{airport.count1}}</td>
-            {% else %}
-            <td>{{airport.count1}}</td>
-            {% endif %}
-            {% if airport.count2 >= airport.count1 %}
-            <td class="winner">{{airport.count2}}</td>
-            {% else %}
-            <td>{{airport.count2}}</td>
-            {% endif %}
-        </tr>
-        {% endfor %}
-    </table>
-    
-    <table class="compare-table">
-        <tr class="header">
-            <th colspan="3"><i class="fa fa-angle-down" style="display:none;"></i><i class="fa fa-angle-up"></i> Airports visited only by {{username1}}</th>
-        </tr>
-        {% for airport in airports_only1 %}
-        <tr>
-            <td>{{airport.html_name|safe}}</td>
-            <td class="winner">{{airport.id__count}}</td>
-            <td>0</td>
-        </tr>
-        {% endfor %}
-    </table>
-    
-    <table class="compare-table">
-        <tr class="header">
-            <th colspan="3"><i class="fa fa-angle-down" style="display:none;"></i><i class="fa fa-angle-up"></i> Airports visited only by {{username2}}</th>
-        </tr>
-        {% for airport in airports_only2 %}
-        <tr>
-            <td>{{airport.html_name|safe}}</td>
-            <td>0</td>
-            <td class="winner">{{airport.id__count}}</td>
-        </tr>
-        {% endfor %}
-    </table>
-    
-    
-    
-    
-    
-    <h2>Countries</h2>
-    
-    <table class="compare-table">
-        <tr class="header">
-            <th colspan="3"><i class="fa fa-angle-down" style="display:none;"></i><i class="fa fa-angle-up"></i> Countries visited by {{username1}} and {{username2}}</th>
-        </tr>
-        {% for country in countries_both %}
-        <tr>
-            {% with 'flights/img/flags/24/'|add:country.country_iso|add:'.png' as image_static %}
-            <td><img src="{% static image_static %}"> {{country.country}} </td>
-            {% endwith %}
-            {% if country.count1 >= country.count2 %}
-            <td class="winner">{{country.count1}}</td>
-            {% else %}
-            <td>{{country.count1}}</td>
-            {% endif %}
-            {% if country.count2 >= country.count1 %}
-            <td class="winner">{{country.count2}}</td>
-            {% else %}
-            <td>{{country.count2}}</td>
-            {% endif %}
-        </tr>
-        {% endfor %}
-    </table>
-    
-    <table class="compare-table">
-        <tr class="header">
-            <th colspan="3"><i class="fa fa-angle-down" style="display:none;"></i><i class="fa fa-angle-up"></i> Countries visited only by {{username1}}</th>
-        </tr>
-        {% for country in countries_only1 %}
-        <tr>
-            {% with 'flights/img/flags/24/'|add:country.country_iso|add:'.png' as image_static %}
-            <td><img src="{% static image_static %}"> {{country.country}} </td>
-            {% endwith %}
-            <td class="winner">{{country.id__count}}</td>
-            <td>0</td>
-        </tr>
-        {% endfor %}
-    </table>
-    
-    <table class="compare-table">
-        <tr class="header">
-            <th colspan="3"><i class="fa fa-angle-down" style="display:none;"></i><i class="fa fa-angle-up"></i> Countries visited only by {{username2}}</th>
-        </tr>
-        {% for country in countries_only2 %}
-        <tr>
-            {% with 'flights/img/flags/24/'|add:country.country_iso|add:'.png' as image_static %}
-            <td><img src="{% static image_static %}"> {{country.country}} </td>
-            {% endwith %}
-            <td>0</td>
-            <td class="winner">{{country.id__count}}</td>
-        </tr>
-        {% endfor %}
-    </table>
-    
-    <h2>Aircraft</h2>
-    
-    <table class="compare-table">
-        <tr class="header">
-            <th colspan="3"><i class="fa fa-angle-down" style="display:none;"></i><i class="fa fa-angle-up"></i> Aircraft flown by {{username1}} and {{username2}}</th>
-        </tr>
-        {% for plane in planes_both %}
-        <tr>
-            <td>{{plane.aircraft}}</td>
-            {% if plane.count1 >= plane.count2 %}
-            <td class='winner'>{{plane.count1}}</td>
-            {% else %}
-            <td>{{plane.count1}}</td>
-            {% endif %}
-            {% if plane.count2 >= plane.count1 %}
-            <td class="winner">{{plane.count2}}</td>
-            {% else %}
-            <td>{{plane.count2}}</td>
-            {% endif %}
-        </tr>
-        {% endfor %}
-    </table>
-    
-    <table class="compare-table">
-        <tr class="header">
-            <th colspan="3"><i class="fa fa-angle-down" style="display:none;"></i><i class="fa fa-angle-up"></i> Aircraft flown only by {{username1}}</th>
-        </tr>
-        {% for plane in planes_only1 %}
-        <tr>
-            <td>{{plane.aircraft}}</td>
-            <td class='winner'>{{plane.count1}}</td>
-            <td>0</td>
-        </tr>
-        {% endfor %}
-    </table>
-    
-    <table class="compare-table">
-        <tr class="header">
-            <th colspan="3"><i class="fa fa-angle-down" style="display:none;"></i><i class="fa fa-angle-up"></i> Aircraft flown only by {{username2}}</th>
-        </tr>
-        {% for plane in planes_only2 %}
-        <tr>
-            <td>{{plane.aircraft}}</td>
-            <td>0</td>
-            <td class='winner'>{{plane.count2}}</td>
-        </tr>
-        {% endfor %}
-    </table>
+
+    <div class="category-wrapper">
+        <h2>Airports</h2>
+
+        <table class="compare-table">
+            <tr class="header">
+                <th colspan="3"><i class="fa fa-angle-down" style="display:none;"></i><i class="fa fa-angle-up"></i> Airports visited by {{username1}} and {{username2}}</th>
+            </tr>
+            {% for airport in airports_both %}
+            <tr>
+                <td>{{airport.html_name|safe}}</td>
+                {% if airport.count1 >= airport.count2 %}
+                <td class="winner">{{airport.count1}}</td>
+                {% else %}
+                <td>{{airport.count1}}</td>
+                {% endif %}
+                {% if airport.count2 >= airport.count1 %}
+                <td class="winner">{{airport.count2}}</td>
+                {% else %}
+                <td>{{airport.count2}}</td>
+                {% endif %}
+            </tr>
+            {% endfor %}
+        </table>
+
+        <table class="compare-table">
+            <tr class="header">
+                <th colspan="3"><i class="fa fa-angle-down" style="display:none;"></i><i class="fa fa-angle-up"></i> Airports visited only by {{username1}}</th>
+            </tr>
+            {% for airport in airports_only1 %}
+            <tr>
+                <td>{{airport.html_name|safe}}</td>
+                <td class="winner">{{airport.id__count}}</td>
+                <td>0</td>
+            </tr>
+            {% endfor %}
+        </table>
+
+        <table class="compare-table">
+            <tr class="header">
+                <th colspan="3"><i class="fa fa-angle-down" style="display:none;"></i><i class="fa fa-angle-up"></i> Airports visited only by {{username2}}</th>
+            </tr>
+            {% for airport in airports_only2 %}
+            <tr>
+                <td>{{airport.html_name|safe}}</td>
+                <td>0</td>
+                <td class="winner">{{airport.id__count}}</td>
+            </tr>
+            {% endfor %}
+        </table>
+    </div>
 
 
 
-    <h2>Airlines</h2>
-    
-    <table class="compare-table">
-        <tr class="header">
-            <th colspan="3"><i class="fa fa-angle-down" style="display:none;"></i><i class="fa fa-angle-up"></i> Airlines flown by {{username1}} and {{username2}}</th>
-        </tr>
-        {% for airline in airlines_both %}
-        <tr>
-            <td>{{airline.airline}}</td>
-            {% if airline.count1 >= airline.count2 %}
-            <td class='winner'>{{airline.count1}}</td>
-            {% else %}
-            <td>{{airline.count1}}</td>
-            {% endif %}
-            {% if airline.count2 >= airline.count1 %}
-            <td class="winner">{{airline.count2}}</td>
-            {% else %}
-            <td>{{airline.count2}}</td>
-            {% endif %}
-        </tr>
-        {% endfor %}
-    </table>
-    
-    <table class="compare-table">
-        <tr class="header">
-            <th colspan="3"><i class="fa fa-angle-down" style="display:none;"></i><i class="fa fa-angle-up"></i> Airlines flown only by {{username1}}</th>
-        </tr>
-        {% for airline in airlines_only1 %}
-        <tr>
-            <td>{{airline.airline}}</td>
-            <td class='winner'>{{airline.count1}}</td>
-            <td>0</td>
-        </tr>
-        {% endfor %}
-    </table>
-    
-    <table class="compare-table">
-        <tr class="header">
-            <th colspan="3"><i class="fa fa-angle-down" style="display:none;"></i><i class="fa fa-angle-up"></i> Airlines flown only by {{username2}}</th>
-        </tr>
-        {% for airline in airlines_only2 %}
-        <tr>
-            <td>{{airline.airline}}</td>
-            <td>0</td>
-            <td class='winner'>{{airline.count2}}</td>
-        </tr>
-        {% endfor %}
-    </table>
+    <div class="category-wrapper">
+        <h2>Countries</h2>
+
+        <table class="compare-table">
+            <tr class="header">
+                <th colspan="3"><i class="fa fa-angle-down" style="display:none;"></i><i class="fa fa-angle-up"></i> Countries visited by {{username1}} and {{username2}}</th>
+            </tr>
+            {% for country in countries_both %}
+            <tr>
+                {% with 'flights/img/flags/24/'|add:country.country_iso|add:'.png' as image_static %}
+                <td><img src="{% static image_static %}"> {{country.country}} </td>
+                {% endwith %}
+                {% if country.count1 >= country.count2 %}
+                <td class="winner">{{country.count1}}</td>
+                {% else %}
+                <td>{{country.count1}}</td>
+                {% endif %}
+                {% if country.count2 >= country.count1 %}
+                <td class="winner">{{country.count2}}</td>
+                {% else %}
+                <td>{{country.count2}}</td>
+                {% endif %}
+            </tr>
+            {% endfor %}
+        </table>
+
+        <table class="compare-table">
+            <tr class="header">
+                <th colspan="3"><i class="fa fa-angle-down" style="display:none;"></i><i class="fa fa-angle-up"></i> Countries visited only by {{username1}}</th>
+            </tr>
+            {% for country in countries_only1 %}
+            <tr>
+                {% with 'flights/img/flags/24/'|add:country.country_iso|add:'.png' as image_static %}
+                <td><img src="{% static image_static %}"> {{country.country}} </td>
+                {% endwith %}
+                <td class="winner">{{country.id__count}}</td>
+                <td>0</td>
+            </tr>
+            {% endfor %}
+        </table>
+
+        <table class="compare-table">
+            <tr class="header">
+                <th colspan="3"><i class="fa fa-angle-down" style="display:none;"></i><i class="fa fa-angle-up"></i> Countries visited only by {{username2}}</th>
+            </tr>
+            {% for country in countries_only2 %}
+            <tr>
+                {% with 'flights/img/flags/24/'|add:country.country_iso|add:'.png' as image_static %}
+                <td><img src="{% static image_static %}"> {{country.country}} </td>
+                {% endwith %}
+                <td>0</td>
+                <td class="winner">{{country.id__count}}</td>
+            </tr>
+            {% endfor %}
+        </table>
+    </div>
+
+    <div class="category-wrapper">
+
+        <h2>Aircraft</h2>
+
+        <table class="compare-table">
+            <tr class="header">
+                <th colspan="3"><i class="fa fa-angle-down" style="display:none;"></i><i class="fa fa-angle-up"></i> Aircraft flown by {{username1}} and {{username2}}</th>
+            </tr>
+            {% for plane in planes_both %}
+            <tr>
+                <td>{{plane.aircraft}}</td>
+                {% if plane.count1 >= plane.count2 %}
+                <td class='winner'>{{plane.count1}}</td>
+                {% else %}
+                <td>{{plane.count1}}</td>
+                {% endif %}
+                {% if plane.count2 >= plane.count1 %}
+                <td class="winner">{{plane.count2}}</td>
+                {% else %}
+                <td>{{plane.count2}}</td>
+                {% endif %}
+            </tr>
+            {% endfor %}
+        </table>
+
+        <table class="compare-table">
+            <tr class="header">
+                <th colspan="3"><i class="fa fa-angle-down" style="display:none;"></i><i class="fa fa-angle-up"></i> Aircraft flown only by {{username1}}</th>
+            </tr>
+            {% for plane in planes_only1 %}
+            <tr>
+                <td>{{plane.aircraft}}</td>
+                <td class='winner'>{{plane.count1}}</td>
+                <td>0</td>
+            </tr>
+            {% endfor %}
+        </table>
+
+        <table class="compare-table">
+            <tr class="header">
+                <th colspan="3"><i class="fa fa-angle-down" style="display:none;"></i><i class="fa fa-angle-up"></i> Aircraft flown only by {{username2}}</th>
+            </tr>
+            {% for plane in planes_only2 %}
+            <tr>
+                <td>{{plane.aircraft}}</td>
+                <td>0</td>
+                <td class='winner'>{{plane.count2}}</td>
+            </tr>
+            {% endfor %}
+        </table>
+    </div><div class="category-wrapper">
+        <h2>Airlines</h2>
+
+        <table class="compare-table">
+            <tr class="header">
+                <th colspan="3"><i class="fa fa-angle-down" style="display:none;"></i><i class="fa fa-angle-up"></i> Airlines flown by {{username1}} and {{username2}}</th>
+            </tr>
+            {% for airline in airlines_both %}
+            <tr>
+                <td>{{airline.airline}}</td>
+                {% if airline.count1 >= airline.count2 %}
+                <td class='winner'>{{airline.count1}}</td>
+                {% else %}
+                <td>{{airline.count1}}</td>
+                {% endif %}
+                {% if airline.count2 >= airline.count1 %}
+                <td class="winner">{{airline.count2}}</td>
+                {% else %}
+                <td>{{airline.count2}}</td>
+                {% endif %}
+            </tr>
+            {% endfor %}
+        </table>
+
+        <table class="compare-table">
+            <tr class="header">
+                <th colspan="3"><i class="fa fa-angle-down" style="display:none;"></i><i class="fa fa-angle-up"></i> Airlines flown only by {{username1}}</th>
+            </tr>
+            {% for airline in airlines_only1 %}
+            <tr>
+                <td>{{airline.airline}}</td>
+                <td class='winner'>{{airline.count1}}</td>
+                <td>0</td>
+            </tr>
+            {% endfor %}
+        </table>
+
+        <table class="compare-table">
+            <tr class="header">
+                <th colspan="3"><i class="fa fa-angle-down" style="display:none;"></i><i class="fa fa-angle-up"></i> Airlines flown only by {{username2}}</th>
+            </tr>
+            {% for airline in airlines_only2 %}
+            <tr>
+                <td>{{airline.airline}}</td>
+                <td>0</td>
+                <td class='winner'>{{airline.count2}}</td>
+            </tr>
+            {% endfor %}
+        </table>
+    </div>
 </div>
 
 <script>
@@ -303,7 +289,7 @@
         });
         $(this).nextUntil('tr.header').toggle();
     });
-    
+
     $('.compare-table').append('<col style="width:50%"><col style="width:25%"><col style="width:25%">');
 </script>
 
@@ -313,7 +299,7 @@
         $('.fa-angle-up').show();
         $('.fa-angle-down').hide();
     }
-    
+
     function hideAll() {
         $('.header').nextUntil('tr.header').hide();
         $('.fa-angle-up').hide();
@@ -321,147 +307,6 @@
     }
 </script>
 
-<script>
-    var map = L.map('compare-map', {zoomControl: false, worldCopyJump: true, inertia: false}).setView([25, 0], 3);
-
-    L.control.zoom({position: 'bottomright'}).addTo(map);
-
-    //var myGeoJSONPath = '{% static "flights/geo/ne_10m_admin_0_countries_lakes.json" %}';
-    var myGeoJSONPath = '{% static "flights/geo/countries-hires.json" %}';
-    var myCustomStyle = {
-        stroke: true,
-        color: '#6e7a8c',
-        weight: 0.25,
-        fill: true,
-        fillColor: '#87b8a1',
-        fillOpacity: 1,
-        clickable: false
-    }
-    
-    var mapLayer = new L.LayerGroup().addTo(map);
-    
-    $.getJSON(myGeoJSONPath, function(data) {
-        //L.geoJson(data, {
-        //    clickable: false,
-        //    pane: 'tilePane',
-        //    style: myCustomStyle
-        //}).addTo(mapLayer);
-        var vectorGrid = L.vectorGrid.slicer(data, {
-            vectorTileLayerStyles: {
-                sliced: function(properties, zoom) {
-                    return {
-                        fillColor: '#87B8A1',
-                        stroke: true,
-                        fill: true,
-                        color: '#6E7A8C',
-                        weight: 0.25,
-                        fillOpacity: 1,
-                    }
-                }
-            },
-        })
-        .addTo(mapLayer);
-    });
-    
-    var x = 16;
-    var icon0 = L.icon({
-        iconUrl: "{% static 'flights/img/4.png' %}",
-        iconSize: [x, x],
-        iconAnchor: [x/2, x/2],
-        popupAnchor: [0, 0]
-    });
-    
-    var x = 12;
-    var icon1 = L.icon({
-        iconUrl: "{% static 'flights/img/airport-icon-red.png' %}",
-        iconSize: [x, x],
-        iconAnchor: [x/2, x/2],
-        popupAnchor: [0, 0]
-    });
-    
-    var icon2 = L.icon({
-        iconUrl: "{% static 'flights/img/airport-icon.png' %}",
-        iconSize: [x, x],
-        iconAnchor: [x/2, x/2],
-        popupAnchor: [0, 0]
-    });
-    
-    var layerGroup0 = new L.LayerGroup().addTo(map);
-    var layerGroup1 = new L.LayerGroup().addTo(map);
-    var layerGroup2 = new L.LayerGroup().addTo(map);
-
-    var baseLayers = {
-    };
-    var overlays = {
-        "Both": layerGroup0,
-        "{{username1}} only": layerGroup1,
-        "{{username2}} only": layerGroup2,
-        "Map": mapLayer
-    };
-    L.control.layers(baseLayers, overlays, {position: 'bottomright'}).addTo(map);
-</script>
-
-<script>
-    {% for airport in airports_both %}
-    {% with 'flights/img/flags/24/'|add:airport.country_iso|add:'.png' as image_static %}
-
-    var marker = new L.marker([{{ airport.latitude }}, {{ airport.longitude }}], {icon: icon0}).bindPopup('<b>{{ airport.name }}</b><br><i>{{ airport.city }}, {{ airport.country }}</i><br>Flights: {{ airport.id__count }} <img style="float: right;" src="{% static image_static %}">');
-
-    layerGroup0.addLayer(marker);
-     
-    var marker = new L.marker([{{ airport.latitude }}, {{ airport.longitude|add:360.0 }}], {icon: icon0}).bindPopup('<b>{{ airport.name }}</b><br><i>{{ airport.city }}, {{ airport.country }}</i><br>Flights: {{ airport.id__count }} <img style="float: right;" src="{% static image_static %}">');
-
-    layerGroup0.addLayer(marker);
-
-    var marker = new L.marker([{{ airport.latitude }}, {{ airport.longitude|add:-360.0 }}], {icon: icon0}).bindPopup('<b>{{ airport.name }}</b><br><i>{{ airport.city }}, {{ airport.country }}</i><br>Flights: {{ airport.id__count }} <img style="float: right;" src="{% static image_static %}">');
-
-    layerGroup0.addLayer(marker);
-     
-    {% endwith %}
-    {% endfor %}
-    
-    
-    {% for airport in airports_only1 %}
-    {% with 'flights/img/flags/24/'|add:airport.country_iso|add:'.png' as image_static %}
-
-    var marker = new L.marker([{{ airport.latitude }}, {{ airport.longitude }}], {icon: icon1}).bindPopup('<b>{{ airport.name }}</b><br><i>{{ airport.city }}, {{ airport.country }}</i><br>Flights: {{ airport.id__count }} <img style="float: right;" src="{% static image_static %}">');
-
-    layerGroup1.addLayer(marker);
-     
-    var marker = new L.marker([{{ airport.latitude }}, {{ airport.longitude|add:360.0 }}], {icon: icon1}).bindPopup('<b>{{ airport.name }}</b><br><i>{{ airport.city }}, {{ airport.country }}</i><br>Flights: {{ airport.id__count }} <img style="float: right;" src="{% static image_static %}">');
-
-    layerGroup1.addLayer(marker);
-
-    var marker = new L.marker([{{ airport.latitude }}, {{ airport.longitude|add:-360.0 }}], {icon: icon1}).bindPopup('<b>{{ airport.name }}</b><br><i>{{ airport.city }}, {{ airport.country }}</i><br>Flights: {{ airport.id__count }} <img style="float: right;" src="{% static image_static %}">');
-
-    layerGroup1.addLayer(marker);
-     
-    {% endwith %}
-    {% endfor %}
-    
-    
-    
-    {% for airport in airports_only2 %}
-    {% with 'flights/img/flags/24/'|add:airport.country_iso|add:'.png' as image_static %}
-
-    var marker = new L.marker([{{ airport.latitude }}, {{ airport.longitude }}], {icon: icon2}).bindPopup('<b>{{ airport.name }}</b><br><i>{{ airport.city }}, {{ airport.country }}</i><br>Flights: {{ airport.id__count }} <img style="float: right;" src="{% static image_static %}">');
-
-    layerGroup2.addLayer(marker);
-     
-    var marker = new L.marker([{{ airport.latitude }}, {{ airport.longitude|add:360.0 }}], {icon: icon2}).bindPopup('<b>{{ airport.name }}</b><br><i>{{ airport.city }}, {{ airport.country }}</i><br>Flights: {{ airport.id__count }} <img style="float: right;" src="{% static image_static %}">');
-
-    layerGroup2.addLayer(marker);
-
-    var marker = new L.marker([{{ airport.latitude }}, {{ airport.longitude|add:-360.0 }}], {icon: icon2}).bindPopup('<b>{{ airport.name }}</b><br><i>{{ airport.city }}, {{ airport.country }}</i><br>Flights: {{ airport.id__count }} <img style="float: right;" src="{% static image_static %}">');
-
-    layerGroup2.addLayer(marker);
-     
-    {% endwith %}
-    {% endfor %}
-
-    
-    
-</script>
 
 
 {% endblock %}

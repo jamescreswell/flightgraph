@@ -15,7 +15,7 @@ from django.contrib.auth.models import User
 from django.views.decorators.csrf import csrf_exempt, ensure_csrf_cookie
 import json
 from django.core import serializers
-
+from django.utils import dateformat
 
 def get_airport(request, airport_id):
     airport = Airport.objects.get(pk=airport_id)
@@ -32,14 +32,14 @@ def get_airport(request, airport_id):
         'longitude': airport.longitude,
         'elevation': airport.elevation
     })
-    
-    
+
+
 def get_airport_flights(request, username, airport_id):
     user = User.objects.get(username=username)
     airport = Airport.objects.get(pk=airport_id)
-    
+
     flights = Flight.objects.filter(owner=user).filter(Q(origin=airport) | Q(destination=airport))
-    
+
     flights_dictionary = [
         {"number": flight.number,
          "origin": str(flight.origin),
@@ -64,10 +64,10 @@ def get_airport_flights(request, username, airport_id):
          'origin_pk': flight.destination.pk,
          'destination_pk': flight.origin.pk,
          'pk': flight.pk,
-        } 
+        }
         for flight in flights[::-1]
     ]
-    
+
     return JsonResponse(flights_dictionary, safe=False)
 
 def get_route(request, id1, id2):
@@ -99,13 +99,13 @@ def get_route(request, id1, id2):
         'distance': int(airport1.distance_to(airport2)),
         'duration': np.round((30.0 + airport1.distance_to(airport2)/500.0 * 60.0) / 60.0),
     })
-    
+
 def get_route_flights(request, username, id1, id2):
     user = User.objects.get(username=username)
     airport1 = Airport.objects.get(pk=id1)
     airport2 = Airport.objects.get(pk=id2)
     flights = Flight.objects.filter(owner=user).filter(Q(origin=airport1,destination=airport2) | Q(destination=airport1,origin=airport2))
-    
+
     flights_dictionary = [
         {"number": flight.number,
          "origin": str(flight.origin),
@@ -129,21 +129,23 @@ def get_route_flights(request, username, id1, id2):
          'origin_city': flight.origin.city,
          'destination_city': flight.destination.city,
          'pk': flight.pk,
-        } 
+        }
         for flight in flights[::-1]
     ]
-    
+
     return JsonResponse(flights_dictionary, safe=False)
-    
+
 def get_flights(request, username):
     flights_list = Flight.objects.filter(owner__username=username).order_by('-sortid')
-    
+
     flights_dictionary = [
         {"number": flight.number,
          "origin": str(flight.origin),
          "destination": str(flight.destination),
          'day': flight.date.strftime('%A'),
          'date': flight.date.strftime('%d %b %Y'),
+         'daymonth': flight.date.strftime('%d %b'),
+         'year': flight.date.strftime('%Y'),
          "airline": flight.airline,
          "plane": flight.aircraft,
          'registration': flight.aircraft_registration,
@@ -164,10 +166,10 @@ def get_flights(request, username):
          'pk': flight.pk,
          'origin_html_name': flight.origin.html_name(),
          'destination_html_name': flight.destination.html_name(),
-        } 
+        }
         for flight in flights_list
     ]
-    
+
     return JsonResponse(flights_dictionary, safe=False)
 
 def get_flight_details(request, id):
@@ -176,6 +178,9 @@ def get_flight_details(request, id):
     flight_dictionary = {
         'id': flight.pk,
         'number': flight.number,
+        'day': flight.date.strftime('%A'),
+        'date': dateformat.format(flight.date, 'jS F Y'),
+        'isodate': flight.date,
         'origin': {
             'name': flight.origin.name,
             'iata': flight.origin.iata,
@@ -200,13 +205,13 @@ def get_flight_details(request, id):
         #'origin': serializers.serialize("json", [flight.origin]),
         #'destination': serializers.serialize("json", [flight.destination]),
     }
-    
+
     return JsonResponse(flight_dictionary, safe=False)
-    
+
 @csrf_exempt # This disables all CSRF security, please fix as soon as possible (JS fetch POSTs without credentials...)
 def search_airports(request):
     if request.method == 'POST':
-        try: 
+        try:
             airport = Airport.objects.get(iata=request.body.decode('utf-8').strip().upper())
             # if multiple hits, take the most recent
             # if no iata, not possible from this function

@@ -1,0 +1,76 @@
+.intro {
+    background-color: #f3f3f3;
+    border-radius: 3px;
+    box-shadow: 0 2px 4px rgba(0,0,0,.15);
+    padding: 10px;
+    padding-bottom: 15px;
+}
+
+#comparison {
+    width: 800px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+#comparison h2 {
+    font-weight: 400;
+    font-size: 24px;
+    border-bottom: 1px solid #cfcfcf;
+}
+
+.category-wrapper {
+    display: block;
+}
+
+.compare-table {
+    border: 1px solid #ddd;
+    text-align: left;
+    width: 97.5%;
+    margin-left: auto;
+    margin-right: auto;
+    margin-top: 29px;
+    margin-bottom: 29px;
+    border-collapse: collapse;
+}
+
+.compare-table th {
+    color: #e41a1c;
+    font-weight: 400;
+    background-color: #eee;
+    padding: 2px;
+}
+
+.compare-table td {
+    border-top: 1px solid #ddd;
+    border-left: 1px solid #ddd;
+    padding: 2px;
+}
+
+.winner {
+    background-color: #d6f4d6;
+}
+
+.header {
+    cursor: pointer;
+}
+
+.compare-table .header th:hover {
+    background-color: #ccc;
+}
+
+.compare-table img {
+    vertical-align: middle;
+}
+
+.toggle-button {
+    cursor: pointer;
+    margin-left: 1.25%;
+}
+
+.toggle-button:hover {
+    text-decoration: underline;
+}
+
+.list-thumbnail {
+    height: 20px;
+}

@@ -7,7 +7,7 @@
 <script src="http://code.jquery.com/jquery-1.10.2.min.js"></script>
 <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.min.js"></script>
 
-<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+<script src="{% static 'flights/js/vue.js' %}"></script>
 {% endblock %}
 
 {% block content %}
@@ -37,13 +37,14 @@
                 </tr>
                 <template v-else v-for="flight in flights">
                     <template v-if="(activeFilters.airline == flight.airline || activeFilters.airline == 'all') && (activeFilters.aircraft == flight.plane || activeFilters.aircraft == 'all') && (activeFilters.airport == flight.origin || activeFilters.airport == flight.destination || activeFilters.airport == 'all')">
-                        <tr v-bind:id="'flight-' + flight.pk" v-bind:data-sortid="flight.sortid" v-bind:data-pk="flight.pk" v-on:click="toggleFlightDetails(flight.pk);">
-                            <td>[[ flight.date ]]<br>[[ flight.day ]]</td>
+                        <tr v-bind:id="'flight-' + flight.pk" v-bind:data-sortid="flight.sortid" v-bind:data-pk="flight.pk" v-on:click="toggleFlightDetails(flight.pk);" :class="detailFlight.id == flight.pk ? 'selected-row' : ''">
+                            <td>[[ flight.daymonth ]]<br>[[ flight.year ]]</td>
                             <td>[[ flight.number ]]</td>
                             <td><span v-html="flight.origin_html_name"></span></td>
                             <td v-html="flight.destination_html_name"></td>
                             <td>[[ flight.airline ]]</td>
                             <td>[[ flight.plane ]] ([[ flight.registration ]])</td>
+                            <!--<td v-if="detailFlight.id == flight.pk">Test</td>-->
                             <!--<td><i class="fa fa-pencil" title="Edit flight"></i></td>-->
                         </tr>
                         <tr class="break"><td colspan="7"></td></tr>
@@ -51,12 +52,12 @@
                 </template>
             </table>
         </div>
-        
-        
+
+
     <!--</div>-->
     </div>
-    
-    
+
+
     <div class="column-right">
         <div id="filter">
             <div>
@@ -84,11 +85,11 @@
                     <option v-for="plane in filterData.planes">[[ plane ]]</option>
                 </select>
                 <br>
-                <input type="submit" value="Submit" v-on:click="filter();">
+                <input type="submit" value="Apply" v-on:click="filter();">
             </div>
         </div>
         <div id="details" v-if="Object.keys(detailFlight).length">
-            <div class="route-title">[[ detailFlight.number ]]<i class="fa fa-pencil" title="Edit flight" id="edit-button" v-on:click="openEditFlight(detailFlight.pk)"></i><br>[[ detailFlight.origin.iata ]] – [[ detailFlight.destination.iata ]] </div>
+            <div class="route-title">[[ detailFlight.number ]]<i class="fa fa-pencil" title="Edit flight" id="edit-button" v-if="!editing" v-on:click="openEditFlight(detailFlight.id)"></i><button v-if="editing" v-on:click="moveFlightUp(detailFlight.id)">Move up</button><i class="fa fa-arrow-down" title="Save flight" id ="save-button" v-if="editing" v-on:click="saveEditFlight(detailFlight.id)"></i><br>[[ detailFlight.origin.iata ]] – [[ detailFlight.destination.iata ]] </div>
             <div class="caption">from</div>
             <br>
             <div class="datum"><span style="color:#000;">[[ detailFlight.origin.name ]]</span><br><span style="font-weight:400;">[[ detailFlight.origin.city ]], [[ detailFlight.origin.country ]]</span></div>
@@ -96,8 +97,14 @@
             <div class="caption">to</div>
             <br>
             <div class="datum"><span style="color:#000;">[[ detailFlight.destination.name ]]</span><br><span style="font-weight:400;">[[ detailFlight.destination.city ]], [[ detailFlight.destination.country ]]</span></div>
-            
+
+
             <div class="route-subtitle">flight</div>
+            <div class="caption">date</div>
+            <br>
+            <div class="datum" v-if="!editing">[[ detailFlight.day ]], [[ detailFlight.date ]]</div>
+            <div class="datum" v-if="editing"><input type="date" v-bind:value="detailFlight.isodate"></div>
+            <br>
             <div class="route-parent">
                 <div class="caption">distance</div>
                 <br>
@@ -109,36 +116,44 @@
                 <div class="datum">[[ detailFlight.duration ]] hr</div>
             </div>
             <br>
-            <div class="route-parent">
-                <div class="caption">class</div>
-                <br>
-                <div class="datum">[[ detailFlight.class ]]</div>
-            </div>
-            <div class="route-parent">
-                <div class="caption">seat</div>
-                <br>
-                <div class="datum">[[ detailFlight.seat ]]</div>
-            </div>
-            
+            <template v-if="detailFlight.class || detailFlight.seat">
+                <div class="route-parent">
+                    <div class="caption">class</div>
+                    <br>
+                    <div class="datum" v-if="!editing">[[ detailFlight.class ]]</div>
+                    <div class="datum" v-if="editing"><input type="text" v-bind:value="detailFlight.class"></div>
+                </div>
+                <div class="route-parent">
+                    <div class="caption">seat</div>
+                    <br>
+                    <div class="datum" v-if="!editing">[[ detailFlight.seat ]]</div>
+                    <div class="datum" v-if="editing"><input type="text" v-bind:value="detailFlight.seat"></div>
+                </div>
+            </template>
+
             <div class="route-subtitle">aircraft</div>
             <div class="caption">type</div>
             <br>
-            <div class="datum">[[ detailFlight.aircraft ]]</div>
+            <div class="datum" v-if="!editing">[[ detailFlight.aircraft ]]</div>
+            <div class="datum" v-if="editing"><input type="text" v-bind:value="detailFlight.aircraft"></div>
             <br>
             <div class="caption">registration</div>
             <br>
-            <div class="datum">[[ detailFlight.registration ]]</div>
-            
+            <div class="datum" v-if="!editing">[[ detailFlight.registration ]]</div>
+            <div class="datum" v-if="editing"><input type="text" v-bind:value="detailFlight.registration"></div>
+
             <div class="route-subtitle">airline</div>
             <div class="route-parent">
                 <div class="caption">airline</div>
                 <br>
-                <div class="datum">[[ detailFlight.airline ]]</div>
+                <div class="datum" v-if="editing"><input type="text" v-bind:value="detailFlight.airline"></div>
+                <div class="datum" v-else>[[ detailFlight.airline ]]</div>
             </div>
             <div class="route-parent" v-if="detailFlight.operator">
                 <div class="caption">operator</div>
                 <br>
-                <div class="datum">[[ detailFlight.operator ]]</div>
+                <div class="datum" v-if="editing"><input type="text" v-bind:value="detailFlight.operator"></div>
+                <div class="datum" v-else>[[ detailFlight.operator ]]</div>
             </div>
         </div>
     </div>
@@ -160,45 +175,67 @@
             ],
             detailFlight: {},
             filterData: {},
-            activeFilters: {airport: 'all', airline: 'all', aircraft: 'all'}
+            activeFilters: {airport: 'all', airline: 'all', aircraft: 'all'},
+            editing: false,
         },
         methods : {
             toggleFlightDetails: function (id) {
-                app.loading = true;
-                console.log('Flight ' + id.toString() + ' clicked. GETing details from API...')
-                fetch('/api/get_flight_details/' + id).then(
-                    function(response) {
-                        console.log('Response received. Attempting to interpret JSON...')
-                        response.json().then(function(data) {
-                            app.detailFlight = data;
-                            console.log('The following JSON has been imported and will be passed to the view:');
-                            console.log(JSON.stringify(app.detailFlight));
-                            //document.getElementById('flight-' + id).style.backgroundColor = '#ccc';
-                        });
-                    }
-                );
-                app.loading = false;
+                if (app.detailFlight.id != id) {
+                    app.loading = true;
+                    console.log('Flight ' + id.toString() + ' clicked. GETing details from API...')
+                    fetch('/api/get_flight_details/' + id).then(
+                        function(response) {
+                            console.log('Response received. Attempting to interpret JSON...')
+                            response.json().then(function(data) {
+                                app.detailFlight = data;
+                                console.log('The following JSON has been imported and will be passed to the view:');
+                                console.log(JSON.stringify(app.detailFlight));
+                                console.log('editing' + app.editing.toString());
+                                console.log('detailFlight.pk' + app.detailFlight.id.toString());
+                                //document.getElementById('flight-' + id).style.backgroundColor = '#ccc';
+                            });
+                        }
+                    );
+                    app.loading = false;
+                    app.editing = false;
+                }
+                else {
+                    app.detailFlight = {};
+                    app.editing = -1;
+                }
             },
             openEditFlight: function (id) {
-                document.getElementById('edit-button').innerHTML = 'test';
+                app.editing = true;
+            },
+            saveEditFlight: function (id) {
+                console.log(id);
+                app.editing = false;
+            },
+            moveFlightUp: function (id) {
+                nFlights = app.flights.length; // Why doesn't this work? look at vue documentation about for loop and changing order reactively
+                console.log(app.flights[nFlights - 1].pk);
+                var oldflight1 = app.flights[nFlights - 1];
+                var oldflight2 = app.flights[nFlights - 2];
+                app.flights[nFlights - 1] = oldflight2;
+                app.flights[nFlights - 2] = oldflight1;
             },
             filter: function () {
                 var e = document.getElementById("airline-filter");
                 var selectedAirline = e.options[e.selectedIndex].text;
-                
+
                 var e = document.getElementById("aircraft-filter");
                 var selectedAircraft = e.options[e.selectedIndex].text;
-                
+
                 var e = document.getElementById("airport-filter");
                 var selectedAirport = e.options[e.selectedIndex].text;
-                
+
                 app.activeFilters.airline = selectedAirline;
                 app.activeFilters.aircraft = selectedAircraft;
                 app.activeFilters.airport = selectedAirport;
             }
         }
     })
-    
+
     function populateFlights() {
         app.loading = true;
         console.log('Populating initial flight list from API...')
@@ -215,7 +252,7 @@
             }
         );
     }
-    
+
     function populateFilter() {
         app.filterData.airlines = [...new Set(app.flights.map(item => item.airline))].sort();
         app.filterData.planes = [...new Set(app.flights.map(item => item.plane))].sort();
@@ -224,9 +261,9 @@
         app.filterData.airports = [...new Set(origins.concat(destinations))].sort();
         console.log('Filter lists populated.')
     }
-    
+
     populateFlights();
-    
+
 
 </script>
 

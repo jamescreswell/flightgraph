@@ -34,22 +34,23 @@ urlpatterns = [
     path('mobile/add/', mobile_views.add, name='mobile_add'),
 
     path('api/search_airports/', api.search_airports, name='search_airports'),
-    path('api/mileage_graph/usr1=<str:user1>&usr2=<str:user2>', views.mileage_graph, name='mileage_graph'),
+    path('api/mileage_graph/<str:user1>/<str:user2>/<int:year1>/<int:year2>', views.mileage_graph, name='mileage_graph'),
     path('api/airport_graph/usr1=<str:user1>&usr2=<str:user2>', views.airport_graph, name='airport_graph'),
     path('api/country_graph/usr1=<str:user1>&usr2=<str:user2>', views.country_graph, name='country_graph'),
     path('api/top_airports_graph/<str:username>', views.top_airports_graph, name='top_airports_graph'),
-    
-    
+
+
     path('api/get_airport/<int:airport_id>', api.get_airport, name='get_airport'),
     path('api/get_airport_flights/<str:username>/<int:airport_id>', api.get_airport_flights, name='get_airport_flights'),
     path('api/get_route/<int:id1>/<int:id2>', api.get_route, name='get_route'),
     path('api/get_route_flights/<str:username>/<int:id1>/<int:id2>', api.get_route_flights, name='get_route_flights'),
     path('api/get_flights/<str:username>', api.get_flights, name='get_flights'),
     path('api/get_flight_details/<int:id>', api.get_flight_details),
-    
+
     path('api/route_map/<int:id1>/<int:id2>', views.route_map),
-    
-    
+
+
     path('map', views.map, name='map'),
     path('list', views.list, name='list'),
+    path('statistics', views.statistics, name='statistics'),
 ]
