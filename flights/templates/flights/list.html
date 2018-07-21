@@ -15,12 +15,12 @@
 <div id="app">
     <!--<div class="parent">-->
     <div class="column-left">
-        <div id="map">
+        <!--<div id="map">
             <span v-if="Object.keys(detailFlight).length">Map from [[ detailFlight.origin.iata ]] - [[ detailFlight.destination.iata ]]</span>
             <!--<a v-bind:href="detailFlight.pictureLink" v-if="detailFlight.pictureLink" target="_blank">
                 <img v-bind:src="detailFlight.pictureLink" v-if="detailFlight.pictureLink">
             </a>-->
-        </div>
+        <!--</div>-->
         <div id="flightlist-parent">
             <table id="flightlist" class="flighttable listtable">
                 <tr>
@@ -32,10 +32,7 @@
                     <th>aircraft</th>
                 </tr>
                 <tr class="break"><td colspan="7"></td></tr>
-                <tr v-if="loading">
-                    <td colspan="7">GETing /api/get_flights/{{ username }}</td>
-                </tr>
-                <template v-else v-for="flight in flights">
+                <template v-for="flight in flights">
                     <template v-if="(activeFilters.airline == flight.airline || activeFilters.airline == 'all') && (activeFilters.aircraft == flight.plane || activeFilters.aircraft == 'all') && (activeFilters.airport == flight.origin || activeFilters.airport == flight.destination || activeFilters.airport == 'all')">
                         <tr v-bind:id="'flight-' + flight.pk" v-bind:data-sortid="flight.sortid" v-bind:data-pk="flight.pk" v-on:click="toggleFlightDetails(flight.pk);" :class="detailFlight.id == flight.pk ? 'selected-row' : ''">
                             <td>[[ flight.daymonth ]]<br>[[ flight.year ]]</td>
@@ -43,7 +40,7 @@
                             <td><span v-html="flight.origin_html_name"></span></td>
                             <td v-html="flight.destination_html_name"></td>
                             <td>[[ flight.airline ]]</td>
-                            <td>[[ flight.plane ]] ([[ flight.registration ]])</td>
+                            <td>[[ flight.plane ]] <span v-if="flight.registration">([[ flight.registration ]])</span></td>
                             <!--<td v-if="detailFlight.id == flight.pk">Test</td>-->
                             <!--<td><i class="fa fa-pencil" title="Edit flight"></i></td>-->
                         </tr>
@@ -90,13 +87,17 @@
         </div>
         <div id="details" v-if="Object.keys(detailFlight).length">
             <div class="route-title">[[ detailFlight.number ]]<i class="fa fa-pencil" title="Edit flight" id="edit-button" v-if="!editing" v-on:click="openEditFlight(detailFlight.id)"></i><button v-if="editing" v-on:click="moveFlightUp(detailFlight.id)">Move up</button><i class="fa fa-arrow-down" title="Save flight" id ="save-button" v-if="editing" v-on:click="saveEditFlight(detailFlight.id)"></i><br>[[ detailFlight.origin.iata ]] – [[ detailFlight.destination.iata ]] </div>
-            <div class="caption">from</div>
-            <br>
-            <div class="datum"><span style="color:#000;">[[ detailFlight.origin.name ]]</span><br><span style="font-weight:400;">[[ detailFlight.origin.city ]], [[ detailFlight.origin.country ]]</span></div>
-            <br>
-            <div class="caption">to</div>
-            <br>
-            <div class="datum"><span style="color:#000;">[[ detailFlight.destination.name ]]</span><br><span style="font-weight:400;">[[ detailFlight.destination.city ]], [[ detailFlight.destination.country ]]</span></div>
+            
+            
+            <div class="route-parent" style="display: inline-block; width: 50%; vertical-align: top;">
+                <div class="caption">from</div>
+                <br>
+                <div class="datum"><span style="color:#000;">[[ detailFlight.origin.name ]]</span><br><span style="font-weight:400;">[[ detailFlight.origin.city ]], [[ detailFlight.origin.country ]]</span></div>
+                <br>
+                <div class="caption">to</div>
+                <br>
+                <div class="datum"><span style="color:#000;">[[ detailFlight.destination.name ]]</span><br><span style="font-weight:400;">[[ detailFlight.destination.city ]], [[ detailFlight.destination.country ]]</span></div>
+            </div><img v-if="detailFlight.pictureLink" v-bind:src="detailFlight.pictureLink" class="flight-details-img">
 
 
             <div class="route-subtitle">flight</div>
@@ -155,6 +156,10 @@
                 <div class="datum" v-if="editing"><input type="text" v-bind:value="detailFlight.operator"></div>
                 <div class="datum" v-else>[[ detailFlight.operator ]]</div>
             </div>
+            <div class="route-subtitle" v-if="detailFlight.comments">other</div>
+            <div class="caption" v-if="detailFlight.comments">comments</div>
+            <br v-if="detailFlight.comments">
+            <div class="datum" v-if="detailFlight.comments">[[ detailFlight.comments ]]</div>
         </div>
     </div>
 </div>

@@ -31,7 +31,7 @@ def index(request):
 def airports(request):
     pass
 
-def map(request, username=None):
+def map(request, username=None, profile=False):
     if username is not None:
         user = User.objects.get(username=username)
     else:
@@ -45,23 +45,68 @@ def map(request, username=None):
     context = {'airports': airports_list,
                'routes': routes_list,
                'username': user.username,
+               'profile': 0 if not profile else 1,
+               'profile_username': username,
               }
 
     return render(request, 'flights/map.html', context)
 
-def list(request):
-    user = request.user
+def list(request, username=None, profile=False):
+    if username is not None:
+        user = User.objects.get(username=username)
+    else:
+        user = request.user
+        
     context = {'username': user.username,
+               'profile': 0 if not profile else 1,
+               'profile_username': username,
               }
 
     return render(request, 'flights/list.html', context)
 
-def statistics(request):
-    user = request.user
-    context = {'username': user.username,}
+def statistics(request, username=None, profile=False):
+    if username is not None:
+        user = User.objects.get(username=username)
+    else:
+        user = request.user
+        
+    context = {'username': user.username,
+               'profile': 0 if not profile else 1,
+               'profile_username': username,
+              }
 
     return render(request, 'flights/statistics.html', context)
 
+def profile_map(request, username):
+    if UserProfile.objects.get(user=User.objects.get(username=username)).public:
+        return map(request, username, True)
+    else:
+        raise PermissionDenied
+
+def profile_list(request, username):
+    return list(request, username, True)
+
+def profile_statistics(request, username):
+    return statistics(request, username, True)
+
+def testlist(request):
+    return list(request, 'admin', False)
+
+def teststats(request):
+    return statistics(request, 'admin', False)
+
+@login_required
+def settings(request):
+    if request.method == 'POST':
+        pass
+    user = request.user
+    user_profile = UserProfile.objects.get(user=user)
+    
+    context = {'username': user.username,
+               'profile_enabled': user_profile.public,
+              }
+
+    return render(request, 'flights/settings.html', context)
 
 
 def gcmap(request):
@@ -408,19 +453,6 @@ def compare(request, username1, username2):
               }
 
     return render(request, 'flights/compare.html', context)
-
-@login_required
-def settings(request):
-    if request.method == 'POST':
-        pass
-    user = request.user
-    user_profile = UserProfile.objects.get(user=user)
-
-
-    context = {'nav_id': None,
-               'username': request.user.username}
-
-    return render(request, 'flights/settings.html', context)
 
 def create_account(request):
     if request.method == 'POST':

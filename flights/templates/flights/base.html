@@ -13,7 +13,7 @@
 
     <body>
         <div class="navbar">
-            <a href="{% url 'index' %}" id="index_nav">flightgraph.eu</a>
+            <a href="{% url 'index' %}" id="index_nav"><img src="{% static 'flights/img/flightgraph.png' %}"></a>
             <a href="{% url 'gcmap' %}" id="gcmap_nav">Route mapper</a>
             <a id="airport_nav">Airport database</a>
             <a>API</a>
@@ -27,8 +27,6 @@
                     <a href="{% url 'map' %}">Map</a>
                     <a href="{% url 'list' %}">List</a>
                     <a href="{% url 'statistics' %}">Statistics</a>
-                    <a href="#">Graphs</a>
-                    <a href="#">Compare</a>
                     <a href="#">Add flight</a>
                 </div>
             </div>
@@ -42,8 +40,8 @@
                     {{ user }} <i class="fa fa-caret-down"></i>
                 </button>
                 <div class="dropdown-content" id="account_content">
-                    <a href="#">Settings</a>
-                    <a href="#">Profile</a>
+                    <a href="{% url 'settings' %}">Settings</a>
+                    <a href="{% url 'profile_map' user %}">Profile</a>
                     <a href="/accounts/logout">Log out</a>
                 </div>
             </div>
@@ -52,6 +50,11 @@
             {% endif %}
 
         </div>
+        
+        {% if profile %}
+        <div id="profile-header">You are viewing {{ profile_username }}'s flights. <a href="map">Map</a> <a href="list">List</a> <a href="statistics">Statistics</a>{% if user.username == profile_username %}&nbsp;&nbsp;<i>This is what your publicly visible profile looks like to others.</i>{% endif %}</div>
+        {% endif %}
+        
         <div id="content">
             {% block content %}
             {% endblock %}

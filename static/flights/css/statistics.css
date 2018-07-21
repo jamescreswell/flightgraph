@@ -1,0 +1,124 @@
+#app {
+    width: 70%;
+    min-width: 1000px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.column-left {
+    float: left;
+    width: 75%;
+}
+
+.column-right {
+    float: left;
+    width: 25%;
+}
+
+#table-parent {
+    width: 100%;
+    display: inline-block;
+    margin-top: 1vh;
+}
+
+.stattable {
+    display: inline-block;
+    border: 1px solid #ccc;
+    vertical-align: top;
+    max-height: 85vh;
+    overflow-y: auto;
+    width: 24%;
+}
+
+.stattable tr {
+    background-color: #fff;
+    margin: 1px;
+    width: 100%;
+}
+
+.stattable th {
+    font-weight: 400;
+    color: #e41a1c;
+    font-size: 11pt;
+    background-color: #eee;
+    padding: 2px;
+}
+
+.stattable tr td {
+    padding: 4px;
+    /*width: 100%;*/
+}
+
+tr.break, tr.break td {
+    border: none;
+    height: 3px;
+    padding: 0!important;
+    margin: 0!important;
+    background-color: #fff;
+}
+
+#filter {
+    width: 100%;
+    font-size: 10pt;
+    display: inline-block;
+    vertical-align: top;
+    outline: 1px solid #ccc;
+    margin-top: 1vh;
+}
+
+.subfilter {
+    width: 100%;
+    font-size: 10pt;
+    display: inline-block;
+    vertical-align: top;
+    outline: 1px solid #ccc;
+    margin-top: 1vh;
+}
+
+.answer {
+    font-size: 10pt;
+}
+
+.caption {
+    font-variant: small-caps;
+    color: #555;
+    padding-left: 2px;
+    display: inline-block;
+}
+
+.datum {
+    padding-left: 2px;
+    color: #111;
+    display: inline-block;
+    font-weight: 700;
+}
+
+.filter-title {
+    padding: 2px;
+    color: #e41a1c;
+    font-size: 11pt;
+    font-weight: 700;
+    background-color: #eee;
+}
+
+.route-title {
+    padding: 2px;
+    color: #e41a1c;
+    font-size: 13pt;
+    font-weight: 700;
+    background-color: #eee;
+}
+
+.route-subtitle {
+    padding: 2px;
+    color: #e41a1c;
+    font-size: 11pt;
+    font-variant: small-caps;
+    background-color: #eee;
+    font-weight: 700;
+}
+
+.route-parent {
+    display: inline-block;
+    margin-right: 5px;
+}

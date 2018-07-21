@@ -19,11 +19,10 @@ urlpatterns = [
     url(r'^ajax/delete_flight/$', ajax.delete_flight, name='delete_flight'),
     url(r'gcmap/export/$', views.export, name='export'),
     url(r'^flights/$', views.flights, name='flights'),
-    url(r'^settings/$', views.settings, name='settings'),
     url(r'^accounts/', include('django.contrib.auth.urls')),
     url(r'^accounts/create_account/$', views.create_account, name='create_account'),
-    path('profile/<str:username>/', views.map, name='profile'),
     path('compare/<str:username1>/<str:username2>/', views.compare, name='compare'),
+    path('accounts/settings', views.settings, name='settings'),
 
     path('mobile/', mobile_views.index, name='mobile_index'),
     path('mobile/flights/', mobile_views.flights, name='mobile_flights'),
@@ -46,11 +45,30 @@ urlpatterns = [
     path('api/get_route_flights/<str:username>/<int:id1>/<int:id2>', api.get_route_flights, name='get_route_flights'),
     path('api/get_flights/<str:username>', api.get_flights, name='get_flights'),
     path('api/get_flight_details/<int:id>', api.get_flight_details),
+    path('api/get_airports/<str:username>', api.get_airports),
+    path('api/get_airlines/<str:username>', api.get_airlines),
+    path('api/get_aircraft/<str:username>', api.get_aircraft),
+    path('api/get_routes/<str:username>', api.get_routes),
+    path('api/get_aggregates/<str:username>', api.get_aggregates),
+    
+    path('api/get_filtered_airports/<str:username>/<str:airline>/<str:aircraft>/<str:airport>/<str:year>', api.get_filtered_airports),
+    path('api/get_filtered_airlines/<str:username>/<str:airline>/<str:aircraft>/<str:airport>/<str:year>', api.get_filtered_airlines),
+    path('api/get_filtered_aircraft/<str:username>/<str:airline>/<str:aircraft>/<str:airport>/<str:year>', api.get_filtered_aircraft),
+    path('api/get_filtered_routes/<str:username>/<str:airline>/<str:aircraft>/<str:airport>/<str:year>', api.get_filtered_routes),
+    path('api/get_filtered_aggregates/<str:username>/<str:airline>/<str:aircraft>/<str:airport>/<str:year>', api.get_filtered_aggregates),
 
     path('api/route_map/<int:id1>/<int:id2>', views.route_map),
-
+    
+    path('api/update_profile/<int:enable>', api.update_profile),
 
     path('map', views.map, name='map'),
     path('list', views.list, name='list'),
     path('statistics', views.statistics, name='statistics'),
+    
+    path('profile/<str:username>/map', views.profile_map, name='profile_map'),
+    path('profile/<str:username>/list', views.profile_list, name='profile_list'),
+    path('profile/<str:username>/statistics', views.profile_statistics, name='profile_statistics'),
+    
+    path('testlist', views.testlist),
+    path('teststats', views.teststats),
 ]

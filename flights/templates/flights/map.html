@@ -29,11 +29,14 @@
     </div>
 
     <aside id="airport-panel" class="side-panel">
+        {% if profile %}
+        <div style="width: 100%; float: right; height: 25px;">&nbsp;</div>
+        {% endif %}
         <header>
             <div id="airport-name">[[ airport.name ]]</div>
             <div id="airport-location">[[ airport.city ]], [[ airport.country ]]</div>
             <div id="airport-codes">[[ airport.iata ]]/[[ airport.icao ]]</div>
-            <div id="airport-flag">
+            <div id="airport-flag" {% if profile %}style="transform: translateY(25px);" {% endif %}>
                 <img v-bind:src="'/static/flights/img/flags/32/' + airport.country_iso + '.png'" v-bind:title="airport.country">
                 <template v-if="airport.country_iso == 'GB'">
                     <br>
@@ -143,9 +146,12 @@
     </aside>
 
     <aside id="route-panel" class="side-panel">
+        {% if profile %}
+        <div style="width: 100%; float: right; height: 25px;">&nbsp;</div>
+        {% endif %}
         <header>
             <div id="route-name">[[ route.origin_iata ]] – [[ route.destination_iata ]]</div>
-            <div id="airport-flag">
+            <div id="airport-flag" {% if profile %}style="transform: translateY(25px);" {% endif %}> <!--please fix this-->
                 <img v-bind:src="'/static/flights/img/flags/32/' + route.origin_country_iso + '.png'" v-bind:title="route.origin_country">
                 <!-- Put arrow img here -->
                 <img v-if="route.origin_country != route.destination_country" v-bind:src="'/static/flights/img/flags/32/' + route.destination_country_iso + '.png'" v-bind:title="route.destination_country">
@@ -458,17 +464,17 @@
                     line.json(),
                     {weight: 2.5,
                      clickable: true,
-                     color: '#e41a1c',
+                     color: '#515151',
                      opacity: 1.0}
                 )
                 .on('click', routeClick, {id: ids[i]})
                 .on('mouseover', function(e) {
                     this.setStyle({weight: 5.0,
-                                   color: '#0978AB'});
+                                   color: '#e41a1c'}); //#0978AB
                 })
                 .on('mouseout', function(e) {
                     this.setStyle({weight: 2.5,
-                                   color: '#e41a1c'})
+                                   color: '#515151'})
                 });
 
                 linesLayer.addLayer(lineMarker);
@@ -498,7 +504,7 @@
                                                            {x: data[i]['destination_long'], y: data[i]['destination_lat'] },
                                                            {'name': 'test'});
                        var line = generator.Arc(100, {offset: 10});
-                       var lineMarker = new L.geoJson(line.json(), {weight: 2.5, clickable: true, color: '#e41a1c', opacity: 1.0}).on('click', routeClick, {id: [data[i]['origin_pk'], data[i]['destination_pk']]}).on('mouseover', function(e) {this.setStyle({weight: 5.0, color: '#0978AB'});}).on('mouseout', function(e) {this.setStyle({weight: 2.5, color: '#e41a1c'})});
+                       var lineMarker = new L.geoJson(line.json(), {weight: 2.5, clickable: true, color: '#515151', opacity: 1.0}).on('click', routeClick, {id: [data[i]['origin_pk'], data[i]['destination_pk']]}).on('mouseover', function(e) {this.setStyle({weight: 5.0, color: '#e41a1c'});}).on('mouseout', function(e) {this.setStyle({weight: 2.5, color: '#515151'})});
                        linesLayer.addLayer(lineMarker);
 
                        // Could probably do this in python on the server...

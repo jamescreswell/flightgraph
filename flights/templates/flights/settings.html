@@ -1,34 +1,59 @@
+{# need to rewrite create_account view to make UserProfile and redirect... #}
 {% extends 'flights/base.html' %}
+{% load static %}
+
+{% block links %}
+<link rel="stylesheet" type="text/css" href="{% static 'flights/css/settings.css' %}" />
+{% endblock %}
 
 {% block content %}
 <div class="settingsbox">
     <h3>Settings</h3>
-    <form method="post" action="{% url 'settings' %}">{% csrf_token %}
+    <form action="javascript:void(0);" onsubmit="submitForm();">
         <h4>Privacy</h4>
         <p>
             Your public profile allows you to share some or all the information in your flight log.
         </p>
         <p>
-            <input type="radio" name="enable" value="1" checked>Enable public profile<br>
-            <input type="radio" name="enable" value="0">Disable public profile
+            <input type="radio" name="enable" value="1" {% if profile_enabled %}checked{% endif %}>Enable public profile<br>
+            <input type="radio" name="enable" value="0" {% if not profile_enabled %}checked{% endif %}>Disable public profile
         </p>
         <p>
-            <br>
-            {{ form.username }}
+            <input type="radio" name="dates" value="1">Show flight dates<br>
+            <input type="radio" name="dates" value="0">Show years only
         </p>
+        
+        <h4>Visual</h4>
         <p>
-            {{ form.password.label_tag }}<br>
-            {{ form.password }}
+            <input type="radio">Classic (red/grey)<br>
+            <input type="radio">Dark (blue/black) 
         </p>
-        {% if form.errors %}
-        <p style="color: red;">Your username and password didn't match. Please try again.</p>
-        {% endif %}
 
-    <input type="submit" value="Login" />
-    <input type="hidden" name="next" value="{{ next }}" />
+    <input type="submit" value="Submit">
     </form>
-    
-    <p><a href="{% url 'create_account' %}">Create account</a></p>
-    <p><a href="{% url 'password_reset' %}">Lost password?</a></p>
+    <p id="message" style="color: #e41a1c;"></p>
 </div>
+
+<script>
+    function submitForm() {
+        document.getElementById('message').innerHTML = '';
+        var radios = document.getElementsByName('enable');
+
+        for (var i = 0, length = radios.length; i < length; i++) {
+            if (radios[i].checked)
+            {
+                fetch('/api/update_profile/' + radios[i].value).then(
+                    function (response) {
+                        response.json().then(function(data) {
+                            console.log(data);
+                            document.getElementById('message').innerHTML = 'Your settings have been updated.';
+                        })
+                    }
+                );
+            }
+        }
+        console.log();
+        return false;
+    }
+</script>
 {% endblock %}
