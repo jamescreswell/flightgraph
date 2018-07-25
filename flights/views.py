@@ -39,6 +39,7 @@ def map(request, username=None, profile=False):
 
     #flights_list = Flight.objects.filter(owner=user)
     airports_list = Airport.objects.filter(Q(origins__owner=user) | Q(destinations__owner=user)).distinct()
+    print(airports_list)
 
     routes_list = Flight.objects.filter(owner=user).values('origin__pk', 'origin__latitude', 'origin__longitude', 'destination__pk', 'destination__latitude', 'destination__longitude').annotate(Count('id'))
 
@@ -56,7 +57,7 @@ def list(request, username=None, profile=False):
         user = User.objects.get(username=username)
     else:
         user = request.user
-        
+
     context = {'username': user.username,
                'profile': 0 if not profile else 1,
                'profile_username': username,
@@ -69,7 +70,7 @@ def statistics(request, username=None, profile=False):
         user = User.objects.get(username=username)
     else:
         user = request.user
-        
+
     context = {'username': user.username,
                'profile': 0 if not profile else 1,
                'profile_username': username,
@@ -101,7 +102,7 @@ def settings(request):
         pass
     user = request.user
     user_profile = UserProfile.objects.get(user=user)
-    
+
     context = {'username': user.username,
                'profile_enabled': user_profile.public,
               }

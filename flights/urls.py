@@ -50,7 +50,7 @@ urlpatterns = [
     path('api/get_aircraft/<str:username>', api.get_aircraft),
     path('api/get_routes/<str:username>', api.get_routes),
     path('api/get_aggregates/<str:username>', api.get_aggregates),
-    
+
     path('api/get_filtered_airports/<str:username>/<str:airline>/<str:aircraft>/<str:airport>/<str:year>', api.get_filtered_airports),
     path('api/get_filtered_airlines/<str:username>/<str:airline>/<str:aircraft>/<str:airport>/<str:year>', api.get_filtered_airlines),
     path('api/get_filtered_aircraft/<str:username>/<str:airline>/<str:aircraft>/<str:airport>/<str:year>', api.get_filtered_aircraft),
@@ -58,17 +58,18 @@ urlpatterns = [
     path('api/get_filtered_aggregates/<str:username>/<str:airline>/<str:aircraft>/<str:airport>/<str:year>', api.get_filtered_aggregates),
 
     path('api/route_map/<int:id1>/<int:id2>', views.route_map),
-    
+
     path('api/update_profile/<int:enable>', api.update_profile),
 
     path('map', views.map, name='map'),
     path('list', views.list, name='list'),
     path('statistics', views.statistics, name='statistics'),
-    
+
     path('profile/<str:username>/map', views.profile_map, name='profile_map'),
     path('profile/<str:username>/list', views.profile_list, name='profile_list'),
     path('profile/<str:username>/statistics', views.profile_statistics, name='profile_statistics'),
-    
+    path('profile/<str:username>', views.profile_list),
+
     path('testlist', views.testlist),
     path('teststats', views.teststats),
 ]

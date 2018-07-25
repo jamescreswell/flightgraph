@@ -87,8 +87,8 @@
         </div>
         <div id="details" v-if="Object.keys(detailFlight).length">
             <div class="route-title">[[ detailFlight.number ]]<i class="fa fa-pencil" title="Edit flight" id="edit-button" v-if="!editing" v-on:click="openEditFlight(detailFlight.id)"></i><button v-if="editing" v-on:click="moveFlightUp(detailFlight.id)">Move up</button><i class="fa fa-arrow-down" title="Save flight" id ="save-button" v-if="editing" v-on:click="saveEditFlight(detailFlight.id)"></i><br>[[ detailFlight.origin.iata ]] – [[ detailFlight.destination.iata ]] </div>
-            
-            
+
+
             <div class="route-parent" style="display: inline-block; width: 50%; vertical-align: top;">
                 <div class="caption">from</div>
                 <br>
@@ -97,7 +97,9 @@
                 <div class="caption">to</div>
                 <br>
                 <div class="datum"><span style="color:#000;">[[ detailFlight.destination.name ]]</span><br><span style="font-weight:400;">[[ detailFlight.destination.city ]], [[ detailFlight.destination.country ]]</span></div>
-            </div><img v-if="detailFlight.pictureLink" v-bind:src="detailFlight.pictureLink" class="flight-details-img">
+            </div><a v-if="detailFlight.pictureLink" v-bind:href="detailFlight.pictureLink" target="_blank">
+                <img v-if="detailFlight.pictureLink" v-bind:src="detailFlight.pictureLink" class="flight-details-img">
+            </a>
 
 
             <div class="route-subtitle">flight</div>

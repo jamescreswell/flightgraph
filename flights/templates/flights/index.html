@@ -27,7 +27,7 @@
                 
                 globe.loadPlugin(autocenter({extraHeight: -120}));
                 globe.loadPlugin(autoscale({extraHeight: -120}));
-              globe.loadPlugin(autorotate(2));
+              globe.loadPlugin(autorotate(0));
               // The `earth` plugin draws the oceans and the land; it's actually
               // a combination of several separate built-in plugins.
               //
@@ -43,23 +43,36 @@
               globe.loadPlugin(planetaryjs.plugins.pings());
               // The `zoom` and `drag` plugins enable
               // manipulating the globe with the mouse.
-              //globe.loadPlugin(planetaryjs.plugins.zoom({
-                  //scaleExtent: [50, 1000]
-             // }));
-              //globe.loadPlugin(planetaryjs.plugins.drag({
+              globe.loadPlugin(planetaryjs.plugins.zoom({
+                  scaleExtent: [50, 1000]
+              }));
+              globe.loadPlugin(planetaryjs.plugins.drag({
                 // Dragging the globe should pause the
                 // automatic rotation until we release the mouse.
-                //onDragStart: function() {
-                //  this.plugins.autorotate.pause();
-                //},
-                //onDragEnd: function() {
-                //  this.plugins.autorotate.resume();
-                //}
-              //}));
+                onDragStart: function() {
+                  this.plugins.autorotate.pause();
+                },
+                onDragEnd: function() {
+                  this.plugins.autorotate.resume();
+                }
+              }));
                 
               // Set up the globe's initial scale, offset, and rotation.
               globe.projection.scale(175).translate([175, 175]).rotate([0, -10, 0]);
 
+                
+                
+                globe.loadPlugin(function(globe) {
+                   globe.onDraw(function() {
+                       globe.withSavedContext(function(context){
+                           var arc= {type: "LineString", coordinates: [[40,30], [40, -50]]};
+                           context.beginPath();
+                           globe.path.context(context)(arc);
+                           context.stroke();
+                           context.closePath();
+                       });
+                   }); 
+                });
               // Every few hundred milliseconds, we'll draw another random ping.
               var colors = ['red', 'yellow', 'white', 'orange', 'green', 'cyan', 'pink'];
               //setInterval(function() {

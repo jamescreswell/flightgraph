@@ -15,18 +15,32 @@
 
 <script src="https://unpkg.com/leaflet.vectorgrid@latest/dist/Leaflet.VectorGrid.bundled.js"></script>
 
+
 <script src="{% static '/flights/js/vue.js' %}"></script>
 <style>
     .leaflet-container {
         background: #C6ECFF;
     }
 </style>
+
+<script type='text/javascript' src='http://d3js.org/d3.v3.min.js'></script>
+<script type='text/javascript' src='http://d3js.org/topojson.v1.min.js'></script>
+<script type='text/javascript' src="{% static 'flights/geo/planetaryjs.min.js' %}"></script>
+<script src="http://d3js.org/queue.v1.min.js"></script>
+
+
 {% endblock %}
 
 {% block content %}
+
 <div id="app">
-    <div id="map">
-    </div>
+    <button id="switch-button" onclick="toggleMaps();" style="display: none;">Globe (provisional)</button>
+
+
+    <div id="map"></div>
+    <canvas id="rglobe" style="display: none; background-color:black;"></canvas>
+
+
 
     <aside id="airport-panel" class="side-panel">
         {% if profile %}
@@ -553,7 +567,7 @@
 <script>
     // Initially populate map with airport icons...
     var coords = [
-        {% for airport in airports %}[{{ airport.latitude }}, {{ airport.longitude }}],{% endfor %}
+        {% for airport in airports %}[{{ airport.latitude }}, {{ airport.longitude }}, {{ airport.pk }}],{% endfor %}
     ];
 
     var ids = [
@@ -585,7 +599,259 @@
     drawRoutes(lats, longs, ids);
 </script>
 
+<script>
+    function toggleMaps() {
+        $('#map').toggle();
+        $('#rglobe').toggle();
+        if (document.getElementById('switch-button').innerHTML == "Map") {
+            document.getElementById('switch-button').innerHTML = "Globe";
+        }
+        else {
+            document.getElementById('switch-button').innerHTML = "Map";
+        }
+    }
+</script>
+
+<script type='text/javascript'>
+            (function() {
+              var globe = planetaryjs.planet();
+
+                globe.loadPlugin(autocenter({extraHeight: -120}));
+                globe.loadPlugin(autoscale({extraHeight: -120}));
+              globe.loadPlugin(autorotate(0));
+              // The `earth` plugin draws the oceans and the land; it's actually
+              // a combination of several separate built-in plugins.
+              //
+              // Note that we're loading a special TopoJSON file
+              // (world-110m-withlakes.json) so we can render lakes.
+              globe.loadPlugin(planetaryjs.plugins.earth({
+                topojson: { file:   "{% static 'flights/geo/world-50m.json' %}" },//'{% static "flights/geo/topo_ne_10m_admin_0_countries_lakes.json" %}'},
+                oceans:   { fill:   '#C6ECFF' },
+                land:     { fill:   '#FEFEE9' },//'#06304e' },
+                borders:  { stroke: '#646464' }
+              }));
+              // The `pings` plugin draws animated pings on the globe.
+              globe.loadPlugin(planetaryjs.plugins.pings());
+              // The `zoom` and `drag` plugins enable
+              // manipulating the globe with the mouse.
+              globe.loadPlugin(planetaryjs.plugins.zoom({
+                  scaleExtent: [5, 10000]
+              }));
+              globe.loadPlugin(planetaryjs.plugins.drag({
+                // Dragging the globe should pause the
+                // automatic rotation until we release the mouse.
+                onDragStart: function() {
+                  this.plugins.autorotate.pause();
+                },
+                onDragEnd: function() {
+                  this.plugins.autorotate.resume();
+                }
+              }));
+
+              // Set up the globe's initial scale, offset, and rotation.
+              globe.projection.scale(175).translate([175, 175]).rotate([0, -10, 0]);
 
 
+
+                globe.loadPlugin(function(globe) {
+                   globe.onDraw(function() {
+                       globe.withSavedContext(function(context){
+                           for (i = 0; i < lats.length; i++) {
+                                if (longs[i][0] != longs[i][1]) {
+                                    var arc= {type: "LineString",
+                                              coordinates: [[longs[i][0], lats[i][0]], [longs[i][1], lats[i][1]]],
+
+                                             };
+                           context.beginPath();
+                           globe.path.context(context)(arc);
+                           context.stroke();
+                            context.strokeStyle="#515151";
+                                    context.lineWidth = 2;
+                           context.closePath();
+                                }
+                           }
+                       });
+                   });
+                });
+
+
+                globe.loadPlugin(function (globe) {
+                    globe.onDraw(function() {
+                       globe.withSavedContext(function (context) {
+                                for (i = 0; i < coords.length; i++) {
+
+                                            var coords1 = globe.projection([(coords[i][1]), coords[i][0]])
+                                            var img = new Image();
+                                            img.src = "/static/flights/img/airport-icon-red.png";
+
+                                            var geoangle = d3.geo.distance([coords[i][1], coords[i][0]],[-
+                                            globe.projection.rotate()[0], -globe.projection.rotate()[1]]);
+
+                                            //geo angle = radians (around 90 degrees)
+                                            if (geoangle > 1.57079632679490)
+                                            {
+                                                //Behind Sphere > 90 degrees
+                                            } else {
+                                               context.drawImage(img, coords1[0]-8 ,coords1[1]-8, 16 ,16)
+                                            }
+                                }
+                        }) ;
+
+                    });
+                });
+
+
+
+
+              // Every few hundred milliseconds, we'll draw another random ping.
+              var colors = ['red', 'yellow', 'white', 'orange', 'green', 'cyan', 'pink'];
+              //setInterval(function() {
+            //    var lat = Math.random() * 170 - 85;
+            //    var lng = Math.random() * 360 - 180;
+            //    var color = colors[Math.floor(Math.random() * colors.length)];
+            //    globe.plugins.pings.add(lng, lat, { color: color, ttl: 2000, angle: Math.random() * 10 });
+            //  }, 150);
+
+              var canvas = document.getElementById('rglobe');
+
+              globe.draw(canvas);
+//canvas.addEventListener('click', function() { alert(); }, false);
+
+
+canvas.onclick = function(d) {
+  if (document.getElementById('airport-panel').style.display != 'none') { // Always hid the airport panel
+      document.getElementById('airport-panel').style.display = 'none';
+  }
+  if (document.getElementById('route-panel').style.display != 'none') { // Always hid the airport panel
+      document.getElementById('route-panel').style.display = 'none';
+  }
+  var x = d.clientX;
+  var y = d.clientY;
+  var latlong = globe.projection.invert([x, y]);
+  if (!isNaN(latlong[0])) {
+    long = latlong[0];
+    lat = latlong[1];
+    closestIndex = -1;
+    closestDistance = 100;
+    for (i = 0; i < coords.length; i++) {
+      var deltaLong = long - coords[i][1];
+      var deltaLat = lat - coords[i][0];
+      var r = Math.sqrt(Math.pow(deltaLong, 2) + Math.pow(deltaLat, 2))
+      if (r < closestDistance) {
+        closestDistance = r;
+        closestIndex = i;
+      }
+    }
+    if (closestDistance < 0.5) {
+      airportClick.call({id: coords[closestIndex][2]});
+    }
+  }
+};
+
+canvas.onmousemove = function(d) {
+  var x = d.clientX;
+  var y = d.clientY;
+  var latlong = globe.projection.invert([x, y]);
+  if (!isNaN(latlong[0])) {
+    long = latlong[0];
+    lat = latlong[1];
+    closestIndex = -1;
+    closestDistance = 100;
+    for (i = 0; i < coords.length; i++) {
+      var deltaLong = long - coords[i][1];
+      var deltaLat = lat - coords[i][0];
+      var r = Math.sqrt(Math.pow(deltaLong, 2) + Math.pow(deltaLat, 2))
+      if (r < closestDistance) {
+        closestDistance = r;
+        closestIndex = i;
+      }
+    }
+  if (closestDistance < 0.5) {
+     document.body.style.cursor = 'pointer';
+  }
+  else {
+    document.body.style.cursor = 'default';
+  }
+}
+};
+
+
+              // This plugin will automatically rotate the globe around its vertical
+              // axis a configured number of degrees every second.
+              function autorotate(degPerSec) {
+                // Planetary.js plugins are functions that take a `planet` instance
+                // as an argument...
+                return function(planet) {
+                  var lastTick = null;
+                  var paused = false;
+                  planet.plugins.autorotate = {
+                    pause:  function() { paused = true;  },
+                    resume: function() { paused = false; }
+                  };
+                  // ...and configure hooks into certain pieces of its lifecycle.
+                  planet.onDraw(function() {
+                    if (paused || !lastTick) {
+                      lastTick = new Date();
+                    } else {
+                      var now = new Date();
+                      var delta = now - lastTick;
+                      // This plugin uses the built-in projection (provided by D3)
+                      // to rotate the globe each time we draw it.
+                      var rotation = planet.projection.rotate();
+                      rotation[0] += degPerSec * delta / 1000;
+                      if (rotation[0] >= 180) rotation[0] -= 360;
+                      planet.projection.rotate(rotation);
+                      lastTick = now;
+                    }
+                  });
+                };
+              };
+
+
+
+                // Plugin to resize the canvas to fill the window and to
+                  // automatically center the planet when the window size changes
+                  function autocenter(options) {
+                    options = options || {};
+                    var needsCentering = false;
+                    var globe = null;
+
+                    var resize = function() {
+                      var width  = window.innerWidth //+ (options.extraWidth || 0);
+                      var height = window.innerHeight //+ (options.extraHeight || 0);
+                      globe.canvas.width = width;
+                      globe.canvas.height = height;
+                      globe.projection.translate([width / 2, height / 2]);
+                    };
+
+                    return function(planet) {
+                      globe = planet;
+                      planet.onInit(function() {
+                        needsCentering = true;
+                        d3.select(window).on('resize', function() {
+                          needsCentering = true;
+                        });
+                      });
+
+                      planet.onDraw(function() {
+                        if (needsCentering) { resize(); needsCentering = false; }
+                      });
+                    };
+                  };
+
+                  // Plugin to automatically scale the planet's projection based
+                  // on the window size when the planet is initialized
+                  function autoscale(options) {
+                    options = options || {};
+                    return function(planet) {
+                      planet.onInit(function() {
+                        var width  = window.innerWidth + (options.extraWidth || 0);
+                        var height = window.innerHeight + (options.extraHeight || 0);
+                        planet.projection.scale(Math.min(width, height) / 2);
+                      });
+                    };
+                  };
+            })();
+        </script>
 
 {% endblock %}

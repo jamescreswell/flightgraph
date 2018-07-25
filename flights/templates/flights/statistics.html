@@ -20,7 +20,7 @@
                     <th colspan="3">Airports</th>
                 </tr>
                 <tr class="break"><td colspan="3"></td></tr>
-                <template v-for="airport in airports">
+                <template v-for="airport in airports.slice(0, maxAirports)">
                     <tr>
                         <td v-html="airport.html_name"></td>
                         <td>[[ airport.city ]]</td>
@@ -28,45 +28,57 @@
                     </tr>
                     <tr class="break"><td colspan="3"></td></tr>
                 </template>
+                <tr v-if="maxAirports != 1000">
+                    <td colspan="3" class="expand-cell" v-on:click="expandTable('airports');">Show all</td>
+                </tr>
             </table>
             <table class="stattable">
                 <tr>
                     <th colspan="3">Routes</th>
                 </tr>
                 <tr class="break"><td colspan="2"></td></tr>
-                <template v-for="route in routes">
+                <template v-for="route in routes.slice(0, maxRoutes)">
                     <tr>
                         <td>[[ route.origin ]]–[[ route.destination ]]</td>
                         <td><abbr v-bind:title="route.percent + '%'">[[ route.count ]]</abbr></td>
                     </tr>
                     <tr class="break"><td colspan="2"></td></tr>
                 </template>
+                <tr v-if="maxRoutes != 1000">
+                    <td colspan="2" class="expand-cell" v-on:click="expandTable('routes');">Show all</td>
+                </tr>
             </table>
             <table class="stattable">
                 <tr>
                     <th colspan="3">Airlines</th>
                 </tr>
                 <tr class="break"><td colspan="2"></td></tr>
-                <template v-for="airline in airlines">
+                <template v-for="airline in airlines.slice(0, maxAirlines)">
                     <tr>
                         <td v-html="airline.airline"></td>
                         <td><abbr v-bind:title="airline.percent + '%'">[[ airline.count ]]</abbr></td>
                     </tr>
                     <tr class="break"><td colspan="2"></td></tr>
                 </template>
+                <tr v-if="maxAirlines != 1000">
+                    <td colspan="2" class="expand-cell" v-on:click="expandTable('airlines');">Show all</td>
+                </tr>
             </table>
             <table class="stattable">
                 <tr>
                     <th colspan="3">Aircraft</th>
                 </tr>
                 <tr class="break"><td colspan="2"></td></tr>
-                <template v-for="aircraft in aircraft">
+                <template v-for="aircraft in aircraft.slice(0, maxAircraft)">
                     <tr>
                         <td v-html="aircraft.aircraft"></td>
                         <td><abbr v-bind:title="aircraft.percent + '%'">[[ aircraft.count ]]</abbr></td>
                     </tr>
                     <tr class="break"><td colspan="2"></td></tr>
                 </template>
+                <tr v-if="maxAircraft != 1000">
+                    <td colspan="2" class="expand-cell" v-on:click="expandTable('aircraft');">Show all</td>
+                </tr>
             </table>
         </div>
     </div>
@@ -179,6 +191,10 @@
             activeFilters: {airport: 'all', airline: 'all', aircraft: 'all'},
             aggregates: {},
             superlatives: {},
+            maxAirports: 10,
+            maxRoutes: 10,
+            maxAirlines: 10,
+            maxAircraft: 10,
         },
         methods: {
             filter: function() {
@@ -190,19 +206,35 @@
 
                 var e = document.getElementById("airport-filter");
                 var selectedAirport = e.options[e.selectedIndex].text;
-                
+
                 var e = document.getElementById("year-filter");
                 var selectedYear = e.options[e.selectedIndex].text;
-                
+
                 populateFilteredAirports(selectedAirline, selectedAircraft, selectedAirport, selectedYear);
                 populateFilteredAircraft(selectedAirline, selectedAircraft, selectedAirport, selectedYear);
                 populateFilteredAirlines(selectedAirline, selectedAircraft, selectedAirport, selectedYear);
                 populateFilteredRoutes(selectedAirline, selectedAircraft, selectedAirport, selectedYear); // routeset attribute on flight model for double ended route aggregates
                 populateFilteredAggregates(selectedAirline, selectedAircraft, selectedAirport, selectedYear);
+            },
+            expandTable: function(name) {
+                switch (name) {
+                    case 'airports':
+                        app.maxAirports = 1000;
+                        break;
+                    case 'routes':
+                        app.maxRoutes = 1000;
+                        break;
+                    case 'airlines':
+                        app.maxAirlines = 1000;
+                        break;
+                    case 'aircraft':
+                        app.maxAircraft = 1000;
+                }
             }
+
         }
     });
-    
+
     function populateAggregates() {
         fetch('/api/get_aggregates/{{ username }}').then(
             function (response) {
@@ -212,7 +244,7 @@
             }
         );
     }
-    
+
     function populateFilteredAggregates(airline, aircraft, airport, year) {
         fetch('/api/get_filtered_aggregates/{{ username }}/' + airline + '/' + aircraft + '/' + airport + '/' + year).then(
             function (response) {
@@ -222,7 +254,7 @@
             }
         );
     }
-    
+
     function populateFlights() {
         app.loading = true;
         console.log('Populating initial flight list from API...')
@@ -249,9 +281,9 @@
         app.filterData.years = [...new Set(app.flights.map(item => item.year))].sort();
         console.log('Filter lists populated.')
     }
-    
+
     populateFlights();
-    
+
     function populateAirports() {
         fetch('/api/get_airports/{{ username }}').then(
             function (response) {
@@ -263,7 +295,7 @@
             }
         );
     }
-    
+
     function populateFilteredAirports(airline, aircraft, airport, year) {
         fetch('/api/get_filtered_airports/{{ username }}/' + airline + '/' + aircraft + '/' + airport + '/' + year).then(
             function (response) {
@@ -273,7 +305,7 @@
             }
         );
     }
-    
+
     function populateFilteredAirlines(airline, aircraft, airport, year) {
         fetch('/api/get_filtered_airlines/{{ username }}/' + airline + '/' + aircraft + '/' + airport + '/' + year).then(
             function (response) {
@@ -283,7 +315,7 @@
             }
         );
     }
-    
+
     function populateFilteredAircraft(airline, aircraft, airport, year) {
         fetch('/api/get_filtered_aircraft/{{ username }}/' + airline + '/' + aircraft + '/' + airport + '/' + year).then(
             function (response) {
@@ -293,7 +325,7 @@
             }
         );
     }
-    
+
     function populateFilteredRoutes(airline, aircraft, airport, year) {
         fetch('/api/get_filtered_routes/{{ username }}/' + airline + '/' + aircraft + '/' + airport + '/' + year).then(
             function (response) {
@@ -303,7 +335,7 @@
             }
         );
     }
-    
+
     function populateAirlines() {
         fetch('/api/get_airlines/{{ username }}').then(
             function (response) {
@@ -313,7 +345,7 @@
             }
         );
     }
-    
+
     function populateAircraft() {
         fetch('/api/get_aircraft/{{ username }}').then(
             function(response) {
@@ -323,7 +355,7 @@
             }
         );
     }
-    
+
     function populateRoutes() {
         fetch('/api/get_routes/{{ username }}').then(
             function(response) {
@@ -333,7 +365,7 @@
             }
         );
     }
-    
+
     populateAirports();
     populateAirlines();
     populateAircraft();

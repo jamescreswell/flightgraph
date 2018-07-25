@@ -57,6 +57,15 @@ tr.break, tr.break td {
     background-color: #fff;
 }
 
+.expand-cell {
+    background-color: #ddd;
+    cursor: pointer;
+}
+
+.expand-cell:hover {
+    background-color: #ccc;
+}
+
 #filter {
     width: 100%;
     font-size: 10pt;

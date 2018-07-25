@@ -50,11 +50,11 @@
             {% endif %}
 
         </div>
-        
+
         {% if profile %}
-        <div id="profile-header">You are viewing {{ profile_username }}'s flights. <a href="map">Map</a> <a href="list">List</a> <a href="statistics">Statistics</a>{% if user.username == profile_username %}&nbsp;&nbsp;<i>This is what your publicly visible profile looks like to others.</i>{% endif %}</div>
+        <div id="profile-header">You are viewing {{ profile_username }}'s flights. <a href="{% url 'profile_map' profile_username %}">Map</a> <a href="{% url 'profile_list' profile_username %}">List</a> <a href="{% url 'profile_statistics' profile_username %}">Statistics</a>{% if user.username == profile_username %}&nbsp;&nbsp;<i>This is what your publicly visible profile looks like to others.</i>{% endif %}</div>
         {% endif %}
-        
+
         <div id="content">
             {% block content %}
             {% endblock %}

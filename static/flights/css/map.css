@@ -1,3 +1,7 @@
+body {
+    background-color: black;
+}
+
 #map {
     position: fixed;
     top: 0;
@@ -5,6 +9,22 @@
     left: 0;
     right: 0;
     z-index: -100;
+}
+
+#rglobe {
+    position: fixed;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: -100;
+    background-color: black;
+}
+
+#switch-button {
+    position: fixed;
+    top: 55px;
+    right: 10px;
 }
 
 
@@ -133,7 +153,7 @@
 }
 
 #route-description {
-    
+
 }
 
 #route-description table td {
