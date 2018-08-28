@@ -40,6 +40,7 @@ urlpatterns = [
 
 
     path('api/get_airport/<int:airport_id>', api.get_airport, name='get_airport'),
+
     path('api/get_airport_flights/<str:username>/<int:airport_id>', api.get_airport_flights, name='get_airport_flights'),
     path('api/get_route/<int:id1>/<int:id2>', api.get_route, name='get_route'),
     path('api/get_route_flights/<str:username>/<int:id1>/<int:id2>', api.get_route_flights, name='get_route_flights'),
@@ -69,6 +70,7 @@ urlpatterns = [
     path('profile/<str:username>/list', views.profile_list, name='profile_list'),
     path('profile/<str:username>/statistics', views.profile_statistics, name='profile_statistics'),
     path('profile/<str:username>', views.profile_list),
+    path('profile/<str:username>/', views.profile_list),
 
     path('testlist', views.testlist),
     path('teststats', views.teststats),
