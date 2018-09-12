@@ -16,7 +16,7 @@ class Airport(models.Model):
     elevation = models.FloatField()
     opened = models.DateField(blank=True, null=True, help_text='YYYY-MM-DD')
     closed = models.DateField(blank=True, null=True, help_text='YYYY-MM-DD')
-    
+
     def __str__(self):
         if self.iata is not '':
             return self.iata
@@ -24,22 +24,22 @@ class Airport(models.Model):
             return self.icao
         else:
             return self.name[:4] + '...'
-        
+
     def html_name(self):
         return '<abbr title="' + self.name + ', ' + self.city + ', ' + self.country + '">' + str(self) + '</abbr>'
-    
+
     def distance_to(self, airport, dim='mi'):
         lat1 = self.latitude * math.pi/180.0
         lat2 = airport.latitude * math.pi/180.0
         lon1 = self.longitude * math.pi/180.0
         lon2 = airport.longitude * math.pi/180.0
-        
+
         theta = lon2 - lon1
         distance = math.acos(math.sin(lat1) * math.sin(lat2) + math.cos(lat1) * math.cos(lat2) * math.cos(theta))
-        
+
         if distance < 0:
             distance = -1 * distance
-            
+
         if dim == 'mi':
             return distance * 3959.0
         elif dim == 'km':
@@ -56,36 +56,33 @@ class Flight(models.Model):
     aircraft = models.CharField(max_length=100, blank=True)
     aircraft_registration = models.CharField(max_length=10, blank=True)
     distance = models.FloatField(default=-1)
-    
+
     travel_class = models.CharField(max_length=100, blank=True)
     seat = models.CharField(max_length=10, blank=True)
     operator = models.CharField(max_length=100, blank=True)
     comments = models.TextField(max_length=10000, blank=True)
-    
+
     sortid = models.IntegerField(default=-1) # Assigned manually at creation
     owner = models.ForeignKey(User, on_delete=models.CASCADE, related_name='owners')
-    
+
     picture = models.ImageField(upload_to='flights/user_pics', blank=True)
     picture_link = models.URLField(blank=True)
-    
+
     def calculate_distance(self, dim='mi'):
         return self.origin.distance_to(self.destination, dim)
-    
+
     def set_distance(self):
         self.distance = self.calculate_distance()
         self.save()
-    
+
     def nice_distance(self):
         return format(round(self.distance()), ",")
 
-class UserProfile(models.Model):  
+class UserProfile(models.Model):
     user = models.OneToOneField(User, related_name='profile', on_delete=models.PROTECT)
     public = models.BooleanField(default=True)
+    years_only = models.BooleanField(default=False)
     public_delay = models.PositiveSmallIntegerField(default=0)
-    
+
     def __str__(self):
         return 'Profile of user: {}'.format(self.user.username)
-    
-    
-    
-    

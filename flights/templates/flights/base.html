@@ -13,7 +13,7 @@
 
     <body>
         <div class="navbar">
-            <a href="{% url 'index' %}" id="index_nav"><img src="{% static 'flights/img/flightgraph.png' %}"></a>
+            <a href="{% url 'index' %}" id="index_nav">flightgraph.eu</a>
             <a href="{% url 'gcmap' %}" id="gcmap_nav">Route mapper</a>
             <a id="airport_nav">Airport database</a>
             <a>API</a>
@@ -46,7 +46,7 @@
                 </div>
             </div>
             {% else %}
-            <a href="/accounts/login" style="float:right;">Login</a>
+            <a href="{% url 'login_view' %}" style="float:right;">Login</a>
             {% endif %}
 
         </div>

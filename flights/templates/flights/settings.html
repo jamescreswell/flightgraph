@@ -1,4 +1,3 @@
-{# need to rewrite create_account view to make UserProfile and redirect... #}
 {% extends 'flights/base.html' %}
 {% load static %}
 
@@ -8,25 +7,42 @@
 
 {% block content %}
 <div class="settingsbox">
-    <h3>Settings</h3>
-    <form action="javascript:void(0);" onsubmit="submitForm();">
+    <h2>Settings</h2>
+    <form action="javascript:void(0);" onsubmit="submitForm();">{% csrf_token %}
+        <h4>Account</h4>
+
+        <label>Username</label>
+        <input type="text" placeholder="Username" name="username" value="{{ username }}" required>
+
+        <label>Password</label>
+        <input type="password" placeholder="Password" name="password" value="••••••••" required disabled>
+
+        <label>Email</label>
+        <input type="email" placeholder="Email" name="email" value="{{ email }}">
+
         <h4>Privacy</h4>
         <p>
             Your public profile allows you to share some or all the information in your flight log.
+            If you disable, your flights will only be visible to you when you log in.
         </p>
         <p>
-            <input type="radio" name="enable" value="1" {% if profile_enabled %}checked{% endif %}>Enable public profile<br>
-            <input type="radio" name="enable" value="0" {% if not profile_enabled %}checked{% endif %}>Disable public profile
+            <input type="radio" name="public" value="1" {% if profile_enabled %}checked{% endif %} onclick="document.getElementById('public-details').style.display = 'block';">Enable public profile<br>
+            <input type="radio" name="public" value="0" {% if not profile_enabled %}checked{% endif %} onclick="document.getElementById('public-details').style.display = 'none';">Disable public profile
         </p>
-        <p>
-            <input type="radio" name="dates" value="1">Show flight dates<br>
-            <input type="radio" name="dates" value="0">Show years only
-        </p>
-        
+        <div id="public-details">
+            <p>
+                You can choose to only include years on your public user page rather than exact dates, to prevent viewers from tracking your trajectory.
+            </p>
+            <p>
+                <input type="radio" name="dates" value="0" {% if not years_only %}checked{% endif %}>Show full dates<br>
+                <input type="radio" name="dates" value="1" {% if years_only %}checked{% endif %}>Show years only
+            </p>
+        </div>
+
         <h4>Visual</h4>
         <p>
-            <input type="radio">Classic (red/grey)<br>
-            <input type="radio">Dark (blue/black) 
+            <input type="radio" checked>Classic (red/grey)<br>
+            <!--<input type="radio">Dark (blue/black)-->
         </p>
 
     <input type="submit" value="Submit">
@@ -37,22 +53,47 @@
 <script>
     function submitForm() {
         document.getElementById('message').innerHTML = '';
-        var radios = document.getElementsByName('enable');
 
-        for (var i = 0, length = radios.length; i < length; i++) {
-            if (radios[i].checked)
-            {
-                fetch('/api/update_profile/' + radios[i].value).then(
-                    function (response) {
-                        response.json().then(function(data) {
-                            console.log(data);
-                            document.getElementById('message').innerHTML = 'Your settings have been updated.';
-                        })
-                    }
-                );
-            }
-        }
-        console.log();
+        form = new FormData(document.querySelector('form'));
+
+        fetch('/accounts/update_settings', {
+            method: "POST",
+            credentials: "include",
+            headers: {
+                "X-CSRFToken": document.getElementsByName('csrfmiddlewaretoken')[0].value,
+                "Accept": "application/json",
+                "Content-Type": "application/json; charset=utf-8",
+            },
+            body: JSON.stringify({
+                username: form.get('username'),
+                email: form.get('email'),
+                public: form.get('public'),
+                years_only: form.get('dates'),
+                // csrfmiddlewaretoken: document.getElementsByName('csrfmiddlewaretoken')[0].value,
+            }),
+        }).then(function(response) {
+            response.json().then(function(data) {
+                document.getElementById('message').innerHTML = 'Your settings have been updated.';
+            })
+        });
+
+        //
+        // var radios = document.getElementsByName('enable');
+        //
+        // for (var i = 0, length = radios.length; i < length; i++) {
+        //     if (radios[i].checked)
+        //     {
+        //         fetch('/accounts/update_settings/' + radios[i].value).then(
+        //             function (response) {
+        //                 response.json().then(function(data) {
+        //                     console.log(data);
+        //                     document.getElementById('message').innerHTML = 'Your settings have been updated.';
+        //                 })
+        //             }
+        //         );
+        //     }
+        // }
+        // console.log();
         return false;
     }
 </script>

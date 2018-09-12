@@ -9,6 +9,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth import authenticate, login
 import numpy as np
 import time
+import datetime
 from django.db.models import Q, Count, Sum
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User
@@ -16,6 +17,48 @@ from django.views.decorators.csrf import csrf_exempt, ensure_csrf_cookie
 import json
 from django.core import serializers
 from django.utils import dateformat
+
+@login_required
+def add_flight(request):
+    payload = json.loads(request.body)
+    user = request.user
+    try:
+        origin_airport = Airport.objects.get(pk=payload['origin_pk'])
+        destination_airport = Airport.objects.get(pk=payload['destination_pk'])
+        try:
+            next_sortid = Flight.objects.filter(owner=request.user).order_by('-sortid')[0].sortid + 1
+        except:
+            next_sortid = 0
+        f = Flight(date = payload['date'],
+                   number = payload['number'],
+                   origin = origin_airport,
+                   destination = destination_airport,
+                   airline = payload['airline'],
+                   aircraft = payload['aircraft'],
+                   aircraft_registration = payload['registration'],
+                   owner=request.user,
+                   seat=payload['seat'],
+                   travel_class=payload['class'],
+                   operator=payload['operator'],
+                   comments=payload['comments'],
+                   picture_link=payload['image_link'],
+                   distance=-1.0,
+                   sortid=next_sortid)
+        f.save()
+        #new_flight.distance = new_flight.origin.distance_to(new_flight.destination)
+        #new_flight.save()
+        f.set_distance()
+        #return redirect(index)
+    except:
+        return HttpResponse("Form validation error")
+
+    dict = {'status': 1,
+            'number': payload['number'],
+            'city': destination_airport.city,
+            'today': payload['today'],
+            }
+    return JsonResponse(dict)
+
 
 def get_airport(request, airport_id):
     airport = Airport.objects.get(pk=airport_id)
@@ -36,6 +79,7 @@ def get_airport(request, airport_id):
 
 def get_airport_flights(request, username, airport_id):
     user = User.objects.get(username=username)
+    user_profile = UserProfile.objects.get(user=user)
     airport = Airport.objects.get(pk=airport_id)
 
     flights = Flight.objects.filter(owner=user).filter(Q(origin=airport) | Q(destination=airport))
@@ -46,7 +90,7 @@ def get_airport_flights(request, username, airport_id):
          "destination": str(flight.destination),
          "direction": 'departure' if flight.origin.pk == airport_id else 'arrival',
          'city': flight.origin.city if flight.destination.pk == airport_id else flight.destination.city,
-         "date": str(flight.date),
+         "date": str(flight.date) if not user_profile.years_only else 'test',
          "airline": flight.airline,
          "plane": flight.aircraft,
          'registration': flight.aircraft_registration,
@@ -216,21 +260,21 @@ def search_airports(request):
             airport = Airport.objects.get(iata=request.body.decode('utf-8').strip().upper())
             # if multiple hits, take the most recent
             # if no iata, not possible from this function
-            return JsonResponse({'status': 1, 'name': airport.name, 'iata': airport.iata, 'pk': airport.pk})
+            return JsonResponse({'status': 1, 'name': airport.name, 'iata': airport.iata, 'pk': airport.pk, 'city': airport.city})
         except:
             return JsonResponse({'status': 0});
 
 def get_airports(request, username):
     user = User.objects.get(username=username)
-    
+
     flights_list = Flight.objects.filter(owner=user)
 
     top_airports = Airport.objects.annotate(
         id__count=Count('origins', filter=Q(origins__in=flights_list), distinct=True)+Count('destinations', filter=Q(destinations__in=flights_list), distinct=True)
     ).filter(Q(id__count__gt=0)).order_by('-id__count')
-    
+
     airports_list = [
-        {'id': airport.id, 
+        {'id': airport.id,
          'count': airport.id__count,
          'iata': airport.iata,
          'icao': airport.icao,
@@ -238,9 +282,9 @@ def get_airports(request, username):
          'html_name': airport.html_name(),
          'city': airport.city,
          'percent': np.round(airport.id__count / (len(flights_list)*2.0) * 100, decimals=1),
-        } for airport in top_airports 
+        } for airport in top_airports
     ]
-    
+
     return JsonResponse(airports_list, safe=False)
 
 def get_filtered_airports(request, username, airline, aircraft, airport, year):
@@ -257,9 +301,9 @@ def get_filtered_airports(request, username, airline, aircraft, airport, year):
     top_airports = Airport.objects.annotate(
         id__count=Count('origins', filter=Q(origins__in=flights_list), distinct=True)+Count('destinations', filter=Q(destinations__in=flights_list), distinct=True)
     ).filter(Q(id__count__gt=0)).order_by('-id__count')
-    
+
     airports_list = [
-        {'id': airport.id, 
+        {'id': airport.id,
          'count': airport.id__count,
          'iata': airport.iata,
          'icao': airport.icao,
@@ -267,9 +311,9 @@ def get_filtered_airports(request, username, airline, aircraft, airport, year):
          'html_name': airport.html_name(),
          'city': airport.city,
          'percent': np.round(airport.id__count / (len(flights_list)*2.0) * 100, decimals=1),
-        } for airport in top_airports 
+        } for airport in top_airports
     ]
-    
+
     return JsonResponse(airports_list, safe=False)
 
 
@@ -277,14 +321,14 @@ def get_airlines(request, username):
     user = User.objects.get(username=username)
     flights_list = Flight.objects.filter(owner=user)
     top_airlines = flights_list.values('airline').annotate(Count('id')).order_by('-id__count')
-    
+
     airlines_list = [
         {'airline': airline['airline'],
          'count': airline['id__count'],
          'percent': np.round(airline['id__count'] / (len(flights_list)) * 100.0, decimals=1)}
         for airline in top_airlines
     ]
-    
+
     return JsonResponse(airlines_list, safe=False)
 
 def get_filtered_airlines(request, username, airline, aircraft, airport, year):
@@ -299,28 +343,28 @@ def get_filtered_airlines(request, username, airline, aircraft, airport, year):
     if year != 'all':
         flights_list = flights_list.filter(date__year=year)
     top_airlines = flights_list.values('airline').annotate(Count('id')).order_by('-id__count')
-    
+
     airlines_list = [
         {'airline': airline['airline'],
          'count': airline['id__count'],
          'percent': np.round(airline['id__count'] / (len(flights_list)) * 100.0, decimals=1)}
         for airline in top_airlines
     ]
-    
+
     return JsonResponse(airlines_list, safe=False)
 
 def get_aircraft(request, username):
     user = User.objects.get(username=username)
     flights_list = Flight.objects.filter(owner=user)
     top_planes = flights_list.values('aircraft').annotate(Count('id')).order_by('-id__count')
-    
+
     aircraft_list = [
         {'aircraft': plane['aircraft'],
          'count': plane['id__count'],
          'percent': np.round(plane['id__count'] / len(flights_list) * 100.0, decimals=1)}
         for plane in top_planes
     ]
-    
+
     return JsonResponse(aircraft_list, safe=False)
 
 def get_filtered_aircraft(request, username, airline, aircraft, airport, year):
@@ -335,21 +379,21 @@ def get_filtered_aircraft(request, username, airline, aircraft, airport, year):
     if year != 'all':
         flights_list = flights_list.filter(date__year=year)
     top_planes = flights_list.values('aircraft').annotate(Count('id')).order_by('-id__count')
-    
+
     aircraft_list = [
         {'aircraft': plane['aircraft'],
          'count': plane['id__count'],
          'percent': np.round(plane['id__count'] / len(flights_list) * 100.0, decimals=1)}
         for plane in top_planes
     ]
-    
+
     return JsonResponse(aircraft_list, safe=False)
 
 def get_routes(request, username):
     user = User.objects.get(username=username)
     flights_list = Flight.objects.filter(owner=user)
     top_routes = flights_list.values('origin__iata', 'origin__name', 'origin__city', 'origin__country', 'destination__iata', 'destination__name', 'destination__city', 'destination__country', 'origin__latitude', 'origin__longitude', 'destination__latitude', 'destination__longitude').annotate(Count('id')).order_by('-id__count')
-    
+
     routes_list = [
         {'origin': route['origin__iata'],
          'destination': route['destination__iata'],
@@ -357,7 +401,7 @@ def get_routes(request, username):
          'percent': np.round(route['id__count'] / len(flights_list) * 100.0, decimals=1)}
         for route in top_routes
     ]
-    
+
     return JsonResponse(routes_list, safe=False)
 
 def get_filtered_routes(request, username, airline, aircraft, airport, year):
@@ -372,7 +416,7 @@ def get_filtered_routes(request, username, airline, aircraft, airport, year):
     if year != 'all':
         flights_list = flights_list.filter(date__year=year)
     top_routes = flights_list.values('origin__iata', 'origin__name', 'origin__city', 'origin__country', 'destination__iata', 'destination__name', 'destination__city', 'destination__country', 'origin__latitude', 'origin__longitude', 'destination__latitude', 'destination__longitude').annotate(Count('id')).order_by('-id__count')
-    
+
     routes_list = [
         {'origin': route['origin__iata'],
          'destination': route['destination__iata'],
@@ -380,26 +424,26 @@ def get_filtered_routes(request, username, airline, aircraft, airport, year):
          'percent': np.round(route['id__count'] / len(flights_list) * 100.0, decimals=1)}
         for route in top_routes
     ]
-    
+
     return JsonResponse(routes_list, safe=False)
 
 def get_aggregates(request, username):
     user = User.objects.get(username=username)
     flights_list = Flight.objects.filter(owner=user)
-    
+
     try:
         distance_mi = flights_list.aggregate(Sum('distance'))['distance__sum']
         distance_km = distance_mi * 6371.0/3959.0
     except:
         # flights_list is empty
         distance_mi = distance_km = 0
-    
+
     dictionary = {
         'flights': len(flights_list),
         'distance_mi': "{:,}".format(int(distance_mi)),
         'distance_km': "{:,}".format(int(distance_km)),
     }
-    
+
     return JsonResponse(dictionary, safe=False)
 
 def get_filtered_aggregates(request, username, airline, aircraft, airport, year):
@@ -413,34 +457,18 @@ def get_filtered_aggregates(request, username, airline, aircraft, airport, year)
         flights_list = flights_list.filter(Q(origin__iata=airport) | Q(destination__iata=airport))
     if year != 'all':
         flights_list = flights_list.filter(date__year=year)
-        
+
     try:
         distance_mi = flights_list.aggregate(Sum('distance'))['distance__sum']
         distance_km = distance_mi * 6371.0/3959.0
     except:
         # flights_list is empty
         distance_mi = distance_km = 0
-    
+
     dictionary = {
         'flights': len(flights_list),
         'distance_mi': "{:,}".format(int(distance_mi)),
         'distance_km': "{:,}".format(int(distance_km)),
     }
-    
-    return JsonResponse(dictionary, safe=False)
 
-@login_required
-def update_profile(request, enable):
-    user = request.user
-    user_profile = UserProfile.objects.get(user=user)
-    if enable:
-        user_profile.public = True
-    else:
-        user_profile.public = False
-    user_profile.save()
-    
-    dictionary = {
-        'public': user_profile.public,
-    }
-    
     return JsonResponse(dictionary, safe=False)

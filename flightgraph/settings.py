@@ -23,7 +23,7 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SECRET_KEY = '837g)bo)=)os%c-!*g*ukav%8ykpjlld*kjvkk+d^2hzk-@##n'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+DEBUG = True
 
 ALLOWED_HOSTS = ['35.171.98.155', 'flightgraph.eu', 'www.flightgraph.eu', '127.0.0.1', '192.168.0.20']
 
@@ -95,9 +95,9 @@ DATABASES = {
 # https://docs.djangoproject.com/en/1.11/ref/settings/#auth-password-validators
 
 AUTH_PASSWORD_VALIDATORS = [
-    {
-        'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
-    },
+    # {
+    #     'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
+    # },
 #    {
 #        'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator',
 #    },
@@ -134,3 +134,5 @@ STATIC_URL = '/static/'
 STATICFILES_DIRS = ( os.path.join(BASE_DIR, "static"), )
 
 LOGIN_REDIRECT_URL = '/map'
+
+APPEND_SLASH = False

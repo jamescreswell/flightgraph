@@ -258,6 +258,9 @@
                 });
             }
         );
+        {% if start_id %}
+        app.toggleFlightDetails({{ start_id }});
+        {% endif %}
     }
 
     function populateFilter() {

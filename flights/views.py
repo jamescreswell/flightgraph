@@ -12,6 +12,7 @@ import time
 from django.db.models import Q, Count, Sum
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User
+import json
 
 
 import matplotlib
@@ -21,16 +22,98 @@ import matplotlib.pyplot as plt
 import datetime # I hope this doesn't mess up the Django datetime ...
 
 
-def index(request):
+def index(request, error=None):
+    username = request.user.username
+
+    if username != '':
+        latest_flights = Flight.objects.filter(owner__username=username).order_by('-sortid')[:3]
+    else:
+        latest_flights = None
+
     context = {'nav_id': 'index_nav',
                'name': 'index',
                'username': request.user.username,
+               'duplicate_username': True if error == 'duplicate_username' else False,
+               'latest_flights': latest_flights,
               }
     return render(request, 'flights/index.html', context)
+
+# THIS SHOULD BE AN API FUNCTION!!!!!! def add_flight(request):
+
+##############
+# /accounts/ #
+##############
+
+def create_account(request):
+    if request.method == 'POST':
+        # Get POST data
+        username = request.POST.get('username')
+        password = request.POST.get('password')
+        email = request.POST.get('email') # If he doesn't have an email, this is just an empty string
+
+        # Make sure username is unique
+        # Email doesn't have to be unique
+        if User.objects.filter(username=username).exists():
+            return index(request, error="duplicate_username")
+
+        User.objects.create_user(username=username, email=email, password=password)
+        user = authenticate(username=username, password=password)
+        login(request, user)
+
+        # Create default UserProfile
+        profile = UserProfile(user=user)
+        profile.save()
+
+        # Send him to the map with newuser flag (hints)
+        return redirect('map')
+    else:
+        raise PermissionDenied
+
+@login_required
+def settings(request):
+    user = request.user
+    user_profile = UserProfile.objects.get(user=user)
+
+    context = {'username': user.username,
+               'email': user.email,
+               'password': user.password,
+               'profile_enabled': user_profile.public,
+               'years_only': user_profile.years_only,
+              }
+
+    return render(request, 'flights/settings.html', context)
+
+
+@login_required
+def update_settings(request):
+    payload = json.loads(request.body)
+    user = request.user
+    user_profile = UserProfile.objects.get(user=user)
+    print(bool(int(payload['years_only'])))
+    user_profile.public = bool(int(payload['public']))
+    user_profile.years_only = bool(int(payload['years_only']))
+    user_profile.save()
+
+    dictionary = {
+        'public': user_profile.public,
+    }
+
+    return JsonResponse(dictionary, safe=False)
+
+def login_view(request):
+    print('test')
+    return redirect('index')
 
 def airports(request):
     pass
 
+
+
+
+
+
+
+@login_required
 def map(request, username=None, profile=False):
     if username is not None:
         user = User.objects.get(username=username)
@@ -52,15 +135,17 @@ def map(request, username=None, profile=False):
 
     return render(request, 'flights/map.html', context)
 
-def list(request, username=None, profile=False):
+def list(request, username=None, profile=False, id=None):
     if username is not None:
         user = User.objects.get(username=username)
     else:
         user = request.user
 
+
     context = {'username': user.username,
                'profile': 0 if not profile else 1,
                'profile_username': username,
+               'start_id': id,
               }
 
     return render(request, 'flights/list.html', context)
@@ -96,18 +181,6 @@ def testlist(request):
 def teststats(request):
     return statistics(request, 'admin', False)
 
-@login_required
-def settings(request):
-    if request.method == 'POST':
-        pass
-    user = request.user
-    user_profile = UserProfile.objects.get(user=user)
-
-    context = {'username': user.username,
-               'profile_enabled': user_profile.public,
-              }
-
-    return render(request, 'flights/settings.html', context)
 
 
 def gcmap(request):
@@ -454,20 +527,6 @@ def compare(request, username1, username2):
               }
 
     return render(request, 'flights/compare.html', context)
-
-def create_account(request):
-    if request.method == 'POST':
-        form = UserCreationForm(request.POST)
-        if form.is_valid():
-            form.save()
-            username = form.cleaned_data.get('username')
-            raw_password = form.cleaned_data.get('password1')
-            user = authenticate(username=username, password=raw_password)
-            login(request, user)
-            return redirect('flights')
-    else:
-        form = UserCreationForm()
-    return render(request, 'registration/create_account.html', {'form': form})
 
 def mileage_graph(request, user1, user2, year1, year2):
     if user2 != 'null':

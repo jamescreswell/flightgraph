@@ -2,18 +2,341 @@
 {% load static %}
 
 {% block links %}
-<script type='text/javascript' src='http://d3js.org/d3.v3.min.js'></script>
+<!-- <script type='text/javascript' src='http://d3js.org/d3.v3.min.js'></script>
 <script type='text/javascript' src='http://d3js.org/topojson.v1.min.js'></script>
-<script type='text/javascript' src="{% static 'flights/geo/planetaryjs.min.js' %}"></script>
+<script type='text/javascript' src="{% static 'flights/geo/planetaryjs.min.js' %}"></script> -->
 
-<style>
+<!-- <style>
     body {
         background-color: black;
     }
-</style>
+</style> -->
+
+<link rel="stylesheet" type="text/css" href="{% static 'flights/css/index.css' %}" />
+
 {% endblock %}
 
 {% block content %}
+
+
+
+<div id="map-background">
+    <div class="flex-container">
+        <div id="advertisment">
+            <h1>flightgraph.eu</h1>
+            <p>Flight visualisation for aviation enthusiasts. Save your flight history and photos, plot flight paths, and look up airport data.</p>
+        </div>
+        <div id="loginbox">
+            {% if not username %}
+            <h2>Create account</h2>
+            <form action="{% url 'create_account' %}" method="post"> {% csrf_token %}
+                <label>Username</label>
+                <input type="text" placeholder="Username" name="username" required>
+                {% if duplicate_username %}<div class="sublabel" style="color: red;">This username is already taken.</div>{% endif %}
+                <label>Password</label>
+                <input type="password" placeholder="••••••••" name="password" required>
+                {% if invalid_password %}<div class="sublabel" style="color: red;">This password is invalid.</div>}{% endif %}
+                <label>Email</label>
+                <input type="email" placeholder="Email" name="email">
+                <div class="sublabel">Optional. If provided, password can be reset.</div>
+                <input type="submit" value="Sign up">
+            </form>
+            {% else %}
+            <h2 style="white-space: nowrap;">Welcome, {{ username }}</h2>
+            Your latest flights:
+            <ol class="flightslist">
+                {% for flight in latest_flights %}
+                <li onclick="goToFlight({{ flight.id }})">
+                    <div class="flight-arrow"><i class="fa fa-angle-right"></i></div>
+                    <div>{{ flight.number }}</div>
+                    <div>{{ flight.origin.iata }}–{{ flight.destination.iata}}</div>
+                </li>
+                {% empty %}
+                <div style="text-align: center;">No flights yet!</div>
+                {% endfor %}
+                <li class="add" id="addflight_button">
+                    Add flight
+                </li>
+            </ol>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+
+<div id="addflight" class="modal">
+    <div class="modal-content" id="modal-content">
+        <span class="close">&times;</span>
+        <h2>Add flight</h2>
+        <span id="message"></span>
+        <form action="javascript:void(0);" onsubmit="submitForm();" id="addflightform">{% csrf_token %}
+            <label>Date</label>
+            <input type="text" onfocus="(this.type='date')" onblur="(this.type='text')" placeholder="YYYY-MM-DD" name="date" autocomplete="off" required>
+            <label>Flight number</label>
+            <input type="text" placeholder="Flight number" name="number" autocomplete="off">
+
+            <hr>
+
+            <div class="formrow">
+                <div style="margin-right: 4px;">
+                    <label>Origin</label>
+                    <input type="text" placeholder="From" id="origin-field" name="origin-name" autocomplete="off" required>
+                    <input type="hidden" id="origin-field-hidden" name="origin-pk" value="">
+                </div>
+                <div style="margin-left: 4px;">
+                    <label>Destination</label>
+                    <input type="text" placeholder="To" id="destination-field" name="destination-name" autocomplete="off" required>
+                    <input type="hidden" id="destination-field-hidden" name="destination-pk" value="">
+                </div>
+            </div>
+            <div class="sublabel">Type the IATA code and blur the field to look up the airport. To add non-IATA or custom airports, use the <a href="">batch edit interface</a>.</div>
+
+            <hr>
+
+            <label>Airline</label>
+            <input type="text" placeholder="Airline" name="airline" autocomplete="off">
+            <input type="text" placeholder="Operator" name="operator" autocomplete="off">
+            <label>Aircraft</label>
+            <input type="text" placeholder="Aircraft" name="aircraft" autocomplete="off">
+            <label>Registration</label>
+            <input type="text" placeholder="Registration" name="registration" autocomplete="off">
+
+            <hr>
+
+            <div class="formrow">
+                <div style="margin-right: 4px;">
+                    <label>Class</label>
+                    <input type="text" placeholder="F/J/Y" name="class" autocomplete="off">
+                </div>
+                <div style="margin-left: 4px;">
+                    <label>Seat</label>
+                    <input type="text" placeholder="Seat" name="seat" autocomplete="off">
+                </div>
+            </div>
+
+            <hr>
+
+            <label>Picture</label>
+            <input type="url" placeholder="Image link" name="image-link" autocomplete="off">
+
+            <label>Comments</label>
+            <input type="text" placeholder="Comments" name="comments" autocomplete="off">
+
+            <input type="submit" value="Submit">
+        </form>
+    </div>
+</div>
+
+<script>
+    function submitForm() {
+        form = new FormData(document.querySelector('form'));
+
+        var d = new Date();
+        var n = d.toISOString().slice(0, 10);
+        console.log(n);
+        console.log(form.get('date'));
+
+        fetch("{% url 'add_flight' %}", {
+            method: "POST",
+            credentials: "include",
+            headers: {
+                "X-CSRFToken": document.getElementsByName('csrfmiddlewaretoken')[0].value,
+                "Accept": "application/json",
+                "Content-Type": "application/json; charset=utf-8",
+            },
+            body: JSON.stringify({
+                date: form.get('date'),
+                number: form.get('number'),
+                origin_pk: form.get('origin-pk'),
+                destination_pk: form.get('destination-pk'),
+                airline: form.get('airline'),
+                aircraft: form.get('aircraft'),
+                registration: form.get('registration'),
+                class: form.get('class'),
+                seat: form.get('seat'),
+                image_link: form.get('image-link'),
+                comments: form.get('comments'),
+                operator: form.get('operator'),
+                today: n == form.get('date'),
+                // csrfmiddlewaretoken: document.getElementsByName('csrfmiddlewaretoken')[0].value,
+            }),
+        }).then(function(response) {
+            response.json().then(function(data) {
+                console.log(data);
+                if (data.status == 1) {
+                    console.log(data.number);
+                    // Reset and hide form
+                    document.getElementById("addflightform").reset();
+                    document.getElementById('addflightform').style.display = 'none';
+
+                    document.getElementById('message').innerHTML += 'Flight ' + data.number + ' successfully added.<br>';
+                    if (data.today) {
+                        document.getElementById('message').innerHTML += 'Welcome to ' + data.city + '!';
+                    }
+                    document.getElementById('message').innerHTML += '<input type="submit" value="Add another flight" onclick="resetAddForm();">';
+                }
+            })
+        });
+    }
+
+    function resetAddForm() {
+        document.getElementById("addflightform").reset();
+        document.getElementById('addflightform').style.display = 'block';
+        document.getElementById('message').innerHTML = '';
+    }
+</script>
+
+<script>
+    var modal = document.getElementById('addflight');
+    var btn = document.getElementById("addflight_button");
+    var span = document.getElementsByClassName("close")[0];
+
+    btn.onclick = function() {
+        modal.style.display = "block";
+    }
+
+    span.onclick = function() {
+        document.getElementById('addflightform').style.display = 'block';
+        document.getElementById('message').innerHTML = '';
+        modal.style.display = "none";
+    }
+
+    document.onclick = function(event) {
+        if (event.target == modal) {
+            modal.style.display = "none";
+        }
+    }
+</script>
+
+<script>
+    // Using the JS "fetch" api instead of AJAX because we don't have jQuery in the mobile site...this function is extremely fragile
+    function query_airport_code(code, id) {
+        document.getElementById(id).value = "Searching..."
+        opts = {
+            method: 'POST',
+            body: code,
+        };
+        fetch('{% url "search_airports" %}', opts)
+        .then((resp) => resp.json())
+        .then(function(data) {
+            if (data['status'] == 1) {
+                document.getElementById(id).style.color = 'green';
+                document.getElementById(id).value = data['iata'] + ' - ' + data['city'];
+                document.getElementById(id + '-hidden').value = data['pk'];
+                console.log('success');
+            }
+            if (data['status'] == 0) {
+                document.getElementById(id).style.color = 'red';
+                document.getElementById(id).value = 'Airport not found';
+            }
+        })
+        .catch(function(error) {
+            console.log(error);
+        });
+    }
+
+    document.getElementById('origin-field').onblur = function () {
+        if (this.value != "") {
+            query_airport_code(this.value, 'origin-field');
+        }
+    };
+
+    document.getElementById('origin-field').onclick = function () {
+        this.value = "";
+    };
+
+    document.getElementById('destination-field').onblur = function () {
+        if (this.value != "") {
+            query_airport_code(this.value, 'destination-field');
+        }
+    };
+
+    document.getElementById('destination-field').onclick = function () {
+        this.value = "";
+    };
+</script>
+
+<div id="main-container">
+    <div>
+        <h2>Flight log</h2>
+        <p>Maintain your personal flight log. Draw maps and calculate statistics for your flight history, and organize your photographs. Optionally share your flights on your public user page.</p>
+    </div>
+
+
+    <div>
+        <h2>Great circle mapper</h2>
+        <p>Plot great circles and calculate flight distances with an interactive map. Export the results to high quality vector graphics.</p>
+    </div>
+
+    <div>
+        <h2>Airport database</h2>
+        <p>Look up IATA/ICAO codes, locations, elevations, and country/region data for 4000+ airports.</p>
+    </div>
+
+    <div>
+        <h2>Mobile site</h2>
+        <p>Check flight paths and keep your flight log up to date while you travel using the mobile site at <a href="mobile/">flightgraph.eu/mobile</a>.</p>
+    </div>
+
+    <div>
+        <h2>Free</h2>
+        <p>This site is free and <a href="">open source</a>. There are no adverts, paid features, premium accounts, or donation buttons.</p>
+    </div>
+
+    <div>
+        <p>
+            <a onclick="togglePrivacy();">Terms of use and privacy policy</a>
+        </p>
+
+        <span id="privacy" style="font-size: 9pt; color: #555; display: none">
+            <p>The information and tools on this site are for enthusiast and general interest purposes only. They cannot be used for flight planning or navigation.</p>
+
+            <p>Accounts suspected of misusing the site functionality or abusing server resources can be terminated without recourse.</p>
+
+            <p>Cookies are used to enable users to create accounts and log in. These cookies are essential for the basic functioning of the site and therefore exempt from EU consent laws.</p>
+
+            <p>
+                The server logs basic information about all requests and responses, such as your IP address, internet browser, and the HTTP status code.
+                This data is useful for debugging and spam prevention.
+                Server logs are archived within 48 hours and permanently deleted within 2 weeks.
+                The only other data stored about you is what you submit, which you can access and modify in entirety through the site interface.
+                All EU data protection laws are followed to the extent of the administrator's knowledge and ability.
+            </p>
+
+            <p>Your usage of this site signifies your acceptance of the terms of use and privacy policy.</p>
+        </span>
+
+    </div>
+
+</div>
+
+
+<script>
+    function goToFlight(id) {
+        window.location.href = "{% url 'list' %}/" + id.toString();
+    }
+</script>
+
+<script>
+    function togglePrivacy() {
+        var privacy = document.getElementById('privacy');
+        if (privacy.style.display == 'none') {
+            privacy.style.display = 'block';
+        }
+        else {
+            privacy.style.display = 'none';
+        }
+    }
+</script>
+
+
+
+
+
+
+
+
+{% comment %}
 <div class="center">
     <h1>Welcome to flightgraph.eu</h1>
     <span>35.171.98.155:80<!--Commercial flight visualisation for aviation enthusiasts<!--Plot flight paths, look up airports, and save your flight history.--></span>
@@ -24,7 +347,7 @@
 <script type='text/javascript'>
             (function() {
               var globe = planetaryjs.planet();
-                
+
                 globe.loadPlugin(autocenter({extraHeight: -120}));
                 globe.loadPlugin(autoscale({extraHeight: -120}));
               globe.loadPlugin(autorotate(0));
@@ -56,12 +379,12 @@
                   this.plugins.autorotate.resume();
                 }
               }));
-                
+
               // Set up the globe's initial scale, offset, and rotation.
               globe.projection.scale(175).translate([175, 175]).rotate([0, -10, 0]);
 
-                
-                
+
+
                 globe.loadPlugin(function(globe) {
                    globe.onDraw(function() {
                        globe.withSavedContext(function(context){
@@ -71,7 +394,7 @@
                            context.stroke();
                            context.closePath();
                        });
-                   }); 
+                   });
                 });
               // Every few hundred milliseconds, we'll draw another random ping.
               var colors = ['red', 'yellow', 'white', 'orange', 'green', 'cyan', 'pink'];
@@ -83,11 +406,11 @@
             //  }, 150);
 
               var canvas = document.getElementById('rotatingGlobe');
-                
+
               globe.draw(canvas);
 
-                
-                
+
+
               // This plugin will automatically rotate the globe around its vertical
               // axis a configured number of degrees every second.
               function autorotate(degPerSec) {
@@ -118,9 +441,9 @@
                   });
                 };
               };
-                
-                
-                
+
+
+
                 // Plugin to resize the canvas to fill the window and to
                   // automatically center the planet when the window size changes
                   function autocenter(options) {
@@ -165,4 +488,5 @@
                   };
             })();
         </script>
+{% endcomment %}
 {% endblock %}
