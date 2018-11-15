@@ -7,7 +7,9 @@
 <script src="http://code.jquery.com/jquery-1.10.2.min.js"></script>
 <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.min.js"></script>
 
-<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+<!-- <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script> What was the point of this -->
+
+<script src="{% static 'flights/js/vue.js' %}"></script>
 {% endblock %}
 
 {% block content %}
@@ -20,7 +22,7 @@
                     <th colspan="3">Airports</th>
                 </tr>
                 <tr class="break"><td colspan="3"></td></tr>
-                <template v-for="airport in airports.slice(0, maxAirports)">
+                <template v-for="airport in airports">
                     <tr>
                         <td v-html="airport.html_name"></td>
                         <td>[[ airport.city ]]</td>
@@ -28,58 +30,95 @@
                     </tr>
                     <tr class="break"><td colspan="3"></td></tr>
                 </template>
-                <tr v-if="maxAirports != 1000">
+                <!-- <tr v-if="maxAirports != 1000">
                     <td colspan="3" class="expand-cell" v-on:click="expandTable('airports');">Show all</td>
-                </tr>
+                </tr> -->
             </table>
             <table class="stattable">
                 <tr>
                     <th colspan="3">Routes</th>
                 </tr>
                 <tr class="break"><td colspan="2"></td></tr>
-                <template v-for="route in routes.slice(0, maxRoutes)">
+                <template v-for="route in routes">
                     <tr>
                         <td>[[ route.origin ]]–[[ route.destination ]]</td>
                         <td><abbr v-bind:title="route.percent + '%'">[[ route.count ]]</abbr></td>
                     </tr>
                     <tr class="break"><td colspan="2"></td></tr>
                 </template>
-                <tr v-if="maxRoutes != 1000">
+                <!-- <tr v-if="maxRoutes != 1000">
                     <td colspan="2" class="expand-cell" v-on:click="expandTable('routes');">Show all</td>
-                </tr>
+                </tr> -->
             </table>
             <table class="stattable">
                 <tr>
                     <th colspan="3">Airlines</th>
                 </tr>
                 <tr class="break"><td colspan="2"></td></tr>
-                <template v-for="airline in airlines.slice(0, maxAirlines)">
+                <template v-for="airline in airlines">
                     <tr>
                         <td v-html="airline.airline"></td>
                         <td><abbr v-bind:title="airline.percent + '%'">[[ airline.count ]]</abbr></td>
                     </tr>
                     <tr class="break"><td colspan="2"></td></tr>
                 </template>
-                <tr v-if="maxAirlines != 1000">
+                <!-- <tr v-if="maxAirlines != 1000">
                     <td colspan="2" class="expand-cell" v-on:click="expandTable('airlines');">Show all</td>
-                </tr>
+                </tr> -->
             </table>
             <table class="stattable">
                 <tr>
                     <th colspan="3">Aircraft</th>
                 </tr>
                 <tr class="break"><td colspan="2"></td></tr>
-                <template v-for="aircraft in aircraft.slice(0, maxAircraft)">
+                <template v-for="aircraft in aircraft">
                     <tr>
                         <td v-html="aircraft.aircraft"></td>
                         <td><abbr v-bind:title="aircraft.percent + '%'">[[ aircraft.count ]]</abbr></td>
                     </tr>
                     <tr class="break"><td colspan="2"></td></tr>
                 </template>
-                <tr v-if="maxAircraft != 1000">
+                <!-- <tr v-if="maxAircraft != 1000">
                     <td colspan="2" class="expand-cell" v-on:click="expandTable('aircraft');">Show all</td>
-                </tr>
+                </tr> -->
             </table>
+
+            <table class="stattable">
+                <tr>
+                    <th colspan="2">Registrations</th>
+                </tr>
+                <tr class="break">
+                    <td colspan="2"></td>
+                </tr>
+                <template v-for="registration in registrations">
+                    <tr>
+                        <td><abbr v-bind:title="registration.aircraft">[[ registration.registration ]]</abbr></td>
+                        <td>[[ registration.count ]]</td>
+                    </tr>
+                    <tr class="break">
+                        <td colspan="2"></td>
+                    </tr>
+                </template>
+            </table>
+
+            <table class="stattable">
+                <tr>
+                    <th colspan="2">Countries</th>
+                </tr>
+                <tr class="break">
+                    <td colspan="2"></td>
+                </tr>
+                <template v-for="country in countries">
+                    <tr>
+                        <td><img v-bind:src="'/static/flights/img/flags/24/' + country.country_iso + '.png'"> [[ country.country ]]</td>
+                        <td>[[ country.count ]]</td>
+                    </tr>
+                    <tr class="break">
+                        <td colspan="2"></td>
+                    </tr>
+                </template>
+            </table>
+
         </div>
     </div>
     <div class="column-right">
@@ -168,9 +207,106 @@
                 <br>
                 <div class="datum">[[ aircraft.length ]]</div>
             </div>
+            <div class="route-parent">
+                <div class="caption">countries</div>
+                <br>
+                <div class="datum">[[ countries.length ]]</div>
+            </div>
         </div>
         <div class="subfilter">
             <div class="filter-title">Superlatives</div>
+            <div class="route-parent">
+                <div class="caption">longest flight</div>
+                <br>
+                <div class="datum"><span v-html="superlatives.longest_origin"></span>–<span v-html="superlatives.longest_destination"></span></div>
+            </div>
+            <div class="route-parent">
+                <div class="caption">miles</div>
+                <br>
+                <div class="datum">[[ superlatives.longest_distance_mi ]]</div>
+            </div>
+            <div class="route-parent">
+                <div class="caption">kilometres</div>
+                <br>
+                <div class="datum">[[ superlatives.longest_distance_km ]]</div>
+            </div>
+            <div class="route-parent">
+                <div class="caption">duration</div>
+                <br>
+                <div class="datum">[[ superlatives.longest_duration ]] hr</div>
+            </div>
+            <br>
+            <div class="route-parent">
+                <div class="caption">shortest flight</div>
+                <br>
+                <div class="datum"><span v-html="superlatives.shortest_origin"></span>–<span v-html="superlatives.shortest_destination"></span></div>
+            </div>
+            <div class="route-parent">
+                <div class="caption">miles</div>
+                <br>
+                <div class="datum">[[ superlatives.shortest_distance_mi ]]</div>
+            </div>
+            <div class="route-parent">
+                <div class="caption">kilometres</div>
+                <br>
+                <div class="datum">[[ superlatives.shortest_distance_km ]]</div>
+            </div>
+            <div class="route-parent">
+                <div class="caption">duration</div>
+                <br>
+                <div class="datum">[[ superlatives.shortest_duration ]] hr</div>
+            </div>
+            <br>
+
+            <div class="route-parent">
+                <div class="caption">northernmost airport</div>
+                <br>
+                <div class="datum"><span v-html="superlatives.northernmost_airport + '&nbsp;&nbsp;&nbsp;&nbsp;' + superlatives.northernmost_city"></span></div>
+            </div>
+            <div class="route-parent">
+                <div class="caption">latitude</div>
+                <br>
+                <div class="datum"><span v-html="superlatives.northernmost_latitude"></span></div>
+            </div>
+
+            <br>
+
+            <div class="route-parent">
+                <div class="caption">southernmost airport</div>
+                <br>
+                <div class="datum"><span v-html="superlatives.southernmost_airport + '&nbsp;&nbsp;&nbsp;&nbsp;' + superlatives.southernmost_city"></span></div>
+            </div>
+            <div class="route-parent">
+                <div class="caption">latitude</div>
+                <br>
+                <div class="datum"><span v-html="superlatives.southernmost_latitude"></span></div>
+            </div>
+
+            <br>
+
+            <div class="route-parent">
+                <div class="caption">highest airport</div>
+                <br>
+                <div class="datum"><span v-html="superlatives.highest_airport + '&nbsp;&nbsp;&nbsp;&nbsp;' + superlatives.highest_city"></span></div>
+            </div>
+            <div class="route-parent">
+                <div class="caption">elevation</div>
+                <br>
+                <div class="datum"><span v-html="superlatives.highest_elevation + ' ft'"></span></div>
+            </div>
+
+            <br>
+
+            <div class="route-parent">
+                <div class="caption">lowest airport</div>
+                <br>
+                <div class="datum"><span v-html="superlatives.lowest_airport + '&nbsp;&nbsp;&nbsp;&nbsp;' + superlatives.lowest_city"></span></div>
+            </div>
+            <div class="route-parent">
+                <div class="caption">elevation</div>
+                <br>
+                <div class="datum"><span v-html="superlatives.lowest_elevation + ' ft'"></span></div>
+            </div>
         </div>
     </div>
 </div>
@@ -184,6 +320,8 @@
             airlines: {},
             aircraft: {},
             routes: {},
+            registrations: {},
+            countries: {},
             flights: [
               {},
             ],
@@ -215,6 +353,9 @@
                 populateFilteredAirlines(selectedAirline, selectedAircraft, selectedAirport, selectedYear);
                 populateFilteredRoutes(selectedAirline, selectedAircraft, selectedAirport, selectedYear); // routeset attribute on flight model for double ended route aggregates
                 populateFilteredAggregates(selectedAirline, selectedAircraft, selectedAirport, selectedYear);
+                populateFilteredRegistrations(selectedAirline, selectedAircraft, selectedAirport, selectedYear);
+                populateFilteredSuperlatives(selectedAirline, selectedAircraft, selectedAirport, selectedYear);
+                populateFilteredCountries(selectedAirline, selectedAircraft, selectedAirport, selectedYear);
             },
             expandTable: function(name) {
                 switch (name) {
@@ -235,21 +376,21 @@
         }
     });
 
-    function populateAggregates() {
-        fetch('/api/get_aggregates/{{ username }}').then(
-            function (response) {
-                response.json().then(function (data) {
-                    app.aggregates = data;
-                });
-            }
-        );
-    }
-
     function populateFilteredAggregates(airline, aircraft, airport, year) {
         fetch('/api/get_filtered_aggregates/{{ username }}/' + airline + '/' + aircraft + '/' + airport + '/' + year).then(
             function (response) {
                 response.json().then(function(data) {
                     app.aggregates = data;
+                })
+            }
+        );
+    }
+
+    function populateFilteredSuperlatives(airline, aircraft, airport, year) {
+        fetch('/api/get_filtered_superlatives/{{ username }}/' + airline + '/' + aircraft + '/' + airport + '/' + year).then(
+            function (response) {
+                response.json().then(function(data) {
+                    app.superlatives = data;
                 })
             }
         );
@@ -284,17 +425,17 @@
 
     populateFlights();
 
-    function populateAirports() {
-        fetch('/api/get_airports/{{ username }}').then(
-            function (response) {
-                response.json().then(function(data) {
-                    app.airports = data;
-                    console.log('airport data:')
-                    console.log(JSON.stringify(app.airports));
-                })
-            }
-        );
-    }
+    // function populateAirports() {
+    //     fetch('/api/get_airports/{{ username }}').then(
+    //         function (response) {
+    //             response.json().then(function(data) {
+    //                 app.airports = data;
+    //                 console.log('airport data:')
+    //                 console.log(JSON.stringify(app.airports));
+    //             })
+    //         }
+    //     );
+    // }
 
     function populateFilteredAirports(airline, aircraft, airport, year) {
         fetch('/api/get_filtered_airports/{{ username }}/' + airline + '/' + aircraft + '/' + airport + '/' + year).then(
@@ -336,41 +477,64 @@
         );
     }
 
-    function populateAirlines() {
-        fetch('/api/get_airlines/{{ username }}').then(
+    function populateFilteredRegistrations(airline, aircraft, airport, year) {
+        fetch('/api/get_filtered_registrations/{{ username }}/' + airline + '/' + aircraft + '/' + airport + '/' + year).then(
             function (response) {
-                response.json().then(function(data) {
-                    app.airlines = data;
+                response.json().then(function (data) {
+                    app.registrations = data;
                 })
             }
-        );
+        )
     }
 
-    function populateAircraft() {
-        fetch('/api/get_aircraft/{{ username }}').then(
-            function(response) {
-                response.json().then(function(data) {
-                    app.aircraft = data;
+    function populateFilteredCountries(airline, aircraft, airport, year) {
+        fetch('/api/get_filtered_countries/{{ username }}/' + airline + '/' + aircraft + '/' + airport + '/' + year).then(
+            function (response) {
+                response.json().then(function (data) {
+                    app.countries = data;
                 })
             }
-        );
+        )
     }
+    //
+    // function populateAirlines() {
+    //     fetch('/api/get_airlines/{{ username }}').then(
+    //         function (response) {
+    //             response.json().then(function(data) {
+    //                 app.airlines = data;
+    //             })
+    //         }
+    //     );
+    // }
+    //
+    // function populateAircraft() {
+    //     fetch('/api/get_aircraft/{{ username }}').then(
+    //         function(response) {
+    //             response.json().then(function(data) {
+    //                 app.aircraft = data;
+    //             })
+    //         }
+    //     );
+    // }
+    //
+    // function populateRoutes() {
+    //     fetch('/api/get_routes/{{ username }}').then(
+    //         function(response) {
+    //             response.json().then(function(data) {
+    //                 app.routes = data;
+    //             })
+    //         }
+    //     );
+    // }
 
-    function populateRoutes() {
-        fetch('/api/get_routes/{{ username }}').then(
-            function(response) {
-                response.json().then(function(data) {
-                    app.routes = data;
-                })
-            }
-        );
-    }
-
-    populateAirports();
-    populateAirlines();
-    populateAircraft();
-    populateRoutes();
-    populateAggregates();
+    populateFilteredAirports('all', 'all', 'all', 'all');
+    populateFilteredAirlines('all', 'all', 'all', 'all');
+    populateFilteredAircraft('all', 'all', 'all', 'all');
+    populateFilteredRoutes('all', 'all', 'all', 'all');
+    populateFilteredRegistrations('all', 'all', 'all', 'all');
+    populateFilteredAggregates('all', 'all', 'all', 'all');
+    populateFilteredSuperlatives('all', 'all', 'all', 'all');
+    populateFilteredCountries('all', 'all', 'all', 'all');
 
 </script>
 

@@ -2,6 +2,10 @@ body {
     background-color: #eee;
 }
 
+hr {
+    color: #ccc;
+}
+
 .settingsbox {
     position: absolute;
     width: 700px;

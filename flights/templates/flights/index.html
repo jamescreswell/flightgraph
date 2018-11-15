@@ -48,13 +48,17 @@
                 {% for flight in latest_flights %}
                 <li onclick="goToFlight({{ flight.id }})">
                     <div class="flight-arrow"><i class="fa fa-angle-right"></i></div>
-                    <div>{{ flight.number }}</div>
-                    <div>{{ flight.origin.iata }}–{{ flight.destination.iata}}</div>
+                    <div class="flight-date">{{ flight.date.day }}/{{ flight.date.month }}/{{ flight.date.year }}</div>
+                    <div class="flight-number">{{ flight.number }}</div>
+                    <div class="flight-route">{{ flight.origin.html_name|safe }}–{{ flight.destination.html_name|safe }}</div>
                 </li>
                 {% empty %}
                 <div style="text-align: center;">No flights yet!</div>
                 {% endfor %}
-                <li class="add" id="addflight_button">
+                <li class="button" id="viewflights_button">
+                    View all
+                </li>
+                <li class="button" id="addflight_button">
                     Add flight
                 </li>
             </ol>
@@ -206,6 +210,11 @@
             modal.style.display = "none";
         }
     }
+
+    var btn = document.getElementById('viewflights_button');
+    btn.onclick = function () {
+        window.location.href = "{% url 'list' %}";
+    }
 </script>
 
 <script>
@@ -270,7 +279,7 @@
 
     <div>
         <h2>Airport database</h2>
-        <p>Look up IATA/ICAO codes, locations, elevations, and country/region data for 4000+ airports.</p>
+        <p>Look up IATA/ICAO codes, locations, elevations, and country/region data for 4000+ airports. If you find a missing airport, <a href="">add it to the database</a>.</p>
     </div>
 
     <div>

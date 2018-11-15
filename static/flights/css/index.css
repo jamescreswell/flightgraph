@@ -49,6 +49,7 @@ body {
     color: #444;
     margin-top: 50px;
     margin-bottom: 50px;
+    min-width: 300px;
 }
 
 label {
@@ -115,18 +116,39 @@ input[type=submit]:hover {
 
 .flightslist li div {
     display: inline-block;
-    padding: 3px;
-    font-weight: 700;
+    margin-top: 5px;
+    margin-bottom: 5px;
+    margin-left: 0;
+    margin-right: 0;
+    padding: 7px;
+    text-align: center;
+    font-size: 10.5pt;
 }
 
-.flightslist li .flight-arrow {
+.flight-arrow {
     font-size: 14pt;
     float: right;
     color: #e41a1c;
 }
 
-.flightslist .add {
-    background-color: #4daf4a; /*0978AB*/
+.flight-date {
+    width: 85px;;
+    display: inline-block;
+    border-right: 1px solid #ccc;
+}
+
+.flight-number {
+    width: 70px;
+    border-right: 1px solid #ccc;
+}
+
+.flight-route {
+    width: 90px;
+    font-weight: 700;
+}
+
+.flightslist .button {
+    /*background-color: #4daf4a; /*0978AB*/
     text-align: center;
     color: #fff;
     font-size: 12pt;
@@ -137,6 +159,22 @@ input[type=submit]:hover {
     width: 100%;
     box-sizing: border-box;
     border-radius: 5px;
+}
+
+#addflight_button {
+    background-color: #4daf4a;
+}
+
+#addflight_button:hover {
+    background-color: #4da34a;
+}
+
+#viewflights_button {
+    background-color: #8b8b8b;/*#4d4adf;*/
+}
+
+#viewflights_button:hover {
+    background-color: #7e7e7e;
 }
 
 .flightslist .add:hover {

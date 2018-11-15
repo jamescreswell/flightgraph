@@ -15,10 +15,10 @@ from django.contrib.auth.models import User
 import json
 
 
-import matplotlib
-matplotlib.use('Agg') # Server has no GUI
-import matplotlib.pyplot as plt
-#from mpl_toolkits.basemap import Basemap
+# import matplotlib
+# matplotlib.use('Agg') # Server has no GUI
+# import matplotlib.pyplot as plt
+# #from mpl_toolkits.basemap import Basemap
 import datetime # I hope this doesn't mess up the Django datetime ...
 
 
@@ -26,7 +26,7 @@ def index(request, error=None):
     username = request.user.username
 
     if username != '':
-        latest_flights = Flight.objects.filter(owner__username=username).order_by('-sortid')[:3]
+        latest_flights = Flight.objects.filter(owner__username=username).order_by('-sortid')[:4]
     else:
         latest_flights = None
 
@@ -39,6 +39,15 @@ def index(request, error=None):
     return render(request, 'flights/index.html', context)
 
 # THIS SHOULD BE AN API FUNCTION!!!!!! def add_flight(request):
+
+def api_index(request):
+    username = request.user.username
+
+    context = {'nav_id': 'api_nav',
+               'name': 'api',
+               'username': request.user.username,
+              }
+    return render(request, 'flights/api.html', context)
 
 ##############
 # /accounts/ #
@@ -528,147 +537,6 @@ def compare(request, username1, username2):
 
     return render(request, 'flights/compare.html', context)
 
-def mileage_graph(request, user1, user2, year1, year2):
-    if user2 != 'null':
-        usernames = [user1, user2]
-    else:
-        usernames = [user1,]
-    dates, dists = {}, {}
-    for user in usernames:
-        flights = Flight.objects.filter(owner__username=user).order_by('date')
-        dates[user] = []
-        dists[user] = [0]
-        for flight in flights:
-            dates[user].append(matplotlib.dates.date2num(flight.date))
-            dists[user].append(dists[user][-1] + flight.distance)
-
-
-
-    #response = HttpResponse(content_type='image/png')
-
-    plt.figure()
-
-    for user in usernames:
-        plt.plot_date(dates[user], dists[user][1:], marker=None, linestyle='-', xdate=True, label=user)
-
-    plt.legend()
-    plt.xlabel('Date')
-    plt.ylabel('Distance (mi)')
-    plt.xlim([datetime.date(year1, 1, 1), datetime.date(year2, 12, 31)])
-
-    import io
-    buf = io.BytesIO()
-
-
-    plt.savefig(buf, format='png', dpi=150, bbox_inches='tight')
-    response = HttpResponse(buf.getvalue(), content_type='image/png')
-    return response
-
-def airport_graph(request, user1, user2):
-    if user2 != 'null':
-        usernames = [user1, user2]
-    else:
-        usernames = [user1,]
-    dates, airport_count, airports_visited = {}, {}, {}
-    for user in usernames:
-        flights = Flight.objects.filter(owner__username=user).order_by('date')
-        dates[user] = []
-        airport_count[user] = [0]
-        airports_visited[user] = set()
-        for flight in flights:
-            dates[user].append(matplotlib.dates.date2num(flight.date))
-            airports_visited[user].add(flight.origin.pk)
-            airports_visited[user].add(flight.destination.pk)
-            airport_count[user].append(len(airports_visited[user]))
-
-
-
-    #response = HttpResponse(content_type='image/png')
-
-    plt.figure()
-
-    for user in usernames:
-        plt.plot_date(dates[user], airport_count[user][1:], marker=None, linestyle='-', xdate=True, label=user)
-
-    plt.legend()
-    plt.xlabel('Date')
-    plt.ylabel('Airports visited')
-    import io
-    buf = io.BytesIO()
-
-
-    plt.savefig(buf, format='png', dpi=150, bbox_inches='tight')
-    response = HttpResponse(buf.getvalue(), content_type='image/png')
-    return response
-
-def country_graph(request, user1, user2):
-    if user2 != 'null':
-        usernames = [user1, user2]
-    else:
-        usernames = [user1,]
-    dates, country_count, countries_visited = {}, {}, {}
-    for user in usernames:
-        flights = Flight.objects.filter(owner__username=user).order_by('date')
-        dates[user] = []
-        country_count[user] = [0]
-        countries_visited[user] = set()
-        for flight in flights:
-            dates[user].append(matplotlib.dates.date2num(flight.date))
-            countries_visited[user].add(flight.origin.country)
-            countries_visited[user].add(flight.destination.country)
-            country_count[user].append(len(countries_visited[user]))
-
-
-
-    #response = HttpResponse(content_type='image/png')
-
-    plt.figure()
-
-    for user in usernames:
-        plt.plot_date(dates[user], country_count[user][1:], marker=None, linestyle='-', xdate=True, label=user)
-
-    plt.legend()
-    plt.xlabel('Date')
-    plt.ylabel('Countries visited')
-    import io
-    buf = io.BytesIO()
-
-
-    plt.savefig(buf, format='png', dpi=150, bbox_inches='tight')
-    response = HttpResponse(buf.getvalue(), content_type='image/png')
-    return response
-
-def top_airports_graph(request, username):
-    flights = Flight.objects.filter(owner__username=username).order_by('date')
-    dates = []
-    airport_counts = {}
-    airports_visited = Airport.objects.filter(Q(origins__in=flights)|Q(destinations__in=flights)).distinct()
-    for airport in airports_visited:
-        airport_counts[airport.pk] = [airport.iata, 0]
-    for flight in flights:
-        dates.append(matplotlib.dates.date2num(flight.date))
-        for airport in airports_visited:
-            if flight.origin.pk == airport.pk or flight.destination.pk == airport.pk:
-                airport_counts[airport.pk].append(airport_counts[airport.pk][-1] + 1)
-            else:
-                airport_counts[airport.pk].append(airport_counts[airport.pk][-1])
-
-    lists = [airport_list for airport_list in airport_counts.values()]
-    lists.sort(key=lambda x: x[-1], reverse=True)
-    lists = lists[:10]
-
-    output = [np.array(lis[2:]) for lis in lists]
-
-    plt.figure()
-    plt.stackplot(dates, output, labels=[lis[0] for lis in lists], baseline='zero')
-    plt.legend(loc='upper left')
-    import io
-    buf = io.BytesIO()
-
-
-    plt.savefig(buf, format='png', dpi=150, bbox_inches='tight')
-    response = HttpResponse(buf.getvalue(), content_type='image/png')
-    return response
 
 def route_map(request, id1, id2):
     airport1 = Airport.objects.get(pk=id1)

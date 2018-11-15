@@ -20,6 +20,8 @@
         <label>Email</label>
         <input type="email" placeholder="Email" name="email" value="{{ email }}">
 
+        <hr>
+
         <h4>Privacy</h4>
         <p>
             Your public profile allows you to share some or all the information in your flight log.
@@ -27,6 +29,7 @@
         </p>
         <p>
             <input type="radio" name="public" value="1" {% if profile_enabled %}checked{% endif %} onclick="document.getElementById('public-details').style.display = 'block';">Enable public profile<br>
+            <input type="radio" name="public" value="0.5">Enable profile for approved flightgraph.eu users only<br>
             <input type="radio" name="public" value="0" {% if not profile_enabled %}checked{% endif %} onclick="document.getElementById('public-details').style.display = 'none';">Disable public profile
         </p>
         <div id="public-details">
@@ -38,6 +41,12 @@
                 <input type="radio" name="dates" value="1" {% if years_only %}checked{% endif %}>Show years only
             </p>
         </div>
+
+        <div id="approved-users">
+            <p>Choose approved usernames from the list below.
+        </div>
+
+        <hr>
 
         <h4>Visual</h4>
         <p>

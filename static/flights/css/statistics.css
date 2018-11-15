@@ -25,9 +25,10 @@
     display: inline-block;
     border: 1px solid #ccc;
     vertical-align: top;
-    max-height: 85vh;
+    max-height: 42vh;
     overflow-y: auto;
     width: 24%;
+    margin-bottom: 10px;
 }
 
 .stattable tr {
@@ -64,6 +65,10 @@ tr.break, tr.break td {
 
 .expand-cell:hover {
     background-color: #ccc;
+}
+
+.stattable img {
+    vertical-align: middle;
 }
 
 #filter {

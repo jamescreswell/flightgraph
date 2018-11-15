@@ -43,14 +43,26 @@ urlpatterns = [
     path('mobile/list/', mobile_views.list, name='mobile_list'),
     path('mobile/statistics/', mobile_views.statistics, name='mobile_statistics'),
     path('mobile/flight/<int:flight_pk>/', mobile_views.flight_details, name='mobile_details'),
-    path('mobile/accounts/login/', auth_views.LoginView.as_view(template_name='mobile/registration/login.html'), name='mobile_login'),
+    path('mobile/accounts/login/', auth_views.LoginView.as_view(template_name='mobile/registration/login.html'), name='mobile_login'), # Fix this...
     path('mobile/add/', mobile_views.add, name='mobile_add'),
 
+    path('api', views.api_index, name='api_index'),
     path('api/search_airports/', api.search_airports, name='search_airports'),
-    path('api/mileage_graph/<str:user1>/<str:user2>/<int:year1>/<int:year2>', views.mileage_graph, name='mileage_graph'),
-    path('api/airport_graph/usr1=<str:user1>&usr2=<str:user2>', views.airport_graph, name='airport_graph'),
-    path('api/country_graph/usr1=<str:user1>&usr2=<str:user2>', views.country_graph, name='country_graph'),
-    path('api/top_airports_graph/<str:username>', views.top_airports_graph, name='top_airports_graph'),
+
+
+    ################
+    # /api/graphs/ #
+    ################
+    path('api/graphs/mileage_graph/<str:user1>/<str:user2>/<int:year1>/<int:year2>', api.mileage_graph, name='mileage_graph'),
+    path('api/graphs/airport_graph/usr1=<str:user1>&usr2=<str:user2>', api.airport_graph, name='airport_graph'),
+    path('api/graphs/country_graph/usr1=<str:user1>&usr2=<str:user2>', api.country_graph, name='country_graph'),
+
+    path('api/graphs/stackplot/<str:type>/<str:username>', api.stackplot, name='top_aircraft_graph',),
+
+    # path('api/graphs/top_airports_graph/<str:username>', api.top_airports_graph, name='top_airports_graph'),
+    # path('api/graphs/top_countries_graph/<str:username>', api.top_countries_graph, name='top_countries_graph'),
+    # path('api/graphs/top_airlines_graph/<str:username>', api.top_airlines_graph, name='top_airlines_graph'),
+    # # path('api/graphs/top_aircraft_graph/<str:username>', api.top_aircraft_graph, name='top_aircraft_graph'),
 
 
     path('api/get_airport/<int:airport_id>', api.get_airport, name='get_airport'),
@@ -60,24 +72,27 @@ urlpatterns = [
     path('api/get_route_flights/<str:username>/<int:id1>/<int:id2>', api.get_route_flights, name='get_route_flights'),
     path('api/get_flights/<str:username>', api.get_flights, name='get_flights'),
     path('api/get_flight_details/<int:id>', api.get_flight_details),
-    path('api/get_airports/<str:username>', api.get_airports),
-    path('api/get_airlines/<str:username>', api.get_airlines),
-    path('api/get_aircraft/<str:username>', api.get_aircraft),
-    path('api/get_routes/<str:username>', api.get_routes),
-    path('api/get_aggregates/<str:username>', api.get_aggregates),
+    # path('api/get_airports/<str:username>', api.get_airports),
+    # path('api/get_airlines/<str:username>', api.get_airlines),
+    # path('api/get_aircraft/<str:username>', api.get_aircraft),
+    # path('api/get_routes/<str:username>', api.get_routes),
+    # path('api/get_aggregates/<str:username>', api.get_aggregates),
 
+    path('api/get_filtered_registrations/<str:username>/<str:airline>/<str:aircraft>/<str:airport>/<str:year>', api.get_filtered_registrations),
     path('api/get_filtered_airports/<str:username>/<str:airline>/<str:aircraft>/<str:airport>/<str:year>', api.get_filtered_airports),
     path('api/get_filtered_airlines/<str:username>/<str:airline>/<str:aircraft>/<str:airport>/<str:year>', api.get_filtered_airlines),
     path('api/get_filtered_aircraft/<str:username>/<str:airline>/<str:aircraft>/<str:airport>/<str:year>', api.get_filtered_aircraft),
     path('api/get_filtered_routes/<str:username>/<str:airline>/<str:aircraft>/<str:airport>/<str:year>', api.get_filtered_routes),
     path('api/get_filtered_aggregates/<str:username>/<str:airline>/<str:aircraft>/<str:airport>/<str:year>', api.get_filtered_aggregates),
+    path('api/get_filtered_superlatives/<str:username>/<str:airline>/<str:aircraft>/<str:airport>/<str:year>', api.get_filtered_superlatives),
+    path('api/get_filtered_countries/<str:username>/<str:airline>/<str:aircraft>/<str:airport>/<str:year>', api.get_filtered_countries),
 
     path('api/route_map/<int:id1>/<int:id2>', views.route_map),
 
 
     path('map', views.map, name='map'),
     path('list', views.list, name='list'),
-    path('list/<int:id>', views.list, name='list'),
+    path('list/<int:id>', views.list, name='list'), # Is this one really necessary?
     path('statistics', views.statistics, name='statistics'),
 
     path('profile/<str:username>/map', views.profile_map, name='profile_map'),
@@ -88,4 +103,6 @@ urlpatterns = [
 
     path('testlist', views.testlist),
     path('teststats', views.teststats),
+
+
 ]

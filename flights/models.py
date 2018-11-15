@@ -26,7 +26,11 @@ class Airport(models.Model):
             return self.name[:4] + '...'
 
     def html_name(self):
-        return '<abbr title="' + self.name + ', ' + self.city + ', ' + self.country + '">' + str(self) + '</abbr>'
+        if self.country in ['United States', 'United Kingdom', 'Australia', 'Germany', 'Canada', 'Italy', 'Switzerland', 'China', 'United Arab Emirates']:
+            location = self.city + ', ' + self.region + ', ' + self.country
+        else:
+            location = self.city + ', ' + self.country
+        return '<abbr title="' + self.name + ', ' + location + '">' + str(self) + '</abbr>'
 
     def distance_to(self, airport, dim='mi'):
         lat1 = self.latitude * math.pi/180.0

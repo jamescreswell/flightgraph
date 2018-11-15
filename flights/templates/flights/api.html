@@ -1,0 +1,57 @@
+{% extends 'flights/base.html' %}
+{% load static %}
+
+{% block links %}
+
+<link rel="stylesheet" type="text/css" href="{% static 'flights/css/index.css' %}">
+<link rel="stylesheet" type="text/css" href="{% static 'flights/css/api.css' %}" />
+
+<script src="https://cdn.rawgit.com/google/code-prettify/master/loader/run_prettify.js"></script>
+{% endblock %}
+
+{% block content %}
+
+<div id="main-container">
+    <div>
+        <h2>API</h2>
+        <p>
+            The flightgraph.eu server implements a comprehensive API that interfaces with the database and performs computations.
+            The API powers the maps and statistics that appear in the public-facing pages, but it can also be queried directly.
+            Alhough the API functions are often redundant with information visible on the map, list, statistics, and other profile pages, the API functions may be more convenient for certain applications, and there are also some invisible API functions.
+            The full API is documented below.
+        </p>
+        <p>
+            This site runs on modest servers funded entirely by the administrator, so the API is for personal use only.
+            The server will block IPs who make unreasonably many requests to the API.
+        </p>
+        <p>
+            The majority of API functions return text data in JSON format (HTTP content type <tt>text/json</tt>).
+            Some return images in pdf and png formats (HTTP content types <tt>application/pdf</tt> and <tt>image/png</tt>).
+        </p>
+<pre class="prettyprint">class Voila {
+public:
+  // Voila
+  static const string VOILA = "Voila";
+
+  // will not interfere with embedded <a href="#voila2">tags</a>.
+}</pre>
+    </div>
+
+    <div class="function">
+        <div class="function-name">api/get_airports/<i>username</i></div>
+
+        <div class="function-description">
+            Returns a list of the airports visited by <i>username</i>. Each element is of the form:
+            <div class="code">
+                {<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;id: internal key of airport,<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;count: number of flights arriving or departing from this airport,<br>
+                }
+            </div>
+        </div>
+
+
+    </div>
+</div>
+
+{% endblock %}
