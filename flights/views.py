@@ -6,7 +6,7 @@ from .models import Airport, Flight, UserProfile
 from .forms import FlightForm
 from django.template.loader import render_to_string
 from django.contrib.auth.decorators import login_required
-from django.contrib.auth import authenticate, login
+from django.contrib.auth import authenticate, login, logout
 import numpy as np
 import time
 from django.db.models import Q, Count, Sum
@@ -109,13 +109,54 @@ def update_settings(request):
 
     return JsonResponse(dictionary, safe=False)
 
-def login_view(request):
-    print('test')
+# This view answers both GET and POST requests
+# nextstring is the url string of the page to rederict after a successful login
+def login_view(request, nextstring='index'):
+    if request.method == 'POST':
+        username = request.POST['username']
+        password = request.POST['password']
+        user = authenticate(request, username=username, password=password)
+        if user is not None:
+            login(request, user)
+            return redirect(nextstring)
+        else:
+            return render(request, 'flights/login.html', {'invalid_credentials': True})
+    elif request.method == 'GET':
+        return render(request, 'flights/login.html', {})
+
+def logout_view(request):
+    logout(request)
     return redirect('index')
+
+def reset_account(request):
+    if request.method == 'POST':
+        # Implement...
+        return HttpResponse('The server has received your account reset request. If the server can identify your account, you will receive an email with your new password.')
+    elif request.method == 'GET':
+        return render(request, 'flights/reset_account.html', {})
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 def airports(request):
     pass
 
+
+def webgl(request):
+    return render(request, 'flights/webgl.html', {})
 
 
 

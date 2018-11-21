@@ -24,6 +24,7 @@ urlpatterns = [
     path('compare/<str:username1>/<str:username2>/', views.compare, name='compare'),
 
 
+    path('demo/webgl', views.webgl, name='webgl'),
 
     ##############
     # /accounts/ #
@@ -35,6 +36,13 @@ urlpatterns = [
     path('accounts/settings', views.settings, name='settings'),
     path('accounts/update_settings', views.update_settings),
     path('accounts/login', views.login_view, name='login_view'),
+    path('accounts/logout', views.logout_view, name='logout_view'),
+    path('account/reset_account', views.reset_account, name='reset_account'),
+
+
+
+
+
 
     path('api/add_flight', api.add_flight, name='add_flight'),
 

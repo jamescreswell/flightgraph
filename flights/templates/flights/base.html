@@ -42,7 +42,7 @@
                 <div class="dropdown-content" id="account_content">
                     <a href="{% url 'settings' %}">Settings</a>
                     <a href="{% url 'profile_map' user %}">Profile</a>
-                    <a href="/accounts/logout">Log out</a>
+                    <a href="{% url 'logout_view' %}">Log out</a>
                 </div>
             </div>
             {% else %}

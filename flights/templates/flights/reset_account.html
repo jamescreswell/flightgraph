@@ -1,0 +1,89 @@
+{% extends 'flights/base.html' %}
+{% load static %}
+
+{% block links %}
+<style>
+    #loginbox1 {
+        width: 300px;
+        background-color: #f9f9f9;
+        border: 1px solid #f9f9f9;
+        border-radius: 4px;
+        color: #444;
+        margin-top: 50px;
+        margin-bottom: 50px;
+        margin-left: auto;
+        margin-right: auto;
+        padding: 10px;
+    }
+
+    label {
+        display: block;
+    }
+
+    input {
+        display: block;
+        font-size: 12pt;
+        padding: 8px;
+        margin-top: 8px;
+        margin-bottom: 8px;
+        width: 100%;
+        box-sizing: border-box;
+        border-radius: 5px;
+        outline: none;
+        box-shadow: inset 0 1px 2px rgba(27,31,35,0.075);
+        border: 1px solid #dddddd;
+        line-height: 16pt;
+        background-color: #f9f9f9;
+    }
+
+    input:focus {
+        border: 1px solid #e41a1c;
+        background-color: #fdfdfd;
+    }
+
+    input[type=submit] {
+        background-color: #e41a1c;
+        color: white;
+        margin-top: 10px;
+    }
+
+    input[type=submit]:hover {
+        cursor: pointer;
+    }
+
+    .sublabel {
+        margin: 0;
+        margin-left: 3px;
+        margin-top: 3px;
+        padding: 0;
+        font-size: 9pt;
+    }
+
+    a {
+        text-decoration: none;
+        color: black;
+    }
+
+    a:hover {
+        text-decoration: underline;
+    }
+</style>
+{% endblock %}
+
+
+{% block content %}
+<div id="loginbox1">
+    <h2>Reset your account</h2>
+    <form action="{% url 'reset_account' %}" method="post"> {% csrf_token %}
+        <label>Email</label>
+        <input type="email" placeholder="Email" name="email" required>
+        <label>Username</label>
+        <input type="text" placeholder="Username" name="username">
+        <div class="sublabel">Provide your username if you remember. Not required.</div>
+        <label>Comments</label>
+        <input type="text" placeholder="Message" name="comments">
+        <div class="sublabel">Relevant information that will be logged with your request. Not required.</div>
+        <input type="submit" value="Submit">
+    </form>
+</div>
+{% endblock %}
