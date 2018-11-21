@@ -163,7 +163,7 @@ def webgl(request):
 
 
 
-@login_required
+
 def map(request, username=None, profile=False):
     if username is not None:
         user = User.objects.get(username=username)
