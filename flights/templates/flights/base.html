@@ -52,7 +52,7 @@
         </div>
 
         {% if profile %}
-        <div id="profile-header">You are viewing {{ profile_username }}'s flights. <a href="{% url 'profile_map' profile_username %}">Map</a> <a href="{% url 'profile_list' profile_username %}">List</a>
+        <div id="profile-header">You are viewing {{ profile_username }}'s flights. <a href="{% url 'profile_map' profile_username %}">Map</a> <a href="{% url 'profile_list' profile_username %}">List</a> <a href="{% url 'profile_statistics' profile_username %}">Statistics</a>
             <!--<a href="{% url 'profile_statistics' profile_username %}">Statistics</a>-->{% if user.username == profile_username %}&nbsp;&nbsp;<i>This is what your publicly visible profile looks like to others.</i>{% endif %}</div>
         {% endif %}
 

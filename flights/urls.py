@@ -106,8 +106,8 @@ urlpatterns = [
     path('profile/<str:username>/map', views.profile_map, name='profile_map'),
     path('profile/<str:username>/list', views.profile_list, name='profile_list'),
     path('profile/<str:username>/statistics', views.profile_statistics, name='profile_statistics'),
-    path('profile/<str:username>', views.profile_list),
-    path('profile/<str:username>/', views.profile_list),
+    path('profile/<str:username>', views.profile_map),
+    path('profile/<str:username>/', views.profile_map),
 
     path('testlist', views.testlist),
     path('teststats', views.teststats),
