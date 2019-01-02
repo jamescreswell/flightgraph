@@ -69,7 +69,7 @@ class Flight(models.Model):
     sortid = models.IntegerField(default=-1) # Assigned manually at creation
     owner = models.ForeignKey(User, on_delete=models.CASCADE, related_name='owners')
 
-    picture = models.ImageField(upload_to='flights/user_pics', blank=True)
+    picture = models.ImageField(upload_to='static/user_photos', blank=True) # Does this work, or should we do it manually?
     picture_link = models.URLField(blank=True)
 
     def calculate_distance(self, dim='mi'):

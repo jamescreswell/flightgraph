@@ -73,7 +73,8 @@
         <span class="close">&times;</span>
         <h2>Add flight</h2>
         <span id="message"></span>
-        <form action="javascript:void(0);" onsubmit="submitForm();" id="addflightform">{% csrf_token %}
+        <!-- Had to add method=post and enctype='etc' otherwise firefox wouldn't upload a ile. but this is stupid because it is handled via javascript and sent via post anway...see if there is an override-->
+        <form action="javascript:void(0);" onsubmit="submitForm();" method="post" enctype="multipart/form-data" id="addflightform">{% csrf_token %}
             <label>Date</label>
             <input type="text" onfocus="(this.type='date')" onblur="(this.type='text')" placeholder="YYYY-MM-DD" name="date" autocomplete="off" required>
             <label>Flight number</label>
@@ -122,6 +123,7 @@
 
             <label>Picture</label>
             <input type="url" placeholder="Image link" name="image-link" autocomplete="off">
+            <input type="file" placeholder="Image" name="image-file" autocomplete="off">
 
             <label>Comments</label>
             <input type="text" placeholder="Comments" name="comments" autocomplete="off">
@@ -138,7 +140,13 @@
         var d = new Date();
         var n = d.toISOString().slice(0, 10);
         console.log(n);
-        console.log(form.get('date'));
+        console.log(form.get('image-file'));
+        console.log(JSON.stringify({image_file: form.get('image-file')}));
+
+        // if (form.get('image-file') != null) {
+        //     upload_image(form.get('image-file'));
+        //     // Then just send the """filename""" in the JSON. Let Django figure out the rest. Also prevents seeing other users pics.
+        // }
 
         fetch("{% url 'add_flight' %}", {
             method: "POST",
@@ -162,6 +170,7 @@
                 comments: form.get('comments'),
                 operator: form.get('operator'),
                 today: n == form.get('date'),
+                image_file: form.get('image-file'),
                 // csrfmiddlewaretoken: document.getElementsByName('csrfmiddlewaretoken')[0].value,
             }),
         }).then(function(response) {

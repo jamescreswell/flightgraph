@@ -65,7 +65,12 @@ urlpatterns = [
     path('api/graphs/airport_graph/usr1=<str:user1>&usr2=<str:user2>', api.airport_graph, name='airport_graph'),
     path('api/graphs/country_graph/usr1=<str:user1>&usr2=<str:user2>', api.country_graph, name='country_graph'),
 
-    path('api/graphs/stackplot/<str:type>/<str:username>', api.stackplot, name='top_aircraft_graph',),
+    path('api/graphs/stackplot/<str:type>/<str:username>', api.stackplot),
+    path('api/graphs/stackplot/<str:type>/<str:username>/draw_mode=<str:draw_mode>', api.stackplot),
+    path('api/graphs/stackplot/<str:type>/<str:username>/max=<int:max>', api.stackplot),
+
+    path('api/graphs/aggregate/<str:type>/<str:username>', api.aggregate_graph),
+    path('api/graphs/aggregate/<str:type>/<str:username>/<str:other_usernames>', api.aggregate_graph),
 
     # path('api/graphs/top_airports_graph/<str:username>', api.top_airports_graph, name='top_airports_graph'),
     # path('api/graphs/top_countries_graph/<str:username>', api.top_countries_graph, name='top_countries_graph'),

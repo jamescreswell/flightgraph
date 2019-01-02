@@ -34,6 +34,8 @@ def add_flight(request):
             next_sortid = Flight.objects.filter(owner=request.user).order_by('-sortid')[0].sortid + 1
         except:
             next_sortid = 0
+        #print("Printing payload['image_file']...")
+        #print(payload['image_file'])
         f = Flight(date = payload['date'],
                    number = payload['number'],
                    origin = origin_airport,
@@ -47,6 +49,7 @@ def add_flight(request):
                    operator=payload['operator'],
                    comments=payload['comments'],
                    picture_link=payload['image_link'],
+                   #picture=payload['image_file'],
                    distance=-1.0,
                    sortid=next_sortid)
         f.save()
@@ -720,8 +723,81 @@ def country_graph(request, user1, user2):
 
 # make abstract version of the top_x_graph method...
 
-def stackplot(request, type, username, draw_mode='zero'):
+def aggregate_graph(request, type, username, other_usernames=None):
     # type = 'airport', 'airline', 'aircraft', 'country'
+    usernames = [username]
+    if other_usernames is not None:
+        for other_username in other_usernames.split(','):
+            usernames.append(other_username)
+    dates, count, visited = {}, {}, {}
+
+    if type == 'airport':
+        for user in usernames:
+            flights = Flight.objects.filter(owner__username=user).order_by('date')
+            dates[user] = []
+            count[user] = [0]
+            visited[user] = set()
+            for flight in flights:
+                dates[user].append(matplotlib.dates.date2num(flight.date))
+                visited[user].add(flight.origin.pk)
+                visited[user].add(flight.destination.pk)
+                count[user].append(len(visited[user]))
+
+    if type == 'country':
+        for user in usernames:
+            flights = Flight.objects.filter(owner__username=user).order_by('date')
+            dates[user] = []
+            count[user] = [0]
+            visited[user] = set()
+            for flight in flights:
+                dates[user].append(matplotlib.dates.date2num(flight.date))
+                visited[user].add(flight.origin.country)
+                visited[user].add(flight.destination.country)
+                count[user].append(len(visited[user]))
+
+
+
+    #response = HttpResponse(content_type='image/png')
+
+    if other_usernames is not None:
+        all_dates = []
+        for user in usernames:
+            all_dates.extend(dates[user])
+        last_date = np.max(np.array(all_dates).flatten())
+        for user in usernames:
+            dates[user].append(last_date)
+            count[user].append(count[user][-1])
+
+
+
+    plt.figure()
+
+
+    for user in usernames:
+        plt.plot_date(dates[user], count[user][1:], marker=None, linestyle='-', xdate=True, label=user)
+
+    if len(usernames) > 1:
+        plt.legend()
+
+    ylabels = {
+        'airport': 'Airports visited',
+        'airline': 'Airlines flown',
+        'aircraft': 'Aircraft flown',
+        'country': 'Countries visited',
+    }
+    plt.ylabel(ylabels[type])
+    plt.xlabel('Date')
+
+    import io
+    buf = io.BytesIO()
+
+    plt.savefig(buf, format='png', dpi=150, bbox_inches='tight')
+    response = HttpResponse(buf.getvalue(), content_type='image/png')
+    return response
+
+def stackplot(request, type, username, draw_mode='zero', max=10):
+    # type = 'airport', 'airline', 'aircraft', 'country'
+    # draw_type = 'sym', 'wiggle', 'weighted_wiggle'
     flights = Flight.objects.filter(owner__username=username).order_by('date')
     dates = []
     counts = {}
@@ -757,7 +833,7 @@ def stackplot(request, type, username, draw_mode='zero'):
 
     lists = [l for l in counts.values()]
     lists.sort(key=lambda x: x[-1], reverse=True)
-    lists = lists[:10]
+    lists = lists[:max]
 
     output = [np.array(l[2:]) for l in lists] # Why 2: and not 1: ????
 

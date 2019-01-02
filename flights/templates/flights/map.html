@@ -4,16 +4,22 @@
 {% block links %}
 <link rel="stylesheet" type="text/css" href="{% static 'flights/css/map.css' %}" />
 
-<link rel="stylesheet" href="https://unpkg.com/leaflet@1.2.0/dist/leaflet.css" integrity="sha512-M2wvCLH6DSRazYeZRIm1JnYyh22purTM+FDB5CsyxtQJYeKq83arPe5wgbNmcFXGqiSH2XR8dT/fJISVA1r/zQ==" crossorigin=""/>
-<script src="https://unpkg.com/leaflet@1.2.0/dist/leaflet.js" integrity="sha512-lInM/apFSqyy1o6s89K4iQUKg6ppXEgsVxT35HbzUupEVRh2Eu9Wdl4tHj7dZO0s1uvplcYGmt3498TtHq+log==" crossorigin=""></script>
+<!-- <link rel="stylesheet" href="https://unpkg.com/leaflet@1.2.0/dist/leaflet.css" integrity="sha512-M2wvCLH6DSRazYeZRIm1JnYyh22purTM+FDB5CsyxtQJYeKq83arPe5wgbNmcFXGqiSH2XR8dT/fJISVA1r/zQ==" crossorigin=""/> -->
+<!-- <script src="https://unpkg.com/leaflet@1.2.0/dist/leaflet.js" integrity="sha512-lInM/apFSqyy1o6s89K4iQUKg6ppXEgsVxT35HbzUupEVRh2Eu9Wdl4tHj7dZO0s1uvplcYGmt3498TtHq+log==" crossorigin=""></script> -->
+<link rel="stylesheet" href="{% static 'flights/css/vend/leaflet.css' %}">
+<script src="{% static 'flights/js/vend/leaflet.js' %}"></script>
+
 <script src="{% static 'flights/geo/arc.js' %}"></script>
 
 <!--<script src="http://www.webglearth.com/v2/api.js"></script>-->
 
-<script src="http://code.jquery.com/jquery-1.10.2.min.js"></script>
-<script src="https://code.jquery.com/ui/1.12.1/jquery-ui.min.js"></script>
+<!-- <script src="http://code.jquery.com/jquery-1.10.2.min.js"></script>
+<script src="https://code.jquery.com/ui/1.12.1/jquery-ui.min.js"></script> -->
+<script src="{% static 'flights/js/vend/jquery-1.10.2.min.js' %}"></script>
+<script src="{% static 'flights/js/vend/jquery-ui.min.js' %}"></script>
 
-<script src="https://unpkg.com/leaflet.vectorgrid@latest/dist/Leaflet.VectorGrid.bundled.js"></script>
+<!-- <script src="https://unpkg.com/leaflet.vectorgrid@latest/dist/Leaflet.VectorGrid.bundled.js"></script> -->
+<script src="{% static 'flights/js/vend/Leaflet.VectorGrid.bundled.js' %}"></script>
 
 
 <script src="{% static '/flights/js/vue.js' %}"></script>
