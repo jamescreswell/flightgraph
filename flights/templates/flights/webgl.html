@@ -1,3 +1,93 @@
+{% load static %}
+
+<!DOCTYPE HTML>
+<html>
+  <head>
+    <script src="http://www.webglearth.com/v2/api.js"></script>
+
+    <link rel="stylesheet" href="{% static 'flights/css/vend/leaflet.css' %}">
+    <script src="{% static 'flights/js/vend/leaflet.js' %}"></script>
+    <script src="{% static 'flights/geo/arc.js' %}"></script>
+
+    <script>
+      function initialize() {
+        var earth = new WE.map('earth_div');
+        WE.tileLayer('https://webglearth.github.io/webglearth2-offline/{z}/{x}/{y}.jpg', {
+          tileSize: 256,
+          bounds: [[-85, -180], [85, 180]],
+          minZoom: 0,
+          maxZoom: 16,
+          attribution: 'WebGLEarth example',
+          tms: true
+        }).addTo(earth);
+
+        // var before = null;
+        // requestAnimationFrame(function animate(now) {
+        //     var c = earth.getPosition();
+        //     var elapsed = before? now - before: 0;
+        //     before = now;
+        //     earth.setCenter([c[0], c[1] + 0.1*(elapsed/30)]);
+        //     requestAnimationFrame(animate);
+        // });
+
+        {% for airport in airports %}
+        var marker = WE.marker([{{ airport.latitude}}, {{ airport.longitude }}], "{% static 'flights/img/airport-icon-red.png' %}", 16, 16).addTo(earth);
+        marker.bindPopup("<b>{{ airport.name }}</b><br>{{ airport.city }}, {{ airport.country }}<br /><span style='font-size:10px;color:#999'>{{ airport.iata }} / {{ airport.icao }}</span>", {maxWidth: 150, closeButton: true});
+        {% endfor %}
+
+
+        let lineBetween = function(A, B) {
+            const N = 5;
+
+            var generator = new arc.GreatCircle({x: A.lg, y: A.lt },
+                                                {x: B.lg, y: B.lt });
+            var line = generator.Arc(N, {offset: 10});
+            coords2 = line.json().geometry.coordinates
+
+            for (let i = 0; i < N-1; ++i) {
+                const lt = coords2[i][1];
+                const lg = coords2[i][0];
+
+                const lt0 = coords2[i+1][1];
+                const lg0 = coords2[i+1][0];
+
+                eps = 0.01
+                var polygonB = WE.polygon([[lt, lg], [lt0, lg0], [lt0 + eps, lg0 + eps], [lt + eps, lg + eps]], {
+                  color: '#ff0',
+                  opacity: 1,
+                  fillColor: '#ff0',
+                  fillOpacity: 1.0,
+                  editable: false,
+                  weight: 2
+                }).addTo(earth);
+            }
+        }
+
+
+
+
+        {% for route in routes %}
+        lineBetween({lg: {{ route.origin__longitude }}, lt: {{ route.origin__latitude}}}, {lg: {{ route.destination__longitude }}, lt: {{ route.destination__latitude}}});
+
+        {% endfor %}
+
+
+      }
+    </script>
+    <style>
+      html, body{padding: 0; margin: 0;}
+      #earth_div{top: 0; right: 0; bottom: 0; left: 0; position: absolute !important;}
+    </style>
+    <title>flightglobe</title>
+  </head>
+  <body onload="initialize()">
+    <div id="earth_div"></div>
+  </body>
+</html>
+
+
+
+<!--
 <html>
 
 
@@ -31,4 +121,4 @@
         gl.clear(gl.COLOR_BUFFER_BIT);
         }
     </script>
-</html>
+</html> -->

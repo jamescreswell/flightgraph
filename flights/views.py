@@ -21,6 +21,9 @@ import json
 # #from mpl_toolkits.basemap import Basemap
 import datetime # I hope this doesn't mess up the Django datetime ...
 
+def temp(request):
+    return HttpResponse('flightgraph.dk coming soon')
+
 
 def index(request, error=None):
     username = request.user.username
@@ -156,7 +159,11 @@ def airports(request):
 
 
 def webgl(request):
-    return render(request, 'flights/webgl.html', {})
+    user = request.user
+    airports_list = Airport.objects.filter(Q(origins__owner=user) | Q(destinations__owner=user)).distinct()
+    routes_list = Flight.objects.filter(owner=user).values('origin__pk', 'origin__latitude', 'origin__longitude', 'destination__pk', 'destination__latitude', 'destination__longitude').annotate(Count('id'))
+    print(routes_list)
+    return render(request, 'flights/webgl.html', {'airports': airports_list, 'routes': routes_list})
 
 
 

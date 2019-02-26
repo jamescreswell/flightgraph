@@ -6,6 +6,7 @@ from django.contrib.auth import views as auth_views
 from . import views, ajax, mobile_views, api
 
 urlpatterns = [
+    url(r'^.*', views.temp, name='temp'),
     url(r'^$', views.index, name='index'),
     url(r'^gcmap/$', views.gcmap, name='gcmap'),
     url(r'^airports/$', views.airports, name='airports'),
