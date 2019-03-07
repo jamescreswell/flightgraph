@@ -6,7 +6,7 @@ from django.contrib.auth import views as auth_views
 from . import views, ajax, mobile_views, api
 
 urlpatterns = [
-    url(r'^.*', views.temp, name='temp'),
+    #url(r'^.*', views.temp, name='temp'),
     url(r'^$', views.index, name='index'),
     url(r'^gcmap/$', views.gcmap, name='gcmap'),
     url(r'^airports/$', views.airports, name='airports'),
@@ -108,6 +108,8 @@ urlpatterns = [
     path('list', views.list, name='list'),
     path('list/<int:id>', views.list, name='list'), # Is this one really necessary?
     path('statistics', views.statistics, name='statistics'),
+    path('home', views.home, name='home'),
+    path('home/<str:username>', views.home, name='home'),
 
     path('profile/<str:username>/map', views.profile_map, name='profile_map'),
     path('profile/<str:username>/list', views.profile_list, name='profile_list'),

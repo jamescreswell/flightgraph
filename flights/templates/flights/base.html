@@ -17,9 +17,9 @@
     <body>
         <div class="navbar">
             <a href="{% url 'index' %}" id="index_nav">flightgraph.dk</a>
-            <a href="{% url 'gcmap' %}" id="gcmap_nav">Route mapper</a>
+            <a id="gcmap_nav">Route mapper</a>
             <a id="airport_nav">Airport database</a>
-            <a href="{% url 'api_index' %}" id="api_nav">API</a>
+            <!--<a href="{% url 'api_index' %}" id="api_nav">API</a>-->
 
             {% if user.is_authenticated %}
             <div class="dropdown" id="flights_nav">

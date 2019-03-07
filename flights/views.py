@@ -13,6 +13,7 @@ from django.db.models import Q, Count, Sum
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User
 import json
+import datetime
 
 
 # import matplotlib
@@ -22,7 +23,7 @@ import json
 import datetime # I hope this doesn't mess up the Django datetime ...
 
 def temp(request):
-    return HttpResponse('flightgraph.dk coming soon')
+    return render(request, 'flights/temp.html', {})
 
 
 def index(request, error=None):
@@ -40,6 +41,141 @@ def index(request, error=None):
                'latest_flights': latest_flights,
               }
     return render(request, 'flights/index.html', context)
+
+def home(request, username=None):
+    if username is not None:
+        user = User.objects.get(username=username)
+    else:
+        user = request.user
+
+    flights = Flight.objects.filter(owner=user).order_by('-sortid')
+
+    latest_flights = Flight.objects.filter(owner=user).order_by('-sortid')[:5][::-1]
+
+    flights_this_year = Flight.objects.filter(owner=user, date__range=[datetime.date.today() - datetime.timedelta(days=365), datetime.date.today()])
+
+    countries = Airport.objects.values('country', 'country_iso').annotate(
+        id__count=Count('origins', filter=Q(origins__in=flights), distinct=True)+Count('destinations', filter=Q(destinations__in=flights), distinct=True)
+    ).filter(Q(id__count__gt=0)).order_by('-id__count')
+
+    countries_this_year = Airport.objects.values('country', 'country_iso').annotate(
+        id__count=Count('origins', filter=Q(origins__in=flights_this_year), distinct=True)+Count('destinations', filter=Q(destinations__in=flights_this_year), distinct=True)
+    ).filter(Q(id__count__gt=0)).order_by('-id__count')
+
+    top_country = countries[0]
+    top_country_this_year = countries_this_year[0]
+
+    try:
+        distance_mi = flights.aggregate(Sum('distance'))['distance__sum']
+        distance_km = distance_mi * 6371.0/3959.0
+
+        distance_mi_this_year = flights_this_year.aggregate(Sum('distance'))['distance__sum']
+        distance_km_this_year = distance_mi_this_year * 6371.0/3959.0
+    except:
+        # flights_list is empty
+        distance_mi = distance_km = 0
+        distance_mi_this_year = distance_km_this_year = 0
+
+
+    # Airports
+    top_airports = Airport.objects.annotate(
+        id__count=Count('origins', filter=Q(origins__in=flights), distinct=True)+Count('destinations', filter=Q(destinations__in=flights), distinct=True)
+    ).filter(Q(id__count__gt=0)).order_by('-id__count')
+
+    airports_list = [
+        {'id': airport.id,
+         'count': airport.id__count,
+         'iata': airport.iata,
+         'icao': airport.icao,
+         'name': airport.name,
+         'html_name': airport.html_name(),
+         'city': airport.city,
+         'percent': np.round(airport.id__count / (len(flights)*2.0) * 100, decimals=1),
+        } for airport in top_airports
+    ]
+
+
+    # Routes
+    top_routes = flights.values('origin__iata', 'origin__name', 'origin__city', 'origin__country', 'destination__iata', 'destination__name', 'destination__city', 'destination__country', 'origin__latitude', 'origin__longitude', 'destination__latitude', 'destination__longitude').annotate(Count('id')).order_by('-id__count')
+
+    routes_list = [
+        {'origin': route['origin__iata'],
+         'destination': route['destination__iata'],
+         'count': route['id__count'],
+         'percent': np.round(route['id__count'] / len(flights) * 100.0, decimals=1)}
+        for route in top_routes
+    ]
+
+    def get_inverse_count(origin, destination):
+        for route in routes_list:
+            if route['destination'] == origin and route['origin'] == destination:
+                return route['count']
+        return 0
+
+    new_routes_list = [
+        {'origin': route['origin'],
+         'destination': route['destination'],
+         'count': route['count'] + get_inverse_count(route['origin'], route['destination']),
+         'percent': np.round(route['count'] / len(flights) * 100.0, decimals=1)}
+         for route in routes_list
+    ]
+
+    for route in new_routes_list:
+        for route2 in new_routes_list:
+            if route2['origin'] == route['destination'] and route2['destination'] == route['origin']:
+                new_routes_list.remove(route2)
+
+    new_routes_list.sort(key=lambda x: -1*x['count'])
+
+    # Airlines
+
+    top_airlines = flights.values('airline').annotate(Count('id')).order_by('-id__count')
+
+    airlines_list = [
+        {'airline': airline['airline'],
+         'count': airline['id__count'],
+         'percent': np.round(airline['id__count'] / (len(flights)) * 100.0, decimals=1)}
+        for airline in top_airlines
+    ]
+
+    # aircraft
+    top_planes = flights.values('aircraft').annotate(Count('id')).order_by('-id__count')
+
+    aircraft_list = [
+        {'aircraft': plane['aircraft'],
+         'count': plane['id__count'],
+         'percent': np.round(plane['id__count'] / len(flights) * 100.0, decimals=1)}
+        for plane in top_planes
+    ]
+
+
+    context = {
+        'latest_flights': latest_flights,
+        'this_year': [datetime.date.today() - datetime.timedelta(days=365), datetime.date.today()],
+        'flights_this_year': len(flights_this_year),
+        'total_flights': len(flights),
+        'first_flight_date': flights[len(flights)-1].date if len(flights) > 0 else datetime.date.today(),
+        'distance_mi': int(distance_mi),
+        'distance_km': int(distance_km),
+        'distance_mi_this_year': int(distance_mi_this_year),
+        'distance_km_this_year': int(distance_km_this_year),
+        'countries_this_year': len(countries_this_year),
+        'total_countries': len(countries),
+        'owner': True if username == None else False,
+        'top_routes': new_routes_list[:5],
+        'top_airports': airports_list[:5],
+        'top_airlines': airlines_list[:5],
+        'top_planes': aircraft_list[:5],
+        'total_routes': len(new_routes_list),
+        'total_airports': len(airports_list),
+        'total_aircraft': len(aircraft_list),
+        'total_airlines': len(airlines_list),
+        'top_country_this_year': top_country_this_year,
+        'top_country': top_country,
+    }
+    return render(request, 'flights/home.html', context)
+
+
 
 # THIS SHOULD BE AN API FUNCTION!!!!!! def add_flight(request):
 

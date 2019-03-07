@@ -32,7 +32,7 @@ body {
     background-color: #f9f9f9;
     width: 300px;
     position: fixed;
-    top: 45px;
+    top: 60px;
     bottom: 0;
     left: 0;
     z-index: -50;
@@ -165,7 +165,44 @@ body {
     cursor: pointer;
 }
 
+#filter {
+    position: fixed;
+    top: 85px;
+    right: 25px;
+    font-size: 10pt;
+    display: block;
+    vertical-align: top;
+    background-color: #fefefe;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    box-shadow: 0 0 4px #ddd;
+}
 
+.answer {
+    font-size: 10pt;
+}
+
+.caption {
+    font-variant: small-caps;
+    color: #555;
+    padding-left: 2px;
+    display: inline-block;
+}
+
+.datum {
+    padding-left: 2px;
+    color: #111;
+    display: inline-block;
+    font-weight: 700;
+}
+
+.filter-title {
+    padding: 2px;
+    color: #e41a1c;
+    font-size: 11pt;
+    font-weight: 700;
+    background-color: #eee;
+}
 
 
 

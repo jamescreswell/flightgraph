@@ -1,0 +1,134 @@
+#map {
+    margin-top: 0;
+    margin-left: 100px;
+    margin-right: 100px;
+    z-index: -100;
+    background-color: grey;
+    height: 50vh;
+}
+
+#main-container {
+    color: #333;
+    width: 1000px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+#list {
+}
+
+#flex-container {
+    display: flex;
+    justify-content: space-between;
+    padding-left: 5px;
+    padding-right: 5px;
+}
+
+.flight {
+    border: 1px solid #fff;
+    border-radius: 4px;
+    padding: 8px;
+    text-align: center;
+}
+
+.add {
+    background-color: #4daf4a;
+    display: flex;
+    justify-content: center; /* align horizontal */
+    align-items: center;
+    border: 0px solid #fff;
+}
+
+.add:hover {
+    background-color: #4da34a;
+    cursor: pointer;
+}
+
+.add i {
+    color: white;
+}
+
+.flight-airport {
+    font-weight: 700;
+    font-size: 20pt;
+}
+
+.flex-container-2 {
+    display: flex;
+    align-items: stretch;
+    padding: 0;
+    margin: 0;
+}
+
+.recent-statistic {
+    margin: 0;
+    flex: 1;
+    border-right: 1px solid #ccc;
+    padding: 12px;
+}
+
+.recent-statistic-no-border {
+    margin: 0;
+    flex: 1;
+    padding: 12px;
+    padding-bottom: 6px;
+}
+
+.recent-header {
+    text-align: center;
+}
+
+.recent-header img {
+    vertical-align: middle;
+}
+
+.recent-number {
+    font-size: 22pt;
+    text-align: center;
+}
+
+.stattable-div {
+    flex: 1;
+    border-right: 1px solid #fff;
+    text-align: center;
+}
+
+.stattable-div table {
+    border-collapse: collapse;
+    display: inline-block;
+}
+
+.stattable-div table th {
+    font-weight: 400;
+    border-bottom: 1px solid #ccc;
+    border-top: 1px solid #ccc;
+}
+
+.stattable-div table tr td {
+    padding: 6px;
+    text-align: left;
+}
+
+.submap {
+    background-color: #fff;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    box-shadow: 0 0 4px #ddd;
+    padding: 0px;
+    margin: 10px;
+}
+
+.submap h2 {
+    font-weight: 400;
+    margin: 10px;
+}
+
+.submap hr {
+    width: 100%;
+    display: block;
+    height: 1px;
+    border: 0;
+    border-bottom: 1px solid #ccc;
+    padding: 0;
+    margin: 0;
+}

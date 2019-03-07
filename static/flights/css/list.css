@@ -46,7 +46,10 @@
     font-size: 10pt;
     display: block;
     vertical-align: top;
-    outline: 1px solid #ccc;
+    background-color: #fefefe;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    box-shadow: 0 0 4px #ddd;
     margin-left: auto;
     margin-right: auto;
     margin-top: 1vh;
@@ -61,7 +64,10 @@
     font-size: 10pt;
     display: block;
     vertical-align: top;
-    outline: 1px solid #ccc;
+    background-color: #fefefe;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    box-shadow: 0 0 4px #ddd;
     margin-left: auto;
     margin-right: auto;
     margin-top: 1vh;
@@ -115,7 +121,10 @@
     height: 88vh;
     overflow-y: scroll;
     width: 98%;
-    outline: 1px solid #ccc;
+    background-color: #fefefe;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    box-shadow: 0 0 4px #ddd;
     margin-left: auto;
     margin-right: auto;
     margin-top: 1vh;
@@ -129,7 +138,7 @@
 }
 
 #flightlist tr {
-    background-color: #f3f3f3;
+    background-color: #f9f9f9;
     cursor: pointer;
 }
 
@@ -153,7 +162,7 @@
 
 .flight-details-img {
     width: calc(50% - 12px);
-    padding-top: 6px; 
+    padding-top: 6px;
     padding-bottom: 6px;
     vertical-align: top;
 }

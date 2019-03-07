@@ -1,0 +1,172 @@
+{% extends 'flights/base.html' %}
+{% load static %}
+{% load humanize %}
+
+{% block links %}
+<!-- <script type='text/javascript' src='http://d3js.org/d3.v3.min.js'></script>
+<script type='text/javascript' src='http://d3js.org/topojson.v1.min.js'></script>
+<script type='text/javascript' src="{% static 'flights/geo/planetaryjs.min.js' %}"></script> -->
+
+<!-- <style>
+    body {
+        background-color: black;
+    }
+</style> -->
+
+<link rel="stylesheet" type="text/css" href="{% static 'flights/css/home.css' %}" />
+
+{% endblock %}
+
+{% block content %}
+<div id="map">
+</div>
+
+<div id="main-container">
+    <div id="list" class="submap">
+        <!-- <span style="float: right;">See all flights</span> -->
+        <h2>Recent flights</h2>
+
+        <div id="flex-container">
+            {% for flight in latest_flights %}
+            <div class="flight">
+                <div class="flight-airport">{{ flight.origin.iata }} <i class="fa fa-angle-right"></i> {{ flight.destination.iata }}</div>
+                <div>{{ flight.origin.city }} to {{ flight.destination.city }}</div>
+            </div>
+            {% endfor %}
+            {% if owner %}
+            <div class="flight add">
+                <i class="fa fa-plus"></i>
+            </div>
+            {% endif %}
+        </div>
+        <hr>
+        <div class="flex-container-2">
+            <div class="recent-statistic">
+                <div class="recent-header">Flights in the last year</div>
+                <div class="recent-number">{{ flights_this_year }}</div>
+                <div class="recent-header">{{ this_year.0|date:"d M Y" }} – {{ this_year.1|date:"d M Y" }}</div>
+            </div>
+            <div class="recent-statistic">
+                <div class="recent-header">Distance in the last year</div>
+                <div class="recent-number">{{ distance_mi_this_year|intcomma }} miles</div>
+                <div class="recent-header">{{ distance_km_this_year|intcomma }} kilometers</div>
+            </div>
+            <div class="recent-statistic">
+                <div class="recent-header">Countries in the last year</div>
+                <div class="recent-number">{{ countries_this_year }}</div>
+                <div class="recent-header">Most visited: {{ top_country_this_year.country }} <img src="/static/flights/img/flags/16/{{ top_country_this_year.country_iso }}.png"></div>
+            </div>
+        </div>
+    </div>
+
+    <div id="statistics" class="submap">
+        <!-- <span style="float: right;">See full statistics</span> -->
+        <h2>Statistics</h2>
+
+        <div class="flex-container-2">
+            <div class="recent-statistic-no-border">
+                <div class="recent-header">Total airports</div>
+                <div class="recent-number">{{ total_airports|intcomma }}</div>
+            </div>
+            <div class="recent-statistic-no-border">
+                <div class="recent-header">Total routes</div>
+                <div class="recent-number">{{ total_routes|intcomma }}</div>
+            </div>
+            <div class="recent-statistic-no-border">
+                <div class="recent-header">Total airlines</div>
+                <div class="recent-number">{{ total_airlines }}</div>
+            </div>
+            <div class="recent-statistic-no-border">
+                <div class="recent-header">Total aircraft</div>
+                <div class="recent-number">{{ total_aircraft }}</div>
+            </div>
+        </div>
+
+        <div class="flex-container-2">
+            <div class="stattable-div">
+                <table>
+                    <tr>
+                        <th colspan="3">Top airports</th>
+                    </tr>
+                    {% for airport in top_airports %}
+                    <tr>
+                        <td>{{ airport.html_name|safe }}</td>
+                        <td>{{ airport.city }}</td>
+                        <td>{{ airport.count }}</td>
+                    </tr>
+                    {% endfor %}
+                </table>
+            </div>
+            <div class="stattable-div">
+                <table>
+                    <tr>
+                        <th colspan="2">Top routes</th>
+                    </tr>
+                    {% for route in top_routes %}
+                    <tr>
+                        <td>{{ route.origin }}–{{ route.destination }}</td>
+                        <td>{{ route.count }}</td>
+                    </tr>
+                    {% endfor %}
+                </table>
+            </div>
+            <div class="stattable-div">
+                <table>
+                    <tr>
+                        <th colspan="2">Top airlines</th>
+                    </tr>
+                    {% for airline in top_airlines %}
+                    <tr>
+                        <td>{{ airline.airline }}</td>
+                        <td>{{ airline.count }}</td>
+                    </tr>
+                    {% endfor %}
+                </table>
+            </div>
+            <div class="stattable-div">
+                <table>
+                    <tr>
+                        <th colspan="2">Top aircraft</th>
+                    </tr>
+                    {% for aircraft in top_planes %}
+                    <tr>
+                        <td>{{ aircraft.aircraft }}</td>
+                        <td>{{ aircraft.count }}</td>
+                    </tr>
+                    {% endfor %}
+                </table>
+            </div>
+        </div>
+
+
+        <hr>
+        <div class="flex-container-2">
+            <div class="recent-statistic">
+                <div class="recent-header">Total flights</div>
+                <div class="recent-number">{{ total_flights|intcomma }}</div>
+                <div class="recent-header">since {{ first_flight_date|date:"d M Y" }}</div>
+            </div>
+            <div class="recent-statistic">
+                <div class="recent-header">Total miles</div>
+                <div class="recent-number">{{ distance_mi|intcomma }} miles</div>
+                <div class="recent-header">{{ distance_km|intcomma }} kilometers</div>
+            </div>
+            <div class="recent-statistic">
+                <div class="recent-header">Total countries</div>
+                <div class="recent-number">{{ total_countries }}</div>
+                <div class="recent-header">Most visited: {{ top_country.country }} <img src="/static/flights/img/flags/16/{{ top_country.country_iso }}.png"></div>
+            </div>
+        </div>
+    </div>
+
+    <div id="graphs" class="submap">
+        <h2>Graphs</h2>
+        Coming soon
+    </div>
+
+
+</div>
+
+
+
+{% endblock %}
