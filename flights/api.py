@@ -366,7 +366,7 @@ def get_filtered_airports(request, username, airline, aircraft, airport, year):
          'name': airport.name,
          'html_name': airport.html_name(),
          'city': airport.city,
-         'percent': np.round(airport.id__count / (len(flights_list)*2.0) * 100, decimals=1),
+         'percent': np.round(airport.id__count / (len(flights_list)*2.0) * 200, decimals=1),
         } for airport in top_airports
     ]
 
@@ -491,7 +491,7 @@ def get_filtered_routes(request, username, airline, aircraft, airport, year):
         {'origin': route['origin'],
          'destination': route['destination'],
          'count': route['count'] + get_inverse_count(route['origin'], route['destination']),
-         'percent': np.round(route['count'] / len(flights_list) * 100.0, decimals=1)}
+         'percent': np.round((route['count']+ get_inverse_count(route['origin'], route['destination'])) / len(flights_list) * 100.0, decimals=1)}
          for route in routes_list
     ]
 

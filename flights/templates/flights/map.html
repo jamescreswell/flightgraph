@@ -80,8 +80,8 @@
                             </div>
 
                             <div class="flight-route">
-                                <abbr v-if="flight.direction == 'arrival'" v-bind:title="'arrived from ' + flight.city">🡶<span style="font-weight:700;">[[ flight.origin ]]</span><br>[[ flight.number ]]</abbr>
-                                <abbr v-else v-bind:title="'departed to ' + flight.city">🡵<span style="font-weight:700;">[[ flight.destination ]]</span><br>[[ flight.number ]]</abbr>
+                                <abbr v-if="flight.destination == activeFilters.airport" v-bind:title="'arrived from ' + flight.origin_city">🡶<span style="font-weight:700;">[[ flight.origin ]]</span><br>[[ flight.number ]]</abbr>
+                                <abbr v-else v-bind:title="'departed to ' + flight.destination_city">🡵<span style="font-weight:700;">[[ flight.destination ]]</span><br>[[ flight.number ]]</abbr>
                             </div>
 
                             <div class="flight-plane">

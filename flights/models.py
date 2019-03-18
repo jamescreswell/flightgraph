@@ -82,6 +82,9 @@ class Flight(models.Model):
     def nice_distance(self):
         return format(round(self.distance()), ",")
 
+    def trajectory(self, N):
+        return 0
+
 class UserProfile(models.Model):
     user = models.OneToOneField(User, related_name='profile', on_delete=models.PROTECT)
     public = models.BooleanField(default=True)

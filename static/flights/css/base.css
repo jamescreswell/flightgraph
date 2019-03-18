@@ -50,6 +50,8 @@ abbr {
 .dropdown button {
     cursor: pointer;
     font-weight: 400;
+    font-size: 11pt;
+    color: #444444;
     border: none;
     background-color: inherit;
     display: block;
