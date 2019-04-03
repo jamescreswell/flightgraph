@@ -13,20 +13,73 @@
 
 <!--<script src="http://www.webglearth.com/v2/api.js"></script>-->
 
-<!-- <script src="http://code.jquery.com/jquery-1.10.2.min.js"></script>
-<script src="https://code.jquery.com/ui/1.12.1/jquery-ui.min.js"></script> -->
-<script src="{% static 'flights/js/vend/jquery-1.10.2.min.js' %}"></script>
-<script src="{% static 'flights/js/vend/jquery-ui.min.js' %}"></script>
+<script src="http://code.jquery.com/jquery-1.10.2.min.js"></script>
+<script src="https://code.jquery.com/ui/1.12.1/jquery-ui.min.js"></script>
+<!-- <script src="{% static 'flights/js/vend/jquery-1.10.2.min.js' %}"></script>
+<script src="{% static 'flights/js/vend/jquery-ui.min.js' %}"></script> -->
 
 <!-- <script src="https://unpkg.com/leaflet.vectorgrid@latest/dist/Leaflet.VectorGrid.bundled.js"></script> -->
 <script src="{% static 'flights/js/vend/Leaflet.VectorGrid.bundled.js' %}"></script>
 
 
-<script src="{% static '/flights/js/vue.js' %}"></script>
+<script src="{% static 'flights/js/vue.js' %}"></script>
 <style>
     .leaflet-container {
         background: #C6ECFF;
     }
+</style>
+
+<style>
+
+#leftnav2 {
+    padding: 16px;
+    text-align: left;
+    font-size: 13pt;
+    color: #666;
+    position: fixed;
+    left: 0;
+    top: 150px;
+    background-color: white;
+    z-index: -75;
+}
+
+#leftnav2 a {
+    display: inline-block;
+    cursor: pointer;
+    margin-top: 8px;
+    margin-bottom: 8px;
+    border-bottom: 2px solid white;
+    text-decoration: none;
+    color: inherit;
+}
+
+#leftnav2 a:hover {
+    border-bottom: 2px solid #e41a1c;
+}
+
+.selecteddiv {
+    font-weight: 700;
+    color: #111;
+    border-bottom: 2px solid #888!important;
+}
+
+.selecteddiv:hover {
+    border-bottom: 2px solid #e41a1c!important;
+}
+
+#topname {
+    font-weight: 700;
+    font-size: 22pt;
+}
+
+#topnamecontainer {
+    padding: 24px;
+    border-bottom: 1px solid #ccc;
+    position: fixed;
+    left: 0;
+    top: 75px;
+    background-color: white;
+}
 </style>
 
 <!--<script type='text/javascript' src='http://d3js.org/d3.v3.min.js'></script>
@@ -40,6 +93,14 @@
 {% block content %}
 
 <div id="app">
+    <div id="leftnav2">
+        <a href="{% if profile %}{% url 'home' profile_username %}{% else %}{% url 'home' %}{% endif %}">Overview</a><br>
+        <a href="{% if profile %}{% url 'profile_map' profile_username %}{% else %}{% url 'map' %}{% endif %}" class="selecteddiv">Map</a><br>
+        <a href="{% if profile %}{% url 'profile_list' profile_username %}{% else %}{% url 'list' %}{% endif %}">List</a><br>
+        <a href="{% if profile %}{% url 'profile_statistics' profile_username %}{% else %}{% url 'statistics' %}{% endif %}">Statistics</a><br>
+        {% if not profile %}<a href="">Add flight</a>{% endif %}
+    </div>
+
     <button id="switch-button" onclick="toggleMaps();" style="display: none;">Globe (provisional)</button>
 
 
@@ -49,18 +110,18 @@
 
 
     <aside id="airport-panel" class="side-panel">
-        {% if profile %}
+        <!-- {% if profile %}
         <div style="width: 100%; float: right; height: 25px;">&nbsp;</div>
-        {% endif %}
+        {% endif %} -->
         <header>
             <div id="airport-name">[[ airport.name ]]</div>
             <div id="airport-location">[[ airport.city ]], [[ airport.country ]]</div>
             <div id="airport-codes">[[ airport.iata ]]/[[ airport.icao ]]</div>
             <div id="airport-flag" {% if profile %}style="transform: translateY(25px);" {% endif %}>
-                <img v-bind:src="'/static/flights/img/flags/32/' + airport.country_iso + '.png'" v-bind:title="airport.country">
+                <img v-bind:src="'https://s3.amazonaws.com/flightgraph-static/static/flights/img/flags/32/' + airport.country_iso + '.png'" v-bind:title="airport.country">
                 <template v-if="airport.country_iso == 'GB'">
                     <br>
-                    <img v-bind:src="'/static/flights/img/flags/32/_' + airport.region.toLowerCase() + '.png'" v-bind:title="airport.region" style="transform:translateY(-10px);">
+                    <img v-bind:src="'https://s3.amazonaws.com/flightgraph-static/static/flights/img/flags/32/_' + airport.region.toLowerCase() + '.png'" v-bind:title="airport.region" style="transform:translateY(-10px);">
                 </template>
             </div>
             <!--<button class="airport-panel-close"><i class="fa fa-times"></i></button>-->
@@ -90,7 +151,7 @@
                         </li>
 
                         <li class="flight-details" v-bind:id="'flight-details-' + flight.pk" style="display:none;" v-on:click="newToggleFlightDetails(flight.pk,0,0,0,0)">
-                            <img v-if="flight.picture != ''" class="flight-details-img" v-bind:src="flight.picture">
+                            <img v-if="flight.picture != None" class="flight-details-img" v-bind:src="flight.picture">
 
                             <div>
                                 <span style="font-variant:small-caps;">
@@ -168,15 +229,15 @@
     </aside>
 
     <aside id="route-panel" class="side-panel">
-        {% if profile %}
+        <!-- {% if profile %}
         <div style="width: 100%; float: right; height: 25px;">&nbsp;</div>
-        {% endif %}
+        {% endif %} -->
         <header>
             <div id="route-name">[[ route.origin_iata ]] – [[ route.destination_iata ]]</div>
             <div id="airport-flag" {% if profile %}style="transform: translateY(25px);" {% endif %}> <!--please fix this-->
-                <img v-bind:src="'/static/flights/img/flags/32/' + route.origin_country_iso + '.png'" v-bind:title="route.origin_country">
+                <img v-bind:src="'https://s3.amazonaws.com/flightgraph-static/static/flights/img/flags/32/' + route.origin_country_iso + '.png'" v-bind:title="route.origin_country">
                 <!-- Put arrow img here -->
-                <img v-if="route.origin_country != route.destination_country" v-bind:src="'/static/flights/img/flags/32/' + route.destination_country_iso + '.png'" v-bind:title="route.destination_country">
+                <img v-if="route.origin_country != route.destination_country" v-bind:src="'https://s3.amazonaws.com/flightgraph-static/static/flights/img/flags/32/' + route.destination_country_iso + '.png'" v-bind:title="route.destination_country">
             </div>
             <div id="route-description">
                 <span style="font-variant:small-caps;color: #666;">
@@ -241,7 +302,7 @@
                         </li>
 
                         <li class="flight-details" v-bind:id="'flight-details-' + flight.pk" style="display:none;" v-on:click="newToggleRouteFlightDetails(flight.pk,0,0,0,0)">
-                            <img v-if="flight.picture != ''" class="flight-details-img" v-bind:src="flight.picture">
+                            <img v-if="flight.picture != None" class="flight-details-img" v-bind:src="flight.picture">
 
                             <div>
                                 <span style="font-variant:small-caps;">

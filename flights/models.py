@@ -71,6 +71,7 @@ class Flight(models.Model):
 
     picture = models.ImageField(upload_to='static/user_photos', blank=True) # Does this work, or should we do it manually?
     picture_link = models.URLField(blank=True)
+    image = models.FileField(blank=True)
 
     def calculate_distance(self, dim='mi'):
         return self.origin.distance_to(self.destination, dim)
@@ -90,6 +91,7 @@ class UserProfile(models.Model):
     public = models.BooleanField(default=True)
     years_only = models.BooleanField(default=False)
     public_delay = models.PositiveSmallIntegerField(default=0)
+    home_airport = models.ForeignKey('Airport', on_delete=models.PROTECT, blank=True, null=True)
 
     def __str__(self):
         return 'Profile of user: {}'.format(self.user.username)

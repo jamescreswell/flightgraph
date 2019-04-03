@@ -192,7 +192,7 @@ tr.break, tr.break td {
 .fa-pencil {
     cursor: pointer;
     float: right;
-    color: #555;
+    color: red;
 }
 
 .fa-floppy-o {

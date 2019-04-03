@@ -19,8 +19,9 @@
             <a href="{% url 'index' %}" id="index_nav">flightgraph.dk</a>
             <a id="gcmap_nav">Route mapper</a>
             <a id="airport_nav">Airport database</a>
-            <!--<a href="{% url 'api_index' %}" id="api_nav">API</a>-->
-
+            <a id="api_nav">API</a>
+            <!-- <a href="{% url 'home' %}" id="flights_nav">My flights</a> -->
+            {% comment %} Old version
             {% if user.is_authenticated %}
             <div class="dropdown" id="flights_nav">
                 <button onclick="dropdown('flights_content');">
@@ -34,9 +35,11 @@
                 </div>
             </div>
             {% endif %}
+            {% endcomment %}
             <!-- if logged in, different home page cf. github profile -->
 
             <!--The flightgraph.eu server implements a large library of functions that retrieve information and perform computations related to airports, routes, and users' flight records. Some of these functions are used to render the HTML webpages you can see on the site, but this is not the full extent of the possible products. Furthermore, users may want to access information in a more simple way. The pages below contain the documentation for the full API. Most functions accept GET requests and return JSON <abbr>HTTP header: application/json) or PNG <abbr>HTTP header: image/png) responses, though there are others. Note that some functions are marked as 'restricted'; you will not be able to access specific details about the flights of flightgraph.eu users who have activated their privacy settings; if your own fligths are privacy protected, you must <a href=>login</a> and submit the API call from the browser holding the authentication cookie. NOTE: the flightgraph.eu API is for personal use only. The modest servers that power this site will be overloaded if you abuse the API as a content delivery network for a high-traffic website. banners-->
+
 
             {% if user.is_authenticated %}
             <div class="dropdown" id="account_nav" style="float:right;">
@@ -44,6 +47,7 @@
                     {{ user }} <i class="fas fa-caret-down"></i>
                 </button>
                 <div class="dropdown-content" id="account_content">
+                    <a href="{% url 'home' %}">My flights</a>
                     <a href="{% url 'settings' %}">Settings</a>
                     <a href="{% url 'profile_map' user %}">Profile</a>
                     <a href="{% url 'logout_view' %}">Log out</a>
@@ -54,11 +58,40 @@
             {% endif %}
 
         </div>
-
+        {% comment %}
         {% if profile %}
         <div id="profile-header">You are viewing {{ profile_username }}'s flights. <a href="{% url 'profile_map' profile_username %}">Map</a> <a href="{% url 'profile_list' profile_username %}">List</a> <a href="{% url 'profile_statistics' profile_username %}">Statistics</a>
             <!--<a href="{% url 'profile_statistics' profile_username %}">Statistics</a>-->{% if user.username == profile_username %}&nbsp;&nbsp;<i>This is what your publicly visible profile looks like to others.</i>{% endif %}</div>
         {% endif %}
+        {% endcomment %}
+
+        <style>
+            #topbar {
+                padding-left: 15%;
+                padding-right: 15%;
+                background-color: #fff;
+                margin-top: 0px;
+            }
+
+            .location {
+                font-size: 11pt;
+                color: #333;
+            }
+
+            .topbar-link {
+                padding-right: 10px;
+                text-decoration: underline;
+                cursor: pointer;
+            }
+        </style>
+        <!-- <div id="topbar">
+            <div class="location">
+                {% if profile %}{{ username }}'s{% else %}Your{% endif %} flights —
+                <a class="topbar-link">Map</a>
+                <a class="topbar-link" style="font-weight: 700;">List</a>
+                <a class="topbar-link">Statistics</a>
+            </div>
+        </div> -->
 
         <div id="content">
             {% block content %}

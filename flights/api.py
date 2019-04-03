@@ -23,8 +23,14 @@ import matplotlib.pyplot as plt
 #from mpl_toolkits.basemap import Basemap
 import datetime # I hope this doesn't mess up the Django datetime ...
 
+from PIL import Image
+from io import BytesIO
+from django.core.files.base import ContentFile
+
+
 @login_required
 def add_flight(request):
+    print('hello')
     payload = json.loads(request.body)
     user = request.user
     try:
@@ -49,7 +55,7 @@ def add_flight(request):
                    operator=payload['operator'],
                    comments=payload['comments'],
                    picture_link=payload['image_link'],
-                   #picture=payload['image_file'],
+                   #image=payload['image_file'],
                    distance=-1.0,
                    sortid=next_sortid)
         f.save()
@@ -66,6 +72,79 @@ def add_flight(request):
             'today': payload['today'],
             }
     return JsonResponse(dict)
+
+@login_required
+@csrf_exempt
+def upload_image(request, id=None):
+    print('beginning upload_image')
+    user=request.user
+    if id:
+        f = Flight.objects.get(pk=id)
+        if f.owner != request.user:
+            raise PermissionDenied
+    else:
+        f = Flight.objects.filter(owner=request.user).order_by('-sortid')[0]
+
+    #print(request)
+    print(request.body[:100])
+    #img = Image.frombytes(request.body)
+    img = Image.open(BytesIO(request.body))
+
+    new_image_io = BytesIO()
+    img.save(new_image_io, format='PNG')
+    #print(img)
+    #img.save(thumb_io, format='PNG')
+    #f.image=img
+    #f.save()
+    temp_name = f.image.name
+    temp_name = str(f.pk) + '.png'
+    f.image.save(temp_name, content=ContentFile(new_image_io.getvalue()), save=False)
+    f.save()
+    return JsonResponse({'url': f.image.url})
+
+@login_required
+@csrf_exempt
+def move_flights(request):
+    pk1 = json.loads(request.body)['id1']
+    pk2 = json.loads(request.body)['id2']
+
+    flight1 = Flight.objects.get(pk=pk1)
+    flight2 = Flight.objects.get(pk=pk2)
+
+    if flight1.owner != request.user or flight2.owner != request.user:
+        raise PermissionDenied
+
+    sortid1 = flight1.sortid
+    sortid2 = flight2.sortid
+    flight1.sortid = sortid2
+    flight2.sortid = sortid1
+    flight1.save()
+    flight2.save()
+
+    return HttpResponse('test')
+
+@login_required
+@csrf_exempt
+def edit_flight(request):
+    payload = json.loads(request.body)
+
+    f = Flight.objects.get(pk=payload['pk'])
+
+    if f.owner != request.user:
+        raise PermissionDenied
+
+    f.date = payload['newDate']
+    f.travel_class = payload['newClass']
+    f.seat = payload['newSeat']
+    f.aircraft = payload['newAircraft']
+    f.airline = payload['newAirline']
+    f.aircraft_registration = payload['newRegistration']
+    f.comments = payload['newComments']
+    f.operator = payload['newOperator']
+
+    f.save()
+
+    return get_flight_details(request, payload['pk'])
 
 def get_airport(request, airport_id):
     airport = Airport.objects.get(pk=airport_id)
@@ -101,7 +180,7 @@ def get_airport_flights(request, username, airport_id):
          "airline": flight.airline,
          "plane": flight.aircraft,
          'registration': flight.aircraft_registration,
-         'picture': flight.picture_link,
+         'picture': flight.image.url if flight.image else None,
          'distance': int(flight.distance),
          'duration': np.round((30.0 + flight.distance/500.0 * 60.0) / 60.0),
          'operator': flight.operator,
@@ -165,7 +244,7 @@ def get_route_flights(request, username, id1, id2):
          "airline": flight.airline,
          "plane": flight.aircraft,
          'registration': flight.aircraft_registration,
-         'picture': flight.picture_link,
+         'picture':  flight.image.url if flight.image else None,
          'distance': int(flight.distance),
          'duration': np.round((30.0 + flight.distance/500.0 * 60.0) / 60.0),
          'operator': flight.operator,
@@ -202,7 +281,7 @@ def get_flights(request, username):
          "airline": flight.airline,
          "plane": flight.aircraft,
          'registration': flight.aircraft_registration,
-         'picture': flight.picture_link,
+         'picture':  flight.image.url if flight.image else None,
          'distance': int(flight.distance),
          'duration': np.round((30.0 + flight.distance/500.0 * 60.0) / 60.0),
          'operator': flight.operator,
@@ -227,7 +306,6 @@ def get_flights(request, username):
 
 def get_flight_details(request, id):
     flight = Flight.objects.get(pk=id)
-    print(flight.aircraft)
     flight_dictionary = {
         'id': flight.pk,
         'number': flight.number,
@@ -256,6 +334,7 @@ def get_flight_details(request, id):
         'seat': flight.seat,
         'pictureLink': flight.picture_link,
         'comments': flight.comments,
+        'image': flight.image.url if flight.image else None,
         #'origin': serializers.serialize("json", [flight.origin]),
         #'destination': serializers.serialize("json", [flight.destination]),
     }

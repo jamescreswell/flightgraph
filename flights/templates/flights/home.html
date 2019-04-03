@@ -15,13 +15,83 @@
 
 <link rel="stylesheet" type="text/css" href="{% static 'flights/css/home.css' %}" />
 
+<style>
+    #topname {
+        font-weight: 700;
+        font-size: 22pt;
+    }
+
+    #topnamecontainer {
+        margin: 16px;
+        padding: 8px;
+        border-bottom: 1px solid #ccc;
+    }
+
+    .profileimg {
+        height: 100px;
+        width: 100px;
+        object-fit: cover;
+        background-color: lightgrey;
+    }
+
+    #topnav2 {
+        margin: 16px;
+        text-align: center;
+        font-size: 13pt;
+        color: #666;
+    }
+
+    #topnav2 a {
+        display: inline-block;
+        cursor: pointer;
+        margin-left: 16px;
+        margin-right: 16px;
+        border-bottom: 2px solid white;
+        text-decoration: none;
+        color: inherit;
+    }
+
+    #topnav2 a:hover {
+        border-bottom: 2px solid #e41a1c;
+    }
+
+    .selecteddiv {
+        font-weight: 700;
+        color: #111;
+        border-bottom: 2px solid #888!important;
+    }
+
+    .selecteddiv:hover {
+        border-bottom: 2px solid #e41a1c!important;
+    }
+</style>
+
 {% endblock %}
 
 {% block content %}
-<div id="map">
-</div>
+<!-- <div id="map">
+</div> -->
 
 <div id="main-container">
+    <div id="topnamecontainer">
+        <!-- <img class="profileimg" src="https://flightgraph-static.s3.amazonaws.com/media/4481_HrtIV26.png"> -->
+        <div style="display: inline-block;">
+            <span id="topname">{{ username }} {% if username == "admin" %}<i style="font-size: 12pt; vertical-align: middle; cursor: help;" class="fas fa-laptop-code" title="Site developer"></i>{% endif %}</span>
+            <br>
+            {% if home_airport %}Home airport: {{ home_airport.html_name|safe }} <img src="https://s3.amazonaws.com/flightgraph-static/static/flights/img/flags/16/{{ home_airport.country_iso }}.png" style="vertical-align: middle;">{% endif %}
+            <!-- <br>
+            Member since: {{ user.date_joined }} -->
+        </div>
+    </div>
+
+    <div id="topnav2">
+        <a href="{% if profile %}{% url 'home' profile_username %}{% else %}{% url 'home' %}{% endif %}" class="selecteddiv">Overview</a>
+        <a href="{% if profile %}{% url 'profile_map' profile_username %}{% else %}{% url 'map' %}{% endif %}">Map</a>
+        <a href="{% if profile %}{% url 'profile_list' profile_username %}{% else %}{% url 'list' %}{% endif %}">List</a>
+        <a href="{% if profile %}{% url 'profile_statistics' profile_username %}{% else %}{% url 'statistics' %}{% endif %}">Statistics</a>
+        {% if not profile %}<a href="">Add flight</a>{% endif %}
+    </div>
+
     <div id="list" class="submap">
         <!-- <span style="float: right;">See all flights</span> -->
         <h2>Recent flights</h2>
@@ -34,9 +104,9 @@
             </div>
             {% endfor %}
             {% if owner %}
-            <div class="flight add">
+            <!-- <div class="flight add">
                 <i class="fa fa-plus"></i>
-            </div>
+            </div> -->
             {% endif %}
         </div>
         <hr>
@@ -52,9 +122,9 @@
                 <div class="recent-header">{{ distance_km_this_year|intcomma }} kilometers</div>
             </div>
             <div class="recent-statistic">
-                <div class="recent-header">Countries in the last year</div>
-                <div class="recent-number">{{ countries_this_year }}</div>
-                <div class="recent-header">Most visited: {{ top_country_this_year.country }} <img src="/static/flights/img/flags/16/{{ top_country_this_year.country_iso }}.png"></div>
+                <div class="recent-header">Airports in the last year</div>
+                <div class="recent-number">{{ airports_this_year }}</div>
+                <div class="recent-header">{{ countries_this_year }} countries</div>
             </div>
         </div>
     </div>
@@ -154,15 +224,15 @@
             <div class="recent-statistic">
                 <div class="recent-header">Total countries</div>
                 <div class="recent-number">{{ total_countries }}</div>
-                <div class="recent-header">Most visited: {{ top_country.country }} <img src="/static/flights/img/flags/16/{{ top_country.country_iso }}.png"></div>
+                <div class="recent-header">Most visited: {{ top_country.country }} <img src="https://s3.amazonaws.com/flightgraph-static/static/flights/img/flags/16/{{ top_country.country_iso }}.png"></div>
             </div>
         </div>
     </div>
 
-    <div id="graphs" class="submap">
+    <!-- <div id="graphs" class="submap">
         <h2>Graphs</h2>
         Coming soon
-    </div>
+    </div> -->
 
 
 </div>

@@ -30,6 +30,7 @@ def index(request, error=None):
     username = request.user.username
 
     if username != '':
+        # return home(request)
         latest_flights = Flight.objects.filter(owner__username=username).order_by('-sortid')[:4]
     else:
         latest_flights = None
@@ -44,9 +45,14 @@ def index(request, error=None):
 
 def home(request, username=None):
     if username is not None:
+        profile = 1
         user = User.objects.get(username=username)
     else:
+        profile = 0
         user = request.user
+        if not user.is_authenticated:
+            return login_view(request)
+
 
     flights = Flight.objects.filter(owner=user).order_by('-sortid')
 
@@ -63,7 +69,7 @@ def home(request, username=None):
     ).filter(Q(id__count__gt=0)).order_by('-id__count')
 
     top_country = countries[0]
-    top_country_this_year = countries_this_year[0]
+    # top_country_this_year = countries_this_year[0]
 
     try:
         distance_mi = flights.aggregate(Sum('distance'))['distance__sum']
@@ -94,6 +100,9 @@ def home(request, username=None):
         } for airport in top_airports
     ]
 
+    new_airports = Airport.objects.annotate(
+        id__count=Count('origins', filter=Q(origins__in=flights_this_year), distinct=True)+Count('destinations', filter=Q(destinations__in=flights_this_year), distinct=True)
+    ).filter(Q(id__count__gt=0)).order_by('-id__count')
 
     # Routes
     top_routes = flights.values('origin__iata', 'origin__name', 'origin__city', 'origin__country', 'destination__iata', 'destination__name', 'destination__city', 'destination__country', 'origin__latitude', 'origin__longitude', 'destination__latitude', 'destination__longitude').annotate(Count('id')).order_by('-id__count')
@@ -149,6 +158,8 @@ def home(request, username=None):
     ]
 
 
+    home_airport = UserProfile.objects.get(user=user).home_airport
+
     context = {
         'latest_flights': latest_flights,
         'this_year': [datetime.date.today() - datetime.timedelta(days=365), datetime.date.today()],
@@ -159,7 +170,9 @@ def home(request, username=None):
         'distance_km': int(distance_km),
         'distance_mi_this_year': int(distance_mi_this_year),
         'distance_km_this_year': int(distance_km_this_year),
+        'airports_this_year': len(new_airports),
         'countries_this_year': len(countries_this_year),
+        # 'countries_this_year': len(countries_this_year),
         'total_countries': len(countries),
         'owner': True if username == None else False,
         'top_routes': new_routes_list[:5],
@@ -170,8 +183,13 @@ def home(request, username=None):
         'total_airports': len(airports_list),
         'total_aircraft': len(aircraft_list),
         'total_airlines': len(airlines_list),
-        'top_country_this_year': top_country_this_year,
+        # 'top_country_this_year': top_country_this_year,
         'top_country': top_country,
+        'username': user.username,
+        'profile_username': user.username,
+        'own': user == request.user,
+        'profile': profile,
+        'home_airport': home_airport,
     }
     return render(request, 'flights/home.html', context)
 

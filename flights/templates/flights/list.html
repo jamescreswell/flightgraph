@@ -2,7 +2,284 @@
 {% load static %}
 
 {% block links %}
-<link rel="stylesheet" type="text/css" href="{% static 'flights/css/list.css' %}" />
+<!-- link rel="stylesheet" type="text/css" href="{% static 'flights/css/list.css' %}" /> -->
+
+<style>
+#app {
+    width: 70%;
+    min-width: 1000px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.parent {
+    width: 100%;
+    font-size: 0;
+    margin-top: 5px;
+    margin-bottom: 5px;
+}
+
+.column-left {
+    float: left;
+    width: 66%;
+}
+
+.column-right {
+    float: left;
+    width: 33%;
+}
+
+#map {
+    width: 98%;
+    height: 44vh;
+    font-size: 10pt;
+    background-color: grey;
+    display: block;
+    vertical-align: top;
+    margin-left: auto;
+    margin-right: auto;
+    margin-top: 1vh;
+}
+
+#map img {
+    width: 100%;
+    height: 44vh;
+    object-fit: cover;
+    cursor: pointer;
+}
+
+#filter {
+    width: 98%;
+    font-size: 10pt;
+    display: block;
+    vertical-align: top;
+    background-color: #fefefe;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    box-shadow: 0 0 4px #ddd;
+    margin-left: auto;
+    margin-right: auto;
+    margin-top: 1vh;
+}
+
+.answer {
+    font-size: 10pt;
+}
+
+#details {
+    width: 98%;
+    font-size: 10pt;
+    display: block;
+    vertical-align: top;
+    background-color: #fefefe;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    box-shadow: 0 0 4px #ddd;
+    margin-left: auto;
+    margin-right: auto;
+    margin-top: 1vh;
+}
+
+.caption {
+    font-variant: small-caps;
+    color: #555;
+    padding-left: 2px;
+    display: inline-block;
+}
+
+.datum {
+    padding-left: 2px;
+    color: #111;
+    display: inline-block;
+    font-weight: 700;
+}
+
+.filter-title {
+    padding: 2px;
+    color: #e41a1c;
+    font-size: 11pt;
+    font-weight: 700;
+    background-color: #eee;
+}
+
+.route-title {
+    padding: 2px;
+    color: #e41a1c;
+    font-size: 13pt;
+    font-weight: 700;
+    background-color: #eee;
+}
+
+.route-subtitle {
+    padding: 2px;
+    color: #e41a1c;
+    font-size: 11pt;
+    font-variant: small-caps;
+    background-color: #eee;
+    font-weight: 700;
+}
+
+.route-parent {
+    display: inline-block;
+    margin-right: 5px;
+}
+
+#flightlist-parent {
+    height: 84vh;
+    overflow-y: scroll;
+    width: 98%;
+    background-color: #fefefe;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    box-shadow: 0 0 4px #ddd;
+    margin-left: auto;
+    margin-right: auto;
+    margin-top: 1vh;
+}
+
+#flightlist {
+    width: 100%;
+    border: 0px solid #c1c1c1;
+    border-collapse: collapse;
+    padding: 3px;
+}
+
+#flightlist tr {
+    background-color: #f9f9f9;
+    cursor: pointer;
+}
+
+#flightlist tr:active {
+    background-color: #ccc!important;
+}
+
+#flightlist tr:hover {
+    background-color: #efefef;
+}
+
+#flightlist th {
+    font-weight: 400;
+    text-align: left;
+    font-variant: small-caps;
+}
+
+#flightlist tr td {
+    padding: 4px;
+}
+
+.flight-details-img {
+    width: calc(50% - 12px);
+    padding-top: 6px;
+    padding-bottom: 6px;
+    vertical-align: top;
+}
+
+.flight-details-img-loading {
+    margin-left: 20%;
+    margin-top: 6px;
+}
+
+#selected-filename {
+    padding-top: 6px;
+    text-align: center;
+    width: 100%;
+}
+
+
+.selected-row {
+    background-color: #d9d9d9!important;
+}
+
+.flight-details {
+    display: none;
+}
+
+tr.break, tr.break td {
+    border: none;
+    height: 3px;
+    padding: 0!important;
+    margin: 0!important;
+    background-color: #fff;
+}
+
+.detail-map {
+    width: 100%;
+    background-color: #aaa;
+}
+
+.fas {
+    color: #555;
+    padding: 2px;
+    font-size: 11pt;
+    cursor: pointer;
+    float: right;
+}
+
+.fa-caret-down {
+    float: none;
+}
+
+input[type="text"] {
+    border: 0;
+    color: #ea7115;
+    background-color: #fefefe;
+    width:
+}
+
+input[type="date"] {
+    border: 0;
+    color: #ea7115;
+    background-color: #fefefe;
+}
+
+#leftnav2 {
+    margin: 16px;
+    text-align: left;
+    font-size: 13pt;
+    color: #666;
+    position: fixed;
+    left: 0;
+    top: 150px;
+}
+
+#leftnav2 a {
+    display: inline-block;
+    cursor: pointer;
+    margin-top: 8px;
+    margin-bottom: 8px;
+    border-bottom: 2px solid white;
+    text-decoration: none;
+    color: inherit;
+}
+
+#leftnav2 a:hover {
+    border-bottom: 2px solid #e41a1c;
+}
+
+.selecteddiv {
+    font-weight: 700;
+    color: #111;
+    border-bottom: 2px solid #888!important;
+}
+
+.selecteddiv:hover {
+    border-bottom: 2px solid #e41a1c!important;
+}
+
+#topname {
+    font-weight: 700;
+    font-size: 22pt;
+}
+
+#topnamecontainer {
+    margin: 16px;
+    padding: 8px;
+    border-bottom: 1px solid #ccc;
+    position: fixed;
+    left: 0;
+    top: 75px;
+}
+</style>
 
 <script src="http://code.jquery.com/jquery-1.10.2.min.js"></script>
 <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.min.js"></script>
@@ -13,6 +290,19 @@
 {% block content %}
 
 <div id="app">
+    <div id="topnamecontainer">
+        <div style="display: inline-block;">
+            <span id="topname">{% if profile %}{{ username }}{% else %}Flights{% endif %} {% if username == "admin" %}{% endif %}</span>
+        </div>
+    </div>
+
+    <div id="leftnav2">
+        <a href="{% if profile %}{% url 'home' profile_username %}{% else %}{% url 'home' %}{% endif %}">Overview</a><br>
+        <a href="{% if profile %}{% url 'profile_map' profile_username %}{% else %}{% url 'map' %}{% endif %}">Map</a><br>
+        <a href="{% if profile %}{% url 'profile_list' profile_username %}{% else %}{% url 'list' %}{% endif %}" class="selecteddiv">List</a><br>
+        <a href="{% if profile %}{% url 'profile_statistics' profile_username %}{% else %}{% url 'statistics' %}{% endif %}">Statistics</a><br>
+        {% if not profile %}<a href="">Add flight</a>{% endif %}
+    </div>
     <!--<div class="parent">-->
     <div class="column-left">
         <!--<div id="map">
@@ -58,7 +348,7 @@
     <div class="column-right">
         <div id="filter">
             <div>
-                <div class="filter-title">Filter</div>
+                <div class="filter-title">Filter <span v-if="loading">LOADING</span></div>
                 <div class="caption">airport</div>
                 <br>
                 <select class="answer" id="airport-filter">
@@ -86,7 +376,24 @@
             </div>
         </div>
         <div id="details" v-if="Object.keys(detailFlight).length">
-            <div class="route-title">[[ detailFlight.number ]]<i class="fa fa-pencil" title="Edit flight" id="edit-button" v-if="!editing" v-on:click="openEditFlight(detailFlight.id)"></i><button v-if="editing" v-on:click="moveFlightUp(detailFlight.id)">Move up</button><i class="fa fa-arrow-down" title="Save flight" id ="save-button" v-if="editing" v-on:click="saveEditFlight(detailFlight.id)"></i><br>[[ detailFlight.origin.iata ]] – [[ detailFlight.destination.iata ]] </div>
+            <div class="route-title">[[ detailFlight.number ]]
+                {% if not profile %}
+                <i class="fas fa-pencil-alt" title="Edit flight" id="edit-button" v-if="!editing" v-on:click="openEditFlight(detailFlight.id)"></i>
+                <template v-if="editing">
+                    <i class="fas fa-save" title="Save flight" id ="save-button" v-on:click="saveEditFlight(detailFlight.id)"></i>
+                    <i class="fas fa-trash" title="Delete flight" id ="delete-button" v-on:click="deleteEditFlight(detailFlight.id)"></i>
+                    <i class="fas fa-arrow-down" title="Move down" id="move-down-button" v-on:click="moveFlightDown(detailFlight.id)"></i>
+                    <i class="fas fa-arrow-up" title="Move up" id="move-up-button" v-on:click="moveFlightUp(detailFlight.id)"></i>
+                </template>
+                <br>[[ detailFlight.origin.iata ]] – [[ detailFlight.destination.iata ]]
+                <form style="display: inline; margin: 0; padding: 0;" id="image-form">
+                    <label for="image-field">
+                        <i class="fas fa-images" v-if="editing" title="Upload images" id="upload-images-button"></i>
+                    </label>
+                    <input type="file" id="image-field" name="image-field" style="display: none;" onchange="changeFile();">
+                </form>
+                {% endif %}
+            </div>
 
 
             <div class="route-parent" style="display: inline-block; width: 50%; vertical-align: top;">
@@ -97,16 +404,20 @@
                 <div class="caption">to</div>
                 <br>
                 <div class="datum"><span style="color:#000;">[[ detailFlight.destination.name ]]</span><br><span style="font-weight:400;">[[ detailFlight.destination.city ]], [[ detailFlight.destination.country ]]</span></div>
-            </div><a v-if="detailFlight.pictureLink" v-bind:href="detailFlight.pictureLink" target="_blank">
-                <img v-if="detailFlight.pictureLink" v-bind:src="detailFlight.pictureLink" class="flight-details-img">
+            </div><!--<a v-if="detailFlight.pictureLink" v-bind:href="detailFlight.pictureLink" target="_blank">
+                <img v-if="detailFlight.pictureLink" v-bind:src="detailFlight.pictureLink" class="flight-details-img"> -->
+                <a v-if="detailFlight.image" v-bind:href="detailFlight.image" target="_blank">
+                <img v-if="detailFlight.image && !loading" v-bind:src="detailFlight.image" class="flight-details-img">
             </a>
+            <span id="selected-filename">[[ selectedFilename ]]</span>
+            <img v-if="loading" src="{% static 'flights/img/ajax-loader.gif' %}" class="flight-details-img-loading">
 
 
             <div class="route-subtitle">flight</div>
             <div class="caption">date</div>
             <br>
             <div class="datum" v-if="!editing">[[ detailFlight.day ]], [[ detailFlight.date ]]</div>
-            <div class="datum" v-if="editing"><input type="date" v-bind:value="detailFlight.isodate"></div>
+            <div class="datum" v-if="editing"><input type="date" id="date-field" v-bind:value="detailFlight.isodate"></div>
             <br>
             <div class="route-parent">
                 <div class="caption">distance</div>
@@ -119,18 +430,18 @@
                 <div class="datum">[[ detailFlight.duration ]] hr</div>
             </div>
             <br>
-            <template v-if="detailFlight.class || detailFlight.seat">
+            <template v-if="detailFlight.class || detailFlight.seat || editing">
                 <div class="route-parent">
                     <div class="caption">class</div>
                     <br>
                     <div class="datum" v-if="!editing">[[ detailFlight.class ]]</div>
-                    <div class="datum" v-if="editing"><input type="text" v-bind:value="detailFlight.class"></div>
+                    <div class="datum" v-if="editing"><input type="text" id="class-field" v-bind:value="detailFlight.class" style="width: 25px;"></div>
                 </div>
                 <div class="route-parent">
                     <div class="caption">seat</div>
                     <br>
                     <div class="datum" v-if="!editing">[[ detailFlight.seat ]]</div>
-                    <div class="datum" v-if="editing"><input type="text" v-bind:value="detailFlight.seat"></div>
+                    <div class="datum" v-if="editing"><input type="text" id="seat-field" v-bind:value="detailFlight.seat" style="width: 25px;"></div>
                 </div>
             </template>
 
@@ -138,30 +449,31 @@
             <div class="caption">type</div>
             <br>
             <div class="datum" v-if="!editing">[[ detailFlight.aircraft ]]</div>
-            <div class="datum" v-if="editing"><input type="text" v-bind:value="detailFlight.aircraft"></div>
+            <div class="datum" v-if="editing"><input type="text" id="aircraft-field" v-bind:value="detailFlight.aircraft"></div>
             <br>
             <div class="caption">registration</div>
             <br>
             <div class="datum" v-if="!editing">[[ detailFlight.registration ]]</div>
-            <div class="datum" v-if="editing"><input type="text" v-bind:value="detailFlight.registration"></div>
+            <div class="datum" v-if="editing"><input type="text" id="registration-field" v-bind:value="detailFlight.registration"></div>
 
             <div class="route-subtitle">airline</div>
             <div class="route-parent">
                 <div class="caption">airline</div>
                 <br>
-                <div class="datum" v-if="editing"><input type="text" v-bind:value="detailFlight.airline"></div>
+                <div class="datum" v-if="editing"><input type="text" id="airline-field" v-bind:value="detailFlight.airline"></div>
                 <div class="datum" v-else>[[ detailFlight.airline ]]</div>
             </div>
-            <div class="route-parent" v-if="detailFlight.operator">
+            <div class="route-parent" v-if="detailFlight.operator || editing">
                 <div class="caption">operator</div>
                 <br>
-                <div class="datum" v-if="editing"><input type="text" v-bind:value="detailFlight.operator"></div>
+                <div class="datum" v-if="editing"><input type="text" id="operator-field" v-bind:value="detailFlight.operator"></div>
                 <div class="datum" v-else>[[ detailFlight.operator ]]</div>
             </div>
-            <div class="route-subtitle" v-if="detailFlight.comments">other</div>
-            <div class="caption" v-if="detailFlight.comments">comments</div>
-            <br v-if="detailFlight.comments">
-            <div class="datum" v-if="detailFlight.comments">[[ detailFlight.comments ]]</div>
+            <div class="route-subtitle" v-if="detailFlight.comments || editing">other</div>
+            <div class="caption" v-if="detailFlight.comments || editing">comments</div>
+            <br v-if="detailFlight.comments || editing">
+            <div class="datum" v-if="editing"><input type="text" id="comments-field" v-bind:value="detailFlight.comments"></div>
+            <div class="datum" v-else>[[ detailFlight.comments ]]</div>
         </div>
     </div>
 </div>
@@ -184,17 +496,19 @@
             filterData: {},
             activeFilters: {airport: 'all', airline: 'all', aircraft: 'all'},
             editing: false,
+            selectedFilename: '',
         },
         methods : {
             toggleFlightDetails: function (id) {
                 if (app.detailFlight.id != id) {
-                    app.loading = true;
+                    //app.loading = true;
                     console.log('Flight ' + id.toString() + ' clicked. GETing details from API...')
                     fetch('/api/get_flight_details/' + id).then(
                         function(response) {
                             console.log('Response received. Attempting to interpret JSON...')
                             response.json().then(function(data) {
                                 app.detailFlight = data;
+                                document.getElementById('image-field').value = "";
                                 console.log('The following JSON has been imported and will be passed to the view:');
                                 console.log(JSON.stringify(app.detailFlight));
                                 console.log('editing' + app.editing.toString());
@@ -203,7 +517,7 @@
                             });
                         }
                     );
-                    app.loading = false;
+                    //app.loading = false;
                     app.editing = false;
                 }
                 else {
@@ -215,16 +529,111 @@
                 app.editing = true;
             },
             saveEditFlight: function (id) {
-                console.log(id);
+                app.selectedFilename = '';
+                var payload = {
+                    pk: app.detailFlight.id,
+                    newDate: document.getElementById('date-field').value,
+                    newClass: document.getElementById('class-field').value,
+                    newSeat: document.getElementById('seat-field').value,
+                    newAircraft: document.getElementById('aircraft-field').value,
+                    newAirline: document.getElementById('airline-field').value,
+                    newRegistration: document.getElementById('registration-field').value,
+                    newComments: document.getElementById('comments-field').value,
+                    newOperator: document.getElementById('operator-field').value,
+                };
+
+                if (document.getElementById('image-field').value) {
+                    app.loading = true;
+                    console.log('attempting to upload image');
+                    form = new FormData(document.querySelector('form'));
+                    fetch('/api/upload_image/' + payload.pk, {
+                        method: "POST",
+                        credentials: "include",
+                        headers: {},
+                        body: form.get('image-field')
+                    }).then(function(response) {
+                        console.log('Image uploaded')
+                        response.json().then(function (data) {
+                            app.loading = false;
+                            app.detailFlight.image = data.url;
+                        })
+                    });
+                }
+                else {
+                    console.log('no picture');
+                }
+
+                fetch('{% url "edit_flight" %}', {
+                    method: "POST",
+                    credentials: "include",
+                    headers: {},
+                    body: JSON.stringify(payload),
+                }).then(
+                    function(response) {
+                        console.log('Response received. Attempting to interpret JSON...')
+                        response.json().then(function(data) {
+                            app.detailFlight = data;
+
+                            var changedFlight = app.flights.find(x => x.pk === payload.pk);
+                            changedFlight.airline = payload.newAirline;
+                            changedFlight.date = payload.newDate;
+                            changedFlight.plane = payload.newAircraft;
+                            changedFlight.airline = payload.newAirline;
+                            changedFlight.registration = payload.newRegistration;
+
+
+                            console.log('The following JSON has been imported and will be passed to the view:');
+                            console.log(JSON.stringify(app.detailFlight));
+                            console.log('editing' + app.editing.toString());
+                            console.log('detailFlight.pk' + app.detailFlight.id.toString());
+                            //document.getElementById('flight-' + id).style.backgroundColor = '#ccc';
+                        });
+                    }
+                );
+
+                console.log(payload);
+
+
                 app.editing = false;
             },
             moveFlightUp: function (id) {
-                nFlights = app.flights.length; // Why doesn't this work? look at vue documentation about for loop and changing order reactively
-                console.log(app.flights[nFlights - 1].pk);
-                var oldflight1 = app.flights[nFlights - 1];
-                var oldflight2 = app.flights[nFlights - 2];
-                app.flights[nFlights - 1] = oldflight2;
-                app.flights[nFlights - 2] = oldflight1;
+                var n = app.flights.findIndex(x => x.pk === id);
+                if (n != 0) {
+                    fetch('{% url "move_flights" %}', {
+                        method: "POST",
+                        credentials: "include",
+                        headers: {},
+                        body: JSON.stringify({
+                            id1: app.flights[n].pk,
+                            id2: app.flights[n-1].pk,
+                        })
+                    });
+                    var temp = app.flights[n-1];
+                    app.flights[n-1] = app.flights[n];
+                    app.flights[n] = temp;
+                    app.flights[n].airline = app.flights[n].airline + ' '; // Have to do this to make it reload...
+                }
+            },
+            moveFlightDown: function (id) {
+                var n = app.flights.findIndex(x => x.pk === id);
+                if (n != app.flights.length - 1) {
+                    fetch('{% url "move_flights" %}', {
+                        method: "POST",
+                        credentials: "include",
+                        headers: {},
+                        body: JSON.stringify({
+                            id1: app.flights[n].pk,
+                            id2: app.flights[n+1].pk,
+                        })
+                    });
+                    var temp = app.flights[n+1];
+                    app.flights[n+1] = app.flights[n];
+                    app.flights[n] = temp;
+                    app.flights[n].airline = app.flights[n].airline + ' '; // Have to do this to make it reload...
+                }
+            },
+            uploadImages: function (id) {
+
             },
             filter: function () {
                 var e = document.getElementById("airline-filter");
@@ -244,7 +653,7 @@
     })
 
     function populateFlights() {
-        app.loading = true;
+        //app.loading = true;
         console.log('Populating initial flight list from API...')
         fetch('/api/get_flights/{{ username }}').then(
             function(response) {
@@ -253,7 +662,7 @@
                     app.flights = data;
                     console.log('The following JSON has been imported and will be passed to the view:')
                     console.log(JSON.stringify(app.flights));
-                    app.loading = false;
+                    //app.loading = false;
                     populateFilter();
                 });
             }
@@ -274,10 +683,13 @@
 
     populateFlights();
 
+    function changeFile() {
+        app.selectedFilename = document.getElementById('image-field').files[0].name;
+    }
 
 </script>
 
-
+<!--
 
 <script>
     function editFlight(i) {
@@ -454,7 +866,7 @@
     $("#flightlist").on("click", ".fa-arrow-down", moveDown);
     $("#flightlist").on("click", ".fa-floppy-o", saveFlight);
     $("#flightlist").on("click", ".fa-trash", deleteFlight);
-</script>
+</script> -->
 
 
 

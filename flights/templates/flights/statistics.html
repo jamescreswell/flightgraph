@@ -10,11 +10,79 @@
 <!-- <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script> What was the point of this -->
 
 <script src="{% static 'flights/js/vue.js' %}"></script>
+
+
+<style>
+#leftnav2 {
+    margin: 16px;
+    text-align: left;
+    font-size: 13pt;
+    color: #666;
+    position: fixed;
+    left: 0;
+    top: 150px;
+}
+
+#leftnav2 a {
+    display: inline-block;
+    cursor: pointer;
+    margin-top: 8px;
+    margin-bottom: 8px;
+    border-bottom: 2px solid white;
+    text-decoration: none;
+    color: inherit;
+}
+
+#leftnav2 a:hover {
+    border-bottom: 2px solid #e41a1c;
+}
+
+.selecteddiv {
+    font-weight: 700;
+    color: #111;
+    border-bottom: 2px solid #888!important;
+}
+
+.selecteddiv:hover {
+    border-bottom: 2px solid #e41a1c!important;
+}
+
+#topname {
+    font-weight: 700;
+    font-size: 22pt;
+}
+
+#topnamecontainer {
+    margin: 16px;
+    padding: 8px;
+    border-bottom: 1px solid #ccc;
+    position: fixed;
+    left: 0;
+    top: 75px;
+}
+</style>
+
 {% endblock %}
+
 
 {% block content %}
 
 <div id="app">
+
+    <div id="topnamecontainer">
+        <div style="display: inline-block;">
+            <span id="topname">{% if profile %}{{ username }}{% else %}Flights{% endif %} {% if username == "admin" %}{% endif %}</span>
+        </div>
+    </div>
+
+    <div id="leftnav2">
+        <a href="{% if profile %}{% url 'home' profile_username %}{% else %}{% url 'home' %}{% endif %}">Overview</a><br>
+        <a href="{% if profile %}{% url 'profile_map' profile_username %}{% else %}{% url 'map' %}{% endif %}">Map</a><br>
+        <a href="{% if profile %}{% url 'profile_list' profile_username %}{% else %}{% url 'list' %}{% endif %}">List</a><br>
+        <a href="{% if profile %}{% url 'profile_statistics' profile_username %}{% else %}{% url 'statistics' %}{% endif %}" class="selecteddiv">Statistics</a><br>
+        {% if not profile %}<a href="">Add flight</a>{% endif %}
+    </div>
+
     <div class="column-left">
         <div id="table-parent">
             <table class="stattable">
@@ -110,7 +178,7 @@
                 </tr>
                 <template v-for="country in countries">
                     <tr>
-                        <td><img v-bind:src="'/static/flights/img/flags/24/' + country.country_iso + '.png'"> [[ country.country ]]</td>
+                        <td><img v-bind:src="'https://s3.amazonaws.com/flightgraph-static/static/flights/img/flags/24/' + country.country_iso + '.png'"> [[ country.country ]]</td>
                         <td>[[ country.count ]]</td>
                     </tr>
                     <tr class="break">

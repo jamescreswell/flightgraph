@@ -15,8 +15,8 @@ urlpatterns = [
     path('ajax/draw_list/<str:username>/', ajax.draw_list, name='draw_list'),
     path('ajax/draw_stats/<str:username>/', ajax.draw_stats, name='draw_stats'),
     path('ajax/draw_add/', ajax.draw_add, name='draw_add'),
-    url(r'^ajax/edit_flight/$', ajax.edit_flight, name='edit_flight'),
-    url(r'^ajax/move_flights/$', ajax.move_flights, name='move_flights'),
+    #url(r'^ajax/edit_flight/$', ajax.edit_flight, name='edit_flight'),
+    #url(r'^ajax/move_flights/$', ajax.move_flights, name='move_flights'),
     url(r'^ajax/delete_flight/$', ajax.delete_flight, name='delete_flight'),
     url(r'gcmap/export/$', views.export, name='export'),
     url(r'^flights/$', views.flights, name='flights'),
@@ -46,6 +46,10 @@ urlpatterns = [
 
 
     path('api/add_flight', api.add_flight, name='add_flight'),
+    path('api/upload_image', api.upload_image, name='upload_image'),
+    path('api/upload_image/<int:id>', api.upload_image, name='upload_image'),
+    path('api/move_flights', api.move_flights, name='move_flights'),
+    path('api/edit_flight', api.edit_flight, name='edit_flight'),
 
     path('mobile/', mobile_views.index, name='mobile_index'),
     path('mobile/flights/', mobile_views.flights, name='mobile_flights'),
@@ -114,8 +118,9 @@ urlpatterns = [
     path('profile/<str:username>/map', views.profile_map, name='profile_map'),
     path('profile/<str:username>/list', views.profile_list, name='profile_list'),
     path('profile/<str:username>/statistics', views.profile_statistics, name='profile_statistics'),
-    path('profile/<str:username>', views.profile_map),
-    path('profile/<str:username>/', views.profile_map),
+    path('profile/<str:username>', views.home),
+    #path('profile/<str:username>', views.profile_map),
+    #path('profile/<str:username>/', views.profile_map),
 
     path('testlist', views.testlist),
     path('teststats', views.teststats),

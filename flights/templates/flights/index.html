@@ -123,7 +123,7 @@
 
             <label>Picture</label>
             <input type="url" placeholder="Image link" name="image-link" autocomplete="off">
-            <input type="file" placeholder="Image" name="image-file" autocomplete="off">
+            <input type="file" placeholder="Image" name="image-file" autocomplete="off" accept="image/png, image/jpeg">
 
             <label>Comments</label>
             <input type="text" placeholder="Comments" name="comments" autocomplete="off">
@@ -141,13 +141,11 @@
         var n = d.toISOString().slice(0, 10);
         console.log(n);
         console.log(form.get('image-file'));
-        console.log(JSON.stringify({image_file: form.get('image-file')}));
 
-        // if (form.get('image-file') != null) {
-        //     upload_image(form.get('image-file'));
-        //     // Then just send the """filename""" in the JSON. Let Django figure out the rest. Also prevents seeing other users pics.
-        // }
 
+        // var fileList = document.getElementById('image-upload-id');
+        // var file = fileList[0];
+        // console.log(file);
         fetch("{% url 'add_flight' %}", {
             method: "POST",
             credentials: "include",
@@ -170,7 +168,9 @@
                 comments: form.get('comments'),
                 operator: form.get('operator'),
                 today: n == form.get('date'),
-                image_file: form.get('image-file'),
+                //image_file: form.get('image-file'),
+                image_file: 'test',
+                //image_file: r.result,
                 // csrfmiddlewaretoken: document.getElementsByName('csrfmiddlewaretoken')[0].value,
             }),
         }).then(function(response) {
@@ -187,9 +187,43 @@
                         document.getElementById('message').innerHTML += 'Welcome to ' + data.city + '!';
                     }
                     document.getElementById('message').innerHTML += '<input type="submit" value="Add another flight" onclick="resetAddForm();">';
+
+                    if (form.get('image-file')) {
+                        console.log('attempting to upload image');
+                        fetch("{% url 'upload_image' %}", {
+                            method: "POST",
+                            credentials: "include",
+                            headers: {
+                                "X-CSRFToken": document.getElementsByName('csrfmiddlewaretoken')[0].value,
+                            },
+                            body: form.get('image-file')
+                        }).then(function(response) {
+                            document.getElementById('message').innerHTML += '<br>Image successfully uploaded';
+                        });
+                    }
+                    else {
+                        console.log('not attempting to upload image');
+                    }
+
                 }
-            })
+            });
         });
+        //
+        // console.log(r.result);
+
+
+
+
+
+
+        //console.log(JSON.stringify({image_file: form.get('image-file')}));
+        //reader = new FileReader();
+        // if (form.get('image-file') != null) {
+        //     upload_image(form.get('image-file'));
+        //     // Then just send the """filename""" in the JSON. Let Django figure out the rest. Also prevents seeing other users pics.
+        // }
+
+
     }
 
     function resetAddForm() {
