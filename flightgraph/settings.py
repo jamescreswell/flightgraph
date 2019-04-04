@@ -139,8 +139,10 @@ LOGIN_REDIRECT_URL = '/map'
 APPEND_SLASH = False
 
 # New section cf. https://simpleisbetterthancomplex.com/tutorial/2017/08/01/how-to-setup-amazon-s3-in-a-django-project.html
-AWS_ACCESS_KEY_ID = 'AKIAIARY6HTZA66HFSTQ'
-AWS_SECRET_ACCESS_KEY = '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'
+#AWS_ACCESS_KEY_ID = 'AKIAIARY6HTZA66HFSTQ'
+AWS_ACCESS_KEY_ID = 'AKIAUZ2DAVKLO5FMLD2D'
+#AWS_SECRET_ACCESS_KEY = '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'
+AWS_SECRET_ACCESS_KEY = 'gXvFeN4whyBmX+ZmSw/yHFr48lQWjvyZ5EHQdDHf'
 AWS_STORAGE_BUCKET_NAME = 'flightgraph-static'
 AWS_S3_CUSTOM_DOMAIN = '%s.s3.amazonaws.com' % AWS_STORAGE_BUCKET_NAME
 AWS_S3_OBJECT_PARAMETERS = {
