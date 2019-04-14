@@ -50,6 +50,7 @@ urlpatterns = [
     path('api/upload_image/<int:id>', api.upload_image, name='upload_image'),
     path('api/move_flights', api.move_flights, name='move_flights'),
     path('api/edit_flight', api.edit_flight, name='edit_flight'),
+    path('api/delete_flight', api.delete_flight, name='delete_flight'),
 
     path('mobile/', mobile_views.index, name='mobile_index'),
     path('mobile/flights/', mobile_views.flights, name='mobile_flights'),

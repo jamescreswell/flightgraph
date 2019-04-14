@@ -146,6 +146,13 @@ def edit_flight(request):
 
     return get_flight_details(request, payload['pk'])
 
+@login_required
+@csrf_exempt
+def delete_flight(request):
+    Flight.objects.get(pk=json.loads(request.body)['id']).delete()
+    return HttpResponse('Flight deleted')
+
+
 def get_airport(request, airport_id):
     airport = Airport.objects.get(pk=airport_id)
     return JsonResponse({
