@@ -23,9 +23,9 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SECRET_KEY = '837g)bo)=)os%c-!*g*ukav%8ykpjlld*kjvkk+d^2hzk-@##n'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
-ALLOWED_HOSTS = ['35.171.98.155', 'flightgraph.eu', 'www.flightgraph.eu', '127.0.0.1', '192.168.0.20']
+ALLOWED_HOSTS = ['35.171.98.155', 'flightgraph.dk', 'www.flightgraph.dk', '127.0.0.1', '192.168.0.20']
 
 
 # Application definition
@@ -137,3 +137,4 @@ STATICFILES_DIRS = [
 LOGIN_REDIRECT_URL = '/map'
 
 APPEND_SLASH = False
+
